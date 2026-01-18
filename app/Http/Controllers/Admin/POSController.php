@@ -61,20 +61,49 @@ class POSController extends Controller
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'customer_id' => ['nullable', 'exists:customers,id'],
-            'items' => ['required', 'array', 'min:1'],
-            'items.*.product_id' => ['required', 'exists:products,id'],
-            'items.*.quantity' => ['required', 'integer', 'min:1'],
-            'items.*.unit_price' => ['required', 'numeric', 'min:0'],
-            'items.*.subtotal' => ['required', 'numeric', 'min:0'],
-            'total_amount' => ['required', 'numeric', 'min:0'],
-            'discount' => ['nullable', 'numeric', 'min:0'],
-            'tax' => ['nullable', 'numeric', 'min:0'],
-            'final_amount' => ['required', 'numeric', 'min:0'],
-            'payment_method' => ['required', 'in:cash,card,mobile_money'],
-            'payment_status' => ['required', 'in:completed,pending'],
-        ]);
+        // Handle JSON requests - parse and replace request data
+        $contentType = $request->header('Content-Type', '');
+        if (strpos($contentType, 'application/json') !== false || $request->isJson()) {
+            $jsonContent = $request->getContent();
+            if (!empty($jsonContent)) {
+                $jsonData = json_decode($jsonContent, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($jsonData)) {
+                    // Replace all request data with JSON data
+                    $request->replace($jsonData);
+                }
+            }
+        }
+
+        try {
+            $validated = $request->validate([
+                'customer_id' => ['nullable', 'exists:customers,id'],
+                'items' => ['required', 'array', 'min:1'],
+                'items.*.product_id' => ['required', 'exists:products,id'],
+                'items.*.quantity' => ['required', 'integer', 'min:1'],
+                'items.*.unit_price' => ['required', 'numeric', 'min:0'],
+                'items.*.subtotal' => ['required', 'numeric', 'min:0'],
+                'total_amount' => ['required', 'numeric', 'min:0'],
+                'discount' => ['nullable', 'numeric', 'min:0'],
+                'tax' => ['nullable', 'numeric', 'min:0'],
+                'final_amount' => ['required', 'numeric', 'min:0'],
+                'payment_method' => ['required', 'in:cash,card,mobile_money'],
+                'payment_status' => ['required', 'in:completed,pending'],
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            $errors = $e->validator->errors()->all();
+            \Log::error('POS Validation Error', [
+                'errors' => $errors,
+                'request_all' => $request->all(),
+                'content_type' => $request->header('Content-Type'),
+                'is_json' => $request->isJson(),
+                'raw_content' => substr($request->getContent(), 0, 500)
+            ]);
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed: ' . implode(', ', $errors),
+                'errors' => $e->validator->errors(),
+            ], 422);
+        }
 
         DB::beginTransaction();
         try {

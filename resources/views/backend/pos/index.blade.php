@@ -602,8 +602,6 @@
         }
     }
 
-    let pendingSaleData = null;
-
     function showConfirmModal() {
         const itemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
         const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
@@ -621,10 +619,15 @@
 
     function closeConfirmModal() {
         document.getElementById('confirm-sale-modal').classList.add('hidden');
-        pendingSaleData = null;
     }
 
     function proceedWithSale() {
+        // Safety check
+        if (!cart || cart.length === 0) {
+            showErrorModal('Cart is empty. Please add items before completing the sale.');
+            return;
+        }
+
         const customerId = document.getElementById('customer-select').value || null;
         const discount = parseFloat(document.getElementById('discount-input').value) || 0;
         const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
@@ -632,29 +635,67 @@
         const tax = taxableAmount * taxPercentage;
         const finalAmount = subtotal - discount + tax;
 
-        pendingSaleData = {
-            customer_id: customerId,
-            items: cart,
+        // Ensure cart items have the correct structure
+        const items = cart.map(item => {
+            if (!item.product_id || !item.quantity || !item.unit_price) {
+                console.error('Invalid cart item:', item);
+                return null;
+            }
+            return {
+                product_id: parseInt(item.product_id),
+                quantity: parseInt(item.quantity),
+                unit_price: parseFloat(item.unit_price),
+                subtotal: parseFloat(item.subtotal)
+            };
+        }).filter(item => item !== null);
+
+        if (items.length === 0) {
+            showErrorModal('No valid items in cart. Please check your cart.');
+            return;
+        }
+
+        // Build sale data object
+        const saleData = {
+            customer_id: customerId || null,
+            items: items,
             total_amount: subtotal,
             discount: discount,
             tax: tax,
             final_amount: finalAmount,
             payment_method: paymentMethod,
-            payment_status: 'completed',
-            _token: '{{ csrf_token() }}'
+            payment_status: 'completed'
         };
 
+        console.log('Sending sale data:', saleData);
+        console.log('Cart:', cart);
+        console.log('Items:', items);
+
         closeConfirmModal();
+
+        // Stringify the data right before sending
+        const jsonBody = JSON.stringify(saleData);
+        console.log('JSON body:', jsonBody);
 
         fetch('{{ route("admin.pos.store") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json'
             },
-            body: JSON.stringify(pendingSaleData)
+            body: jsonBody
         })
-        .then(response => response.json())
+        .then(response => {
+            // Check if response is actually JSON
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                return response.text().then(text => {
+                    console.error('Non-JSON response:', text);
+                    throw new Error('Server returned an error page instead of JSON. Please check the console for details.');
+                });
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 document.getElementById('success-sale-id').textContent = '#' + data.sale_id;
@@ -673,13 +714,12 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            showErrorModal('An error occurred. Please try again.');
+            showErrorModal(error.message || 'An error occurred. Please try again.');
         });
     }
 
     function closeSuccessModal() {
         document.getElementById('success-modal').classList.add('hidden');
-        pendingSaleData = null;
     }
 
     function showErrorModal(message) {

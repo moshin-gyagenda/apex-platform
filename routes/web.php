@@ -2,10 +2,12 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\FacultyController;
-use App\Http\Controllers\SecurityController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\SecurityController;
+use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\ProductModelController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
@@ -16,13 +18,15 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    // Dashboard route for Mubs Script Marking & Tracing System
+    // Dashboard route for Apex Platform
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
-    // User Management routes
+    // Admin routes
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
-        Route::resource('faculties', FacultyController::class);
+        Route::resource('categories', CategoryController::class);
+        Route::resource('brands', BrandController::class);
+        Route::resource('product-models', ProductModelController::class);
         
         // Security Routes
         Route::prefix('security')->name('security.')->group(function () {

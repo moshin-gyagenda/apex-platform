@@ -15,8 +15,8 @@
                     <!-- Logo -->
                     <img src="{{ asset('assets/images/logo.png') }}" alt="MUBS Logo" class="h-10 w-10 me-3 object-contain">
                     <div class="flex flex-col">
-                        <span class="self-center font-semibold whitespace-nowrap text-gray-900 text-base">MUBS</span>
-                        <span class="text-xs text-gray-500">Script Marking & Tracing</span>
+                        <span class="self-center font-semibold whitespace-nowrap text-gray-900 text-base">Apex</span>
+                        <span class="text-xs text-gray-500">Apex Platform</span>
                     </div>
                 </a>
             </div>

@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
     /**
-     * Display the dashboard index page for Mubs Script Marking & Tracing System
+     * Display the dashboard index page for Apex Platform
      */
     public function index()
     {
         return view('backend.dashboard.index');
     }
 }
-

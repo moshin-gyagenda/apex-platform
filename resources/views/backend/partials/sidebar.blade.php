@@ -17,117 +17,6 @@
                 <span class="ms-3 text-sm font-medium">Dashboard</span>
             </a>
 
-            <!-- Scripts -->
-            <details class="group">
-                <summary
-                    class="sidebar-item border-l-3 border-transparent flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-700 group text-sm transition-all duration-200 pl-3">
-                    <i data-lucide="file-text" class="w-5 h-5 text-gray-500 group-hover:text-primary-500 transition-colors"></i>
-                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Scripts</span>
-                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
-                </summary>
-                <div class="collapsible-content">
-                    <ul class="pl-6 mt-2 space-y-1">
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="file-text" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">All Scripts</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="file-plus" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">Add Script</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </details>
-
-            <!-- Marking -->
-            <details class="group">
-                <summary
-                    class="sidebar-item border-l-3 border-transparent flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-700 group text-sm transition-all duration-200 pl-3">
-                    <i data-lucide="check-circle" class="w-5 h-5 text-gray-500 group-hover:text-primary-500 transition-colors"></i>
-                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Marking</span>
-                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
-                </summary>
-                <div class="collapsible-content">
-                    <ul class="pl-6 mt-2 space-y-1">
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="check-square" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">Mark Scripts</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="clipboard-check" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">Marked Scripts</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </details>
-
-            <!-- Tracing -->
-            <details class="group">
-                <summary
-                    class="sidebar-item border-l-3 border-transparent flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-700 group text-sm transition-all duration-200 pl-3">
-                    <i data-lucide="search" class="w-5 h-5 text-gray-500 group-hover:text-primary-500 transition-colors"></i>
-                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Tracing</span>
-                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
-                </summary>
-                <div class="collapsible-content">
-                    <ul class="pl-6 mt-2 space-y-1">
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="search" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">Trace Script</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="map-pin" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">Script History</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </details>
-
-            <!-- Reports -->
-            <details class="group">
-                <summary
-                    class="sidebar-item border-l-3 border-transparent flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-700 group text-sm transition-all duration-200 pl-3">
-                    <i data-lucide="chart-line" class="w-5 h-5 text-gray-500 group-hover:text-primary-500 transition-colors"></i>
-                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Reports</span>
-                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
-                </summary>
-                <div class="collapsible-content">
-                    <ul class="pl-6 mt-2 space-y-1">
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="file-text" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">Generate Report</span>
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#"
-                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150">
-                                <i data-lucide="download" class="w-4 h-4 mr-2 text-gray-400 group-hover:text-primary-500 transition-colors"></i>
-                                <span class="text-sm font-medium">Export Data</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </details>
 
             <!-- User Management -->
             <details class="group">
@@ -175,10 +64,24 @@
                        <div class="collapsible-content">
                            <ul class="pl-6 mt-2 space-y-1">
                                <li>
-                                   <a href="{{ route('admin.faculties.index') }}"
-                                       class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.faculties.*') ? 'bg-primary-50 text-primary-600' : '' }}">
-                                       <i data-lucide="school" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.faculties.*') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
-                                       <span class="text-sm font-medium">Faculty</span>
+                                   <a href="{{ route('admin.categories.index') }}"
+                                       class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.categories.*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                       <i data-lucide="folder" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.categories.*') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                       <span class="text-sm font-medium">Categories</span>
+                                   </a>
+                               </li>
+                               <li>
+                                   <a href="{{ route('admin.brands.index') }}"
+                                       class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.brands.*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                       <i data-lucide="tag" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.brands.*') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                       <span class="text-sm font-medium">Brands</span>
+                                   </a>
+                               </li>
+                               <li>
+                                   <a href="{{ route('admin.product-models.index') }}"
+                                       class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.product-models.*') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                       <i data-lucide="package" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.product-models.*') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                       <span class="text-sm font-medium">Product Models</span>
                                    </a>
                                </li>
                            </ul>

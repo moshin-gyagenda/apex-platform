@@ -1,59 +1,296 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Apex Platform - Inventory Management System
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive inventory and stock management system built with Laravel 12, featuring Point of Sale (POS), product management, purchase tracking, and sales analytics.
 
-## About Laravel
+## 🚀 Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### Core Modules
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Point of Sale (POS)**
+  - Real-time product search and cart management
+  - Barcode scanning support
+  - Multiple payment methods (Cash, Card, Mobile Money)
+  - Tax calculation and discount management
+  - Customer selection and transaction history
+  - Modern, intuitive POS interface
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Product Management**
+  - Categories, Brands, and Product Models
+  - Full product catalog with images
+  - SKU and barcode management
+  - Stock tracking with reorder levels
+  - Product specifications (dynamic key-value pairs)
+  - Cost and selling price management
 
-## Learning Laravel
+- **Inventory Management**
+  - Real-time stock tracking
+  - Low stock alerts
+  - Stock adjustments through purchases and sales
+  - Product availability monitoring
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+- **Purchase Management**
+  - Supplier management
+  - Purchase orders and invoices
+  - Purchase items tracking
+  - Automatic stock updates on purchase
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+- **Sales Management**
+  - Complete sales history
+  - Customer management
+  - Sales reports and analytics
+  - Payment method tracking
+  - Transaction details
 
-## Laravel Sponsors
+- **User & Security**
+  - User management with roles and permissions (Spatie)
+  - Security monitoring and logging
+  - IP blocking capabilities
+  - Activity tracking
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Settings**
+  - Tax rate configuration
+  - Application-wide settings management
 
-### Premium Partners
+## 🛠️ Technology Stack
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- **Backend**: Laravel 12.x
+- **Frontend**: Tailwind CSS 4.x, Alpine.js (via Livewire)
+- **Authentication**: Laravel Jetstream (Sanctum)
+- **Permissions**: Spatie Laravel Permission
+- **Real-time**: Livewire 3.x
+- **Build Tool**: Vite
+- **PHP**: 8.2+
 
-## Contributing
+## 📋 Requirements
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+- PHP >= 8.2
+- Composer
+- Node.js >= 18.x and NPM
+- MySQL/PostgreSQL/SQLite
+- Web server (Apache/Nginx) or PHP built-in server
 
-## Code of Conduct
+## 🔧 Installation
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd apex-platform
+   ```
 
-## Security Vulnerabilities
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+3. **Install Node dependencies**
+   ```bash
+   npm install
+   ```
 
-## License
+4. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+5. **Configure your `.env` file**
+   ```env
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=apex_platform
+   DB_USERNAME=your_username
+   DB_PASSWORD=your_password
+   ```
+
+6. **Run migrations and seeders**
+   ```bash
+   php artisan migrate --seed
+   ```
+
+7. **Build frontend assets**
+   ```bash
+   npm run build
+   # Or for development:
+   npm run dev
+   ```
+
+8. **Start the development server**
+   ```bash
+   php artisan serve
+   ```
+
+   Or use the provided dev script:
+   ```bash
+   composer run dev
+   ```
+
+## 📦 Database Setup
+
+The application includes seeders for:
+- Default categories
+- Sample brands
+- Product models
+- Sample products
+- Suppliers and customers
+- Initial tax settings (default: 0%)
+
+## 🔐 Default Credentials
+
+After running migrations and seeders, you'll need to create your first user. Use Laravel's registration page or create one via tinker:
+
+```bash
+php artisan tinker
+```
+
+Then create a user:
+```php
+$user = \App\Models\User::create([
+    'name' => 'Admin',
+    'email' => 'admin@example.com',
+    'password' => bcrypt('password'),
+    'email_verified_at' => now(),
+]);
+```
+
+## 📁 Project Structure
+
+```
+apex-platform/
+├── app/
+│   ├── Http/Controllers/Admin/
+│   │   ├── POSController.php          # Point of Sale
+│   │   ├── ProductController.php      # Products management
+│   │   ├── SaleController.php         # Sales tracking
+│   │   ├── PurchaseController.php     # Purchases management
+│   │   └── ...
+│   └── Models/
+│       ├── Product.php
+│       ├── Sale.php
+│       ├── Purchase.php
+│       └── ...
+├── database/
+│   ├── migrations/                    # Database migrations
+│   └── seeders/                       # Database seeders
+├── resources/
+│   └── views/
+│       └── backend/
+│           ├── pos/                   # POS views
+│           ├── products/              # Product views
+│           ├── sales/                 # Sales views
+│           └── ...
+└── routes/
+    └── web.php                        # Application routes
+```
+
+## 🎯 Key Features in Detail
+
+### Point of Sale (POS)
+- Search products by name, SKU, or barcode
+- Add items to cart with quantity control
+- Apply discounts and calculate tax automatically
+- Select payment method (Cash, Card, Mobile Money)
+- Assign sales to customers (optional)
+- Real-time stock updates
+- Print receipts capability (ready for integration)
+
+### Product Management
+- Multi-level categorization
+- Brand and model associations
+- Image uploads with preview
+- Dynamic specifications field
+- Stock level monitoring
+- Cost and selling price tracking
+- Barcode and SKU generation
+
+### Inventory Tracking
+- Automatic stock deduction on sales
+- Automatic stock addition on purchases
+- Low stock alerts
+- Out of stock indicators
+- Reorder level management
+
+## 🔒 Security Features
+
+- Laravel Sanctum authentication
+- Role-based access control (RBAC)
+- Security monitoring middleware
+- IP blocking capabilities
+- Activity logging
+- CSRF protection
+
+## 📊 Available Commands
+
+```bash
+# Development
+composer run dev              # Start dev server with queue and vite
+php artisan serve             # Start Laravel dev server
+npm run dev                   # Start Vite dev server
+
+# Database
+php artisan migrate           # Run migrations
+php artisan migrate:fresh     # Fresh migration with seeders
+php artisan db:seed           # Run seeders
+
+# Optimization
+php artisan config:cache      # Cache configuration
+php artisan route:cache       # Cache routes
+php artisan view:cache        # Cache views
+
+# Testing
+composer run test             # Run tests
+php artisan test              # Run Pest tests
+```
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📝 License
+
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+## 👨‍💻 Development
+
+### Code Style
+This project uses Laravel Pint for code formatting:
+```bash
+./vendor/bin/pint
+```
+
+### Testing
+Tests are written using Pest:
+```bash
+php artisan test
+```
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Assets not loading**
+   ```bash
+   npm run build
+   php artisan view:clear
+   ```
+
+2. **Permission errors**
+   ```bash
+   php artisan storage:link
+   chmod -R 775 storage bootstrap/cache
+   ```
+
+3. **Cache issues**
+   ```bash
+   php artisan config:clear
+   php artisan cache:clear
+   php artisan view:clear
+   ```
+
+## 📧 Support
+
+For issues, questions, or contributions, please open an issue on the repository.
+
+---
+
+Built with ❤️ using Laravel 12

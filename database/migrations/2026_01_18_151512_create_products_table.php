@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('sku')->unique();
             $table->string('barcode')->nullable()->unique();
             $table->text('description')->nullable();
+            $table->string('image')->nullable();
             $table->decimal('cost_price', 10, 2);
             $table->decimal('selling_price', 10, 2);
             $table->integer('quantity')->default(0);

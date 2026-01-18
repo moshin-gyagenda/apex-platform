@@ -8,6 +8,11 @@ use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\ProductModelController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\SupplierController;
+use App\Http\Controllers\Admin\PurchaseController;
+use App\Http\Controllers\Admin\CustomerController;
+use App\Http\Controllers\Admin\POSController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
@@ -27,6 +32,17 @@ Route::middleware([
         Route::resource('categories', CategoryController::class);
         Route::resource('brands', BrandController::class);
         Route::resource('product-models', ProductModelController::class);
+        Route::resource('products', ProductController::class);
+        Route::resource('suppliers', SupplierController::class);
+        Route::resource('purchases', PurchaseController::class);
+        Route::resource('customers', CustomerController::class);
+        
+        // POS Routes
+        Route::prefix('pos')->name('pos.')->group(function () {
+            Route::get('/', [POSController::class, 'index'])->name('index');
+            Route::post('/', [POSController::class, 'store'])->name('store');
+            Route::get('/search-product', [POSController::class, 'searchProduct'])->name('search-product');
+        });
         
         // Security Routes
         Route::prefix('security')->name('security.')->group(function () {

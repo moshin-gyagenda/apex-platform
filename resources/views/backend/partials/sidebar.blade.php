@@ -53,8 +53,45 @@
                        <span class="ms-3 text-sm font-medium">Security Monitoring</span>
                    </a>
 
-                   <!-- Settings -->
-                   <details class="group">
+                   
+
+            <!-- Point of Sale -->
+            <a href="{{ route('admin.pos.index') }}"
+                class="sidebar-item border-l-3 {{ request()->routeIs('admin.pos.*') ? 'border-primary-500 bg-primary-50' : 'border-transparent' }} flex items-center p-2 text-gray-600 rounded-lg hover:bg-primary-50 hover:text-primary-600 group text-sm transition-all duration-200 pl-3">
+                <i data-lucide="terminal" class="w-5 h-5 {{ request()->routeIs('admin.pos.*') ? 'text-primary-500' : 'text-gray-500' }} group-hover:text-primary-500 transition-colors"></i>
+                <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Point of Sale</span>
+            </a>
+
+            <!-- Products -->
+            <details class="group">
+                <summary
+                    class="sidebar-item border-l-3 {{ request()->routeIs('admin.products.*') ? 'border-primary-500 bg-primary-50' : 'border-transparent' }} flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-primary-50 hover:text-primary-600 group text-sm transition-all duration-200 pl-3">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 {{ request()->routeIs('admin.products.*') ? 'text-primary-500' : 'text-gray-500' }} group-hover:text-primary-500 transition-colors"></i>
+                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Products</span>
+                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
+                </summary>
+                <div class="collapsible-content">
+                    <ul class="pl-6 mt-2 space-y-1">
+                        <li>
+                            <a href="{{ route('admin.products.index') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.products.index') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="list" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.products.index') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">All Products</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.products.create') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.products.create') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="plus" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.products.create') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">Add New Product</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- Settings -->
+            <details class="group">
                        <summary
                            class="sidebar-item border-l-3 border-transparent flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-gray-100 hover:text-gray-700 group text-sm transition-all duration-200 pl-3">
                            <i data-lucide="settings" class="w-5 h-5 text-gray-500 group-hover:text-primary-500 transition-colors"></i>
@@ -87,6 +124,90 @@
                            </ul>
                        </div>
                    </details>
+
+            <!-- Suppliers -->
+            <details class="group">
+                <summary
+                    class="sidebar-item border-l-3 {{ request()->routeIs('admin.suppliers.*') ? 'border-primary-500 bg-primary-50' : 'border-transparent' }} flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-primary-50 hover:text-primary-600 group text-sm transition-all duration-200 pl-3">
+                    <i data-lucide="truck" class="w-5 h-5 {{ request()->routeIs('admin.suppliers.*') ? 'text-primary-500' : 'text-gray-500' }} group-hover:text-primary-500 transition-colors"></i>
+                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Suppliers</span>
+                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
+                </summary>
+                <div class="collapsible-content">
+                    <ul class="pl-6 mt-2 space-y-1">
+                        <li>
+                            <a href="{{ route('admin.suppliers.index') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.suppliers.index') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="list" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.suppliers.index') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">All Suppliers</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.suppliers.create') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.suppliers.create') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="plus" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.suppliers.create') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">Add New Supplier</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- Purchases -->
+            <details class="group">
+                <summary
+                    class="sidebar-item border-l-3 {{ request()->routeIs('admin.purchases.*') ? 'border-primary-500 bg-primary-50' : 'border-transparent' }} flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-primary-50 hover:text-primary-600 group text-sm transition-all duration-200 pl-3">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 {{ request()->routeIs('admin.purchases.*') ? 'text-primary-500' : 'text-gray-500' }} group-hover:text-primary-500 transition-colors"></i>
+                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Purchases</span>
+                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
+                </summary>
+                <div class="collapsible-content">
+                    <ul class="pl-6 mt-2 space-y-1">
+                        <li>
+                            <a href="{{ route('admin.purchases.index') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.purchases.index') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="list" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.purchases.index') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">All Purchases</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.purchases.create') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.purchases.create') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="plus" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.purchases.create') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">Add New Purchase</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </details>
+
+            <!-- Customers -->
+            <details class="group">
+                <summary
+                    class="sidebar-item border-l-3 {{ request()->routeIs('admin.customers.*') ? 'border-primary-500 bg-primary-50' : 'border-transparent' }} flex items-center p-2 text-gray-600 rounded-lg cursor-pointer hover:bg-primary-50 hover:text-primary-600 group text-sm transition-all duration-200 pl-3">
+                    <i data-lucide="users" class="w-5 h-5 {{ request()->routeIs('admin.customers.*') ? 'text-primary-500' : 'text-gray-500' }} group-hover:text-primary-500 transition-colors"></i>
+                    <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Customers</span>
+                    <i data-lucide="chevron-right" class="chevron-icon ml-auto w-4 h-4 text-gray-400 transition-transform duration-200"></i>
+                </summary>
+                <div class="collapsible-content">
+                    <ul class="pl-6 mt-2 space-y-1">
+                        <li>
+                            <a href="{{ route('admin.customers.index') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.customers.index') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="list" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.customers.index') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">All Customers</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.customers.create') }}"
+                                class="sidebar-item flex items-center p-2 text-gray-600 rounded-lg hover:bg-gray-100 hover:text-gray-700 text-sm transition-all duration-150 {{ request()->routeIs('admin.customers.create') ? 'bg-primary-50 text-primary-600' : '' }}">
+                                <i data-lucide="plus" class="w-4 h-4 mr-2 {{ request()->routeIs('admin.customers.create') ? 'text-primary-500' : 'text-gray-400' }} group-hover:text-primary-500 transition-colors"></i>
+                                <span class="text-sm font-medium">Add New Customer</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </details>
         </div>
     </div>
 

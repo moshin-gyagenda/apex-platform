@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Brand;
 use App\Models\ProductModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -103,6 +104,7 @@ class ProductController extends Controller
             'sku' => ['required', 'string', 'max:255', 'unique:products,sku'],
             'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode'],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'selling_price' => ['required', 'numeric', 'min:0'],
             'quantity' => ['required', 'integer', 'min:0'],
@@ -111,6 +113,12 @@ class ProductController extends Controller
             'warranty_months' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', 'in:active,inactive'],
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('products', 'public');
+            $validated['image'] = $imagePath;
+        }
 
         Product::create($validated);
 
@@ -152,6 +160,7 @@ class ProductController extends Controller
             'sku' => ['required', 'string', 'max:255', 'unique:products,sku,' . $product->id],
             'barcode' => ['nullable', 'string', 'max:255', 'unique:products,barcode,' . $product->id],
             'description' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'cost_price' => ['required', 'numeric', 'min:0'],
             'selling_price' => ['required', 'numeric', 'min:0'],
             'quantity' => ['required', 'integer', 'min:0'],
@@ -160,6 +169,16 @@ class ProductController extends Controller
             'warranty_months' => ['nullable', 'integer', 'min:0'],
             'status' => ['required', 'in:active,inactive'],
         ]);
+
+        // Handle image upload
+        if ($request->hasFile('image')) {
+            // Delete old image if exists
+            if ($product->image && Storage::disk('public')->exists($product->image)) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $imagePath = $request->file('image')->store('products', 'public');
+            $validated['image'] = $imagePath;
+        }
 
         $product->update($validated);
 

@@ -201,7 +201,7 @@
                         >
                     </div>
                     <div class="flex justify-between text-sm">
-                        <span class="text-gray-600">Tax (18%):</span>
+                        <span class="text-gray-600">Tax ({{ number_format($taxPercentage, 2) }}%):</span>
                         <span class="font-medium text-gray-800" id="cart-tax">0 UGX</span>
                     </div>
                 </div>
@@ -365,11 +365,100 @@
     </div>
 </div>
 
+<!-- Confirmation Modal -->
+<div id="confirm-sale-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeConfirmModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center">
+                        <i data-lucide="shopping-cart" class="w-6 h-6 text-primary-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Complete Sale</h3>
+                        <p class="text-sm text-gray-600 mb-4">Are you sure you want to complete this sale?</p>
+                        <div class="bg-gray-50 rounded-lg p-3 mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">Items:</span>
+                                <span class="font-medium text-gray-800" id="confirm-items-count"></span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-600">Total:</span>
+                                <span class="font-semibold text-primary-600" id="confirm-total-amount"></span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Payment:</span>
+                                <span class="font-medium text-gray-800 capitalize" id="confirm-payment-method"></span>
+                            </div>
+                        </div>
+                        <div class="flex gap-3">
+                            <button onclick="proceedWithSale()" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors">
+                                <i data-lucide="check" class="w-4 h-4 inline mr-1"></i>
+                                Confirm
+                            </button>
+                            <button onclick="closeConfirmModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="success-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeSuccessModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex flex-col items-center text-center">
+                    <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                        <i data-lucide="check-circle" class="w-10 h-10 text-green-600"></i>
+                    </div>
+                    <h3 class="text-xl font-semibold text-gray-800 mb-2">Sale Completed Successfully!</h3>
+                    <p class="text-sm text-gray-600 mb-1">Sale ID: <span class="font-medium text-primary-600" id="success-sale-id"></span></p>
+                    <p class="text-sm text-gray-500 mb-6">The sale has been processed and items have been updated in stock.</p>
+                    <button onclick="closeSuccessModal()" class="w-full px-4 py-2 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors">
+                        Continue
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Error Modal -->
+<div id="error-modal" class="hidden fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeErrorModal()"></div>
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full">
+            <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                        <i data-lucide="alert-circle" class="w-6 h-6 text-red-600"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Error</h3>
+                        <p class="text-sm text-gray-600 mb-4" id="error-message"></p>
+                        <button onclick="closeErrorModal()" class="w-full px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+                            Close
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
 <script>
     const products = @json($productsJson);
+    const taxPercentage = {{ $taxPercentage }} / 100; // Convert percentage to decimal
     let cart = [];
     let paymentMethod = 'cash';
 
@@ -465,7 +554,7 @@
                 existingItem.quantity++;
                 existingItem.subtotal = existingItem.quantity * existingItem.unit_price;
             } else {
-                alert(`Only ${product.quantity} units available in stock.`);
+                showErrorModal(`Only ${product.quantity} units available in stock for ${product.name}.`);
                 return;
             }
         } else {
@@ -497,7 +586,7 @@
             return;
         }
         if (newQuantity > product.quantity) {
-            alert(`Only ${product.quantity} units available in stock.`);
+            showErrorModal(`Only ${product.quantity} units available in stock.`);
             return;
         }
         
@@ -511,6 +600,95 @@
             cart = [];
             updateCartDisplay();
         }
+    }
+
+    let pendingSaleData = null;
+
+    function showConfirmModal() {
+        const itemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+        const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
+        const discount = parseFloat(document.getElementById('discount-input').value) || 0;
+        const taxableAmount = Math.max(0, subtotal - discount);
+        const tax = taxableAmount * taxPercentage;
+        const finalAmount = subtotal - discount + tax;
+
+        document.getElementById('confirm-items-count').textContent = itemsCount + ' items';
+        document.getElementById('confirm-total-amount').textContent = formatCurrency(finalAmount);
+        document.getElementById('confirm-payment-method').textContent = paymentMethod.replace('_', ' ');
+        
+        document.getElementById('confirm-sale-modal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+        document.getElementById('confirm-sale-modal').classList.add('hidden');
+        pendingSaleData = null;
+    }
+
+    function proceedWithSale() {
+        const customerId = document.getElementById('customer-select').value || null;
+        const discount = parseFloat(document.getElementById('discount-input').value) || 0;
+        const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
+        const taxableAmount = Math.max(0, subtotal - discount);
+        const tax = taxableAmount * taxPercentage;
+        const finalAmount = subtotal - discount + tax;
+
+        pendingSaleData = {
+            customer_id: customerId,
+            items: cart,
+            total_amount: subtotal,
+            discount: discount,
+            tax: tax,
+            final_amount: finalAmount,
+            payment_method: paymentMethod,
+            payment_status: 'completed',
+            _token: '{{ csrf_token() }}'
+        };
+
+        closeConfirmModal();
+
+        fetch('{{ route("admin.pos.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify(pendingSaleData)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('success-sale-id').textContent = '#' + data.sale_id;
+                document.getElementById('success-modal').classList.remove('hidden');
+                
+                cart = [];
+                updateCartDisplay();
+                document.getElementById('customer-select').value = '';
+                document.getElementById('discount-input').value = '0';
+                calculateTotal();
+                setPaymentMethod('cash');
+                document.getElementById('product-search').focus();
+            } else {
+                showErrorModal(data.message || 'An error occurred while processing the sale.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorModal('An error occurred. Please try again.');
+        });
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('success-modal').classList.add('hidden');
+        pendingSaleData = null;
+    }
+
+    function showErrorModal(message) {
+        document.getElementById('error-message').textContent = message;
+        document.getElementById('error-modal').classList.remove('hidden');
+    }
+
+    function closeErrorModal() {
+        document.getElementById('error-modal').classList.add('hidden');
     }
 
     function updateCartDisplay() {
@@ -566,7 +744,7 @@
         const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
         const discount = parseFloat(document.getElementById('discount-input').value) || 0;
         const taxableAmount = Math.max(0, subtotal - discount);
-        const tax = taxableAmount * 0.18; // 18% tax
+        const tax = taxableAmount * taxPercentage;
         const total = subtotal - discount + tax;
 
         document.getElementById('cart-subtotal').textContent = formatCurrency(subtotal);
@@ -590,56 +768,11 @@
 
     function completeSale() {
         if (cart.length === 0) {
-            alert('Cart is empty');
+            showErrorModal('Cart is empty. Please add items before completing the sale.');
             return;
         }
 
-        const customerId = document.getElementById('customer-select').value || null;
-        const discount = parseFloat(document.getElementById('discount-input').value) || 0;
-        const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
-        const taxableAmount = Math.max(0, subtotal - discount);
-        const tax = taxableAmount * 0.18;
-        const finalAmount = subtotal - discount + tax;
-
-        const saleData = {
-            customer_id: customerId,
-            items: cart,
-            total_amount: subtotal,
-            discount: discount,
-            tax: tax,
-            final_amount: finalAmount,
-            payment_method: paymentMethod,
-            payment_status: 'completed',
-            _token: '{{ csrf_token() }}'
-        };
-
-        fetch('{{ route("admin.pos.store") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify(saleData)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert('Sale completed successfully!');
-                cart = [];
-                updateCartDisplay();
-                document.getElementById('customer-select').value = '';
-                document.getElementById('discount-input').value = '0';
-                calculateTotal();
-                setPaymentMethod('cash');
-                document.getElementById('barcode-scanner').focus();
-            } else {
-                alert('Error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('An error occurred. Please try again.');
-        });
+        showConfirmModal();
     }
 
     function formatCurrency(amount) {
@@ -759,10 +892,21 @@
         }
     }
 
-    // Close modal on Escape key
+    // Close modals on Escape key
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
-            closeProductModal();
+            if (!document.getElementById('product-info-modal').classList.contains('hidden')) {
+                closeProductModal();
+            }
+            if (!document.getElementById('confirm-sale-modal').classList.contains('hidden')) {
+                closeConfirmModal();
+            }
+            if (!document.getElementById('success-modal').classList.contains('hidden')) {
+                closeSuccessModal();
+            }
+            if (!document.getElementById('error-modal').classList.contains('hidden')) {
+                closeErrorModal();
+            }
         }
     });
 </script>

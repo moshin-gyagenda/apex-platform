@@ -7,6 +7,7 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -49,7 +50,10 @@ class POSController extends Controller
             })
             ->toArray();
         
-        return view('backend.pos.index', compact('products', 'customers', 'productsJson'));
+        // Get tax percentage from settings (default to 0%)
+        $taxPercentage = Setting::get('tax_rate', 0);
+        
+        return view('backend.pos.index', compact('products', 'customers', 'productsJson', 'taxPercentage'));
     }
 
     /**

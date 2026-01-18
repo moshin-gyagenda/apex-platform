@@ -13,6 +13,8 @@ use App\Http\Controllers\Admin\SupplierController;
 use App\Http\Controllers\Admin\PurchaseController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\POSController;
+use App\Http\Controllers\Admin\TaxSettingsController;
+use App\Http\Controllers\Admin\SaleController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
@@ -36,12 +38,22 @@ Route::middleware([
         Route::resource('suppliers', SupplierController::class);
         Route::resource('purchases', PurchaseController::class);
         Route::resource('customers', CustomerController::class);
+        Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
+        Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
         
         // POS Routes
         Route::prefix('pos')->name('pos.')->group(function () {
             Route::get('/', [POSController::class, 'index'])->name('index');
             Route::post('/', [POSController::class, 'store'])->name('store');
             Route::get('/search-product', [POSController::class, 'searchProduct'])->name('search-product');
+        });
+        
+        // Settings Routes
+        Route::prefix('settings')->name('settings.')->group(function () {
+            Route::prefix('tax')->name('tax.')->group(function () {
+                Route::get('/edit', [TaxSettingsController::class, 'edit'])->name('edit');
+                Route::put('/update', [TaxSettingsController::class, 'update'])->name('update');
+            });
         });
         
         // Security Routes

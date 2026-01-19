@@ -2,51 +2,150 @@
 @section('content')
 
 <div class="p-4 sm:ml-64 mt-16 flex flex-col min-h-screen">
-<!-- POS Header -->
-    <div class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between flex-shrink-0">
+    <!-- POS Header -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-4 px-6 py-4 flex items-center justify-between flex-shrink-0">
         <div class="flex items-center gap-4">
-            <h1 class="text-2xl font-bold text-gray-800">Point of Sale</h1>
-            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
+                    <i data-lucide="shopping-cart" class="w-6 h-6 text-primary-500"></i>
+                    Point of Sale
+                </h1>
+                <p class="text-sm text-gray-500 mt-1">Cashier: <span class="font-medium text-gray-700">{{ auth()->user()->name }}</span></p>
+            </div>
+            <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200 flex items-center gap-1">
+                <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 Online
             </span>
         </div>
-        <div class="flex items-center gap-3">
-            <div class="text-right">
-                <p class="text-xs text-gray-500">Cashier</p>
-                <p class="text-sm font-medium text-gray-800">{{ auth()->user()->name }}</p>
-            </div>
-            <a href="{{ route('dashboard') }}" class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm font-medium">
-                <i data-lucide="arrow-left" class="w-4 h-4 inline mr-2"></i>
-                Back to Dashboard
-            </a>
-        </div>
+        <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
+            Dashboard
+        </a>
     </div>
 
     <div class="flex flex-1 overflow-hidden">
         <!-- Left Panel: Products -->
         <div class="w-2/3 flex flex-col border-r border-gray-200 bg-white overflow-hidden">
             <!-- Search and Filters -->
-            <div class="p-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+            <div class="p-4 border-b border-gray-200 bg-white flex-shrink-0 space-y-3">
+                <!-- Search Bar -->
                 <div class="flex gap-2">
                     <div class="flex-1 relative">
                         <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                         <input
                             type="text"
                             id="product-search"
-                            placeholder="Product Name, SKU or Barcode..."
+                            placeholder="Search by Product Name, SKU or Barcode..."
                             autofocus
-                            class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200"
+                            class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition"
                         >
                     </div>
                     <button 
                         type="button"
-                        onclick="clearSearch()"
-                        class="px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                        id="clear-search-btn"
+                        onclick="clearAllFilters()"
+                        class="px-4 py-2.5 text-sm text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2"
+                        id="clear-all-btn"
                         style="display: none;"
                     >
-                        Clear
+                        <i data-lucide="x" class="w-4 h-4"></i>
+                        Clear All
                     </button>
+                </div>
+                
+                <!-- Filter Row -->
+                <div class="grid grid-cols-3 gap-3">
+                    <!-- Category Filter -->
+                    <div class="searchable-select-container relative" data-select-id="category-filter">
+                        <label class="block text-xs font-medium text-gray-700 mb-1.5">
+                            <i data-lucide="tag" class="w-3 h-3 inline mr-1"></i>
+                            Category
+                        </label>
+                        <div class="selected-display relative mt-1 py-2.5 px-3 border border-gray-300 rounded-lg bg-white cursor-pointer hover:border-primary-500 transition focus-within:border-primary-500">
+                            <div class="selected-text text-sm text-gray-500 pr-6">All Categories</div>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none flex-shrink-0"></i>
+                        </div>
+                        <div class="dropdown-container hidden absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                            <div class="p-2 sticky top-0 bg-white border-b border-gray-200">
+                                <input type="text" class="search-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="Search categories...">
+                            </div>
+                            <div class="options-list max-h-48 overflow-y-auto">
+                                <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">All Categories</div>
+                                @foreach($categories as $category)
+                                    <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $category->id }}">
+                                        {{ $category->name }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <select id="category-filter" class="hidden">
+                            <option value="">All Categories</option>
+                            @foreach($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Brand Filter -->
+                    <div class="searchable-select-container relative" data-select-id="brand-filter">
+                        <label class="block text-xs font-medium text-gray-700 mb-1.5">
+                            <i data-lucide="award" class="w-3 h-3 inline mr-1"></i>
+                            Brand
+                        </label>
+                        <div class="selected-display relative mt-1 py-2.5 px-3 border border-gray-300 rounded-lg bg-white cursor-pointer hover:border-primary-500 transition focus-within:border-primary-500">
+                            <div class="selected-text text-sm text-gray-500 pr-6">All Brands</div>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none flex-shrink-0"></i>
+                        </div>
+                        <div class="dropdown-container hidden absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                            <div class="p-2 sticky top-0 bg-white border-b border-gray-200">
+                                <input type="text" class="search-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="Search brands...">
+                            </div>
+                            <div class="options-list max-h-48 overflow-y-auto">
+                                <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">All Brands</div>
+                                @foreach($brands as $brand)
+                                    <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $brand->id }}">
+                                        {{ $brand->name }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <select id="brand-filter" class="hidden">
+                            <option value="">All Brands</option>
+                            @foreach($brands as $brand)
+                                <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <!-- Product Model Filter -->
+                    <div class="searchable-select-container relative" data-select-id="model-filter">
+                        <label class="block text-xs font-medium text-gray-700 mb-1.5">
+                            <i data-lucide="box" class="w-3 h-3 inline mr-1"></i>
+                            Product Model
+                        </label>
+                        <div class="selected-display relative mt-1 py-2.5 px-3 border border-gray-300 rounded-lg bg-white cursor-pointer hover:border-primary-500 transition focus-within:border-primary-500">
+                            <div class="selected-text text-sm text-gray-500 pr-6">All Models</div>
+                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none flex-shrink-0"></i>
+                        </div>
+                        <div class="dropdown-container hidden absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                            <div class="p-2 sticky top-0 bg-white border-b border-gray-200">
+                                <input type="text" class="search-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="Search models...">
+                            </div>
+                            <div class="options-list max-h-48 overflow-y-auto">
+                                <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">All Models</div>
+                                @foreach($productModels as $model)
+                                    <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $model->id }}">
+                                        {{ $model->name }}
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        <select id="model-filter" class="hidden">
+                            <option value="">All Models</option>
+                            @foreach($productModels as $model)
+                                <option value="{{ $model->id }}">{{ $model->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -80,6 +179,9 @@
                             data-product-name="{{ strtolower($product->name) }}"
                             data-product-sku="{{ strtolower($product->sku) }}"
                             data-product-barcode="{{ strtolower($product->barcode ?? '') }}"
+                            data-category-id="{{ $product->category_id ?? '' }}"
+                            data-brand-id="{{ $product->brand_id ?? '' }}"
+                            data-model-id="{{ $product->product_model_id ?? '' }}"
                             data-product-data='{{ json_encode($productData) }}'
                         >
                             <!-- Product Image -->
@@ -149,13 +251,44 @@
         <div class="w-1/3 flex flex-col bg-gray-50 overflow-hidden">
             <!-- Customer Selection -->
             <div class="p-4 bg-white border-b border-gray-200 flex-shrink-0">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Customer (Optional)</label>
-                <select id="customer-select" class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500">
-                    <option value="">Walk-in Customer</option>
-                    @foreach($customers as $customer)
-                        <option value="{{ $customer->id }}">{{ $customer->name }}</option>
-                    @endforeach
-                </select>
+                <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                    <i data-lucide="user" class="w-4 h-4 text-primary-500"></i>
+                    Customer (Optional)
+                </label>
+                <div class="searchable-select-container relative" data-select-id="customer-select">
+                    <div class="selected-display relative mt-1 py-2.5 px-3 border border-gray-300 rounded-lg bg-white cursor-pointer hover:border-primary-500 transition focus-within:border-primary-500">
+                        <div class="selected-text text-sm text-gray-500 pr-6">Walk-in Customer</div>
+                        <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none flex-shrink-0"></i>
+                    </div>
+                    <div class="dropdown-container hidden absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
+                        <div class="p-2 sticky top-0 bg-white border-b border-gray-200">
+                            <input type="text" class="search-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="Search customers by name, email or phone...">
+                        </div>
+                        <div class="options-list max-h-48 overflow-y-auto">
+                            <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">
+                                <div class="font-medium">Walk-in Customer</div>
+                                <div class="text-xs text-gray-500">No customer selected</div>
+                            </div>
+                            @foreach($customers as $customer)
+                                <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $customer->id }}" 
+                                     data-search-text="{{ strtolower($customer->name . ' ' . ($customer->email ?? '') . ' ' . ($customer->phone ?? '')) }}">
+                                    <div class="font-medium">{{ $customer->name }}</div>
+                                    @if($customer->email || $customer->phone)
+                                        <div class="text-xs text-gray-500">
+                                            {{ $customer->email ?? '' }}{{ $customer->email && $customer->phone ? ' • ' : '' }}{{ $customer->phone ?? '' }}
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    <select id="customer-select" class="hidden">
+                        <option value="">Walk-in Customer</option>
+                        @foreach($customers as $customer)
+                            <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
             </div>
 
             <!-- Cart -->
@@ -468,20 +601,22 @@
         // Set default payment method
         setPaymentMethod('cash');
         
+        // Initialize searchable selects
+        initializeSearchableSelects();
+        
         // Auto-search functionality
         const searchInput = document.getElementById('product-search');
-        const clearBtn = document.getElementById('clear-search-btn');
+        const clearAllBtn = document.getElementById('clear-all-btn');
         
         searchInput.addEventListener('input', function() {
-            const searchTerm = this.value.toLowerCase().trim();
-            filterProducts(searchTerm);
-            
-            if (searchTerm.length > 0) {
-                clearBtn.style.display = 'block';
-            } else {
-                clearBtn.style.display = 'none';
-            }
+            applyFilters();
+            updateClearButton();
         });
+        
+        // Filter change handlers
+        document.getElementById('category-filter').addEventListener('change', applyFilters);
+        document.getElementById('brand-filter').addEventListener('change', applyFilters);
+        document.getElementById('model-filter').addEventListener('change', applyFilters);
         
         // Barcode scanner auto-add to cart
         let barcodeTimeout;
@@ -497,15 +632,20 @@
                     if (product) {
                         addToCart(product.id);
                         this.value = '';
-                        filterProducts('');
-                        clearBtn.style.display = 'none';
+                        applyFilters();
+                        updateClearButton();
                     }
                 }, 100);
             }
         });
     });
 
-    function filterProducts(searchTerm) {
+    function applyFilters() {
+        const searchTerm = document.getElementById('product-search').value.toLowerCase().trim();
+        const categoryId = document.getElementById('category-filter').value;
+        const brandId = document.getElementById('brand-filter').value;
+        const modelId = document.getElementById('model-filter').value;
+        
         const productCards = document.querySelectorAll('.product-card');
         const productsGrid = document.getElementById('products-grid');
         const noProducts = document.getElementById('no-products');
@@ -515,11 +655,26 @@
             const name = card.getAttribute('data-product-name');
             const sku = card.getAttribute('data-product-sku');
             const barcode = card.getAttribute('data-product-barcode');
+            const cardCategoryId = card.getAttribute('data-category-id');
+            const cardBrandId = card.getAttribute('data-brand-id');
+            const cardModelId = card.getAttribute('data-model-id');
             
-            if (searchTerm === '' || 
+            // Search filter
+            const matchesSearch = searchTerm === '' || 
                 name.includes(searchTerm) || 
                 sku.includes(searchTerm) || 
-                barcode.includes(searchTerm)) {
+                barcode.includes(searchTerm);
+            
+            // Category filter
+            const matchesCategory = categoryId === '' || cardCategoryId === categoryId;
+            
+            // Brand filter
+            const matchesBrand = brandId === '' || cardBrandId === brandId;
+            
+            // Model filter
+            const matchesModel = modelId === '' || cardModelId === modelId;
+            
+            if (matchesSearch && matchesCategory && matchesBrand && matchesModel) {
                 card.style.display = 'block';
                 visibleCount++;
             } else {
@@ -527,21 +682,59 @@
             }
         });
 
-        if (visibleCount === 0 && searchTerm !== '') {
+        if (visibleCount === 0 && (searchTerm !== '' || categoryId !== '' || brandId !== '' || modelId !== '')) {
             productsGrid.style.display = 'none';
             noProducts.classList.remove('hidden');
         } else {
             productsGrid.style.display = 'grid';
             noProducts.classList.add('hidden');
         }
+        
+        updateClearButton();
     }
 
-    function clearSearch() {
-        const searchInput = document.getElementById('product-search');
-        searchInput.value = '';
-        filterProducts('');
-        document.getElementById('clear-search-btn').style.display = 'none';
-        searchInput.focus();
+    function updateClearButton() {
+        const searchTerm = document.getElementById('product-search').value.trim();
+        const categoryId = document.getElementById('category-filter').value;
+        const brandId = document.getElementById('brand-filter').value;
+        const modelId = document.getElementById('model-filter').value;
+        const clearAllBtn = document.getElementById('clear-all-btn');
+        
+        if (searchTerm !== '' || categoryId !== '' || brandId !== '' || modelId !== '') {
+            clearAllBtn.style.display = 'flex';
+        } else {
+            clearAllBtn.style.display = 'none';
+        }
+    }
+
+    function clearAllFilters() {
+        document.getElementById('product-search').value = '';
+        document.getElementById('category-filter').value = '';
+        document.getElementById('brand-filter').value = '';
+        document.getElementById('model-filter').value = '';
+        
+        // Update searchable select displays
+        document.querySelectorAll('.searchable-select-container').forEach(container => {
+            const selectedText = container.querySelector('.selected-text');
+            const selectId = container.getAttribute('data-select-id');
+            const originalSelect = document.getElementById(selectId);
+            
+            if (selectId === 'category-filter') {
+                selectedText.textContent = 'All Categories';
+            } else if (selectId === 'brand-filter') {
+                selectedText.textContent = 'All Brands';
+            } else if (selectId === 'model-filter') {
+                selectedText.textContent = 'All Models';
+            } else if (selectId === 'customer-select') {
+                selectedText.textContent = 'Walk-in Customer';
+            }
+            
+            selectedText.classList.remove('text-gray-900');
+            selectedText.classList.add('text-gray-500');
+        });
+        
+        applyFilters();
+        document.getElementById('product-search').focus();
     }
 
     function addToCart(productId) {
@@ -628,7 +821,8 @@
             return;
         }
 
-        const customerId = document.getElementById('customer-select').value || null;
+        const customerSelect = document.getElementById('customer-select');
+        const customerId = customerSelect ? customerSelect.value || null : null;
         const discount = parseFloat(document.getElementById('discount-input').value) || 0;
         const subtotal = cart.reduce((sum, item) => sum + item.subtotal, 0);
         const taxableAmount = Math.max(0, subtotal - discount);
@@ -703,7 +897,7 @@
                 
                 cart = [];
                 updateCartDisplay();
-                document.getElementById('customer-select').value = '';
+                if (customerSelect) customerSelect.value = '';
                 document.getElementById('discount-input').value = '0';
                 calculateTotal();
                 setPaymentMethod('cash');
@@ -949,5 +1143,118 @@
             }
         }
     });
+
+    // Initialize Searchable Selects (similar to users/create.blade.php)
+    function initializeSearchableSelects() {
+        document.querySelectorAll('.searchable-select-container').forEach(container => {
+            const selectId = container.getAttribute('data-select-id');
+            const originalSelect = document.getElementById(selectId);
+            const display = container.querySelector('.selected-display');
+            const selectedText = display.querySelector('.selected-text');
+            const dropdown = container.querySelector('.dropdown-container');
+            const searchInput = dropdown.querySelector('.search-input');
+            const options = dropdown.querySelectorAll('.option');
+            const chevron = display.querySelector('i[data-lucide="chevron-down"]');
+
+            // Set initial selected value
+            const selectedOption = originalSelect.querySelector('option[selected]');
+            if (selectedOption && selectedOption.value) {
+                selectedText.textContent = selectedOption.textContent;
+                selectedText.classList.remove('text-gray-500');
+                selectedText.classList.add('text-gray-900');
+            } else {
+                selectedText.classList.add('text-gray-500');
+            }
+
+            // Toggle dropdown
+            display.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const isOpen = !dropdown.classList.contains('hidden');
+                
+                // Close all other dropdowns
+                document.querySelectorAll('.dropdown-container').forEach(d => {
+                    if (d !== dropdown) d.classList.add('hidden');
+                });
+                
+                dropdown.classList.toggle('hidden');
+                
+                if (!dropdown.classList.contains('hidden')) {
+                    searchInput.focus();
+                    searchInput.value = '';
+                    filterOptions();
+                }
+                
+                // Rotate chevron - maintain vertical centering while rotating
+                if (!dropdown.classList.contains('hidden')) {
+                    chevron.style.transform = 'translateY(-50%) rotate(180deg)';
+                } else {
+                    chevron.style.transform = 'translateY(-50%) rotate(0deg)';
+                }
+            });
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                filterOptions();
+            });
+
+            function filterOptions() {
+                const searchTerm = searchInput.value.toLowerCase();
+                options.forEach(option => {
+                    const text = option.textContent.toLowerCase();
+                    const searchText = option.getAttribute('data-search-text') || text;
+                    
+                    if (searchText.includes(searchTerm) || text.includes(searchTerm)) {
+                        option.style.display = 'block';
+                    } else {
+                        option.style.display = 'none';
+                    }
+                });
+            }
+
+            // Select option
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    const value = this.getAttribute('data-value');
+                    const text = this.querySelector('.font-medium') ? this.querySelector('.font-medium').textContent : this.textContent.trim();
+                    
+                    // Update original select
+                    originalSelect.value = value;
+                    
+                    // Trigger change event
+                    const changeEvent = new Event('change', { bubbles: true });
+                    originalSelect.dispatchEvent(changeEvent);
+                    
+                    // Update display
+                    if (selectId === 'customer-select' && value === '') {
+                        selectedText.innerHTML = 'Walk-in Customer';
+                    } else {
+                        selectedText.textContent = text;
+                    }
+                    selectedText.classList.remove('text-gray-500');
+                    selectedText.classList.add('text-gray-900');
+                    
+                    // Update option states
+                    options.forEach(opt => {
+                        opt.classList.remove('bg-primary-100', 'font-medium');
+                        if (opt.getAttribute('data-value') === value) {
+                            opt.classList.add('bg-primary-100');
+                        }
+                    });
+                    
+                    // Close dropdown
+                    dropdown.classList.add('hidden');
+                    chevron.style.transform = 'translateY(-50%) rotate(0deg)';
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!container.contains(e.target)) {
+                    dropdown.classList.add('hidden');
+                    chevron.style.transform = 'translateY(-50%) rotate(0deg)';
+                }
+            });
+        });
+    }
 </script>
 @endsection

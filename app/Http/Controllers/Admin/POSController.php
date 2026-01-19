@@ -7,6 +7,9 @@ use App\Models\Sale;
 use App\Models\SaleItem;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\Category;
+use App\Models\Brand;
+use App\Models\ProductModel;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -32,10 +35,14 @@ class POSController extends Controller
 
         $products = $query->paginate(20)->withQueryString();
         $customers = Customer::all();
+        $categories = Category::all();
+        $brands = Brand::all();
+        $productModels = ProductModel::all();
         
         // Prepare products JSON for JavaScript (all active products with stock)
         $productsJson = Product::where('status', 'active')
             ->where('quantity', '>', 0)
+            ->with(['category', 'brand', 'productModel'])
             ->get()
             ->map(function($p) {
                 return [
@@ -46,6 +53,12 @@ class POSController extends Controller
                     'selling_price' => (float) $p->selling_price,
                     'quantity' => $p->quantity,
                     'image' => $p->image ? asset('storage/' . $p->image) : null,
+                    'category_id' => $p->category_id,
+                    'category_name' => $p->category->name ?? null,
+                    'brand_id' => $p->brand_id,
+                    'brand_name' => $p->brand->name ?? null,
+                    'model_id' => $p->product_model_id,
+                    'model_name' => $p->productModel->name ?? null,
                 ];
             })
             ->toArray();
@@ -53,7 +66,7 @@ class POSController extends Controller
         // Get tax percentage from settings (default to 0%)
         $taxPercentage = Setting::get('tax_rate', 0);
         
-        return view('backend.pos.index', compact('products', 'customers', 'productsJson', 'taxPercentage'));
+        return view('backend.pos.index', compact('products', 'customers', 'categories', 'brands', 'productModels', 'productsJson', 'taxPercentage'));
     }
 
     /**

@@ -42,6 +42,7 @@ Route::middleware([
         Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
         Route::get('sales/{sale}/receipt', [SaleController::class, 'receipt'])->name('sales.receipt');
         Route::get('sales/{sale}/receipt/download', [SaleController::class, 'downloadReceipt'])->name('sales.receipt.download');
+        Route::post('sales/{sale}/return', [SaleController::class, 'processReturn'])->name('sales.return');
         
         // POS Routes
         Route::prefix('pos')->name('pos.')->group(function () {

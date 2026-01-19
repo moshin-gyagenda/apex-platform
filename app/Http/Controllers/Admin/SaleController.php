@@ -4,8 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sale;
+use App\Models\SaleItem;
+use App\Models\SaleReturn;
+use App\Models\Product;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
 {
@@ -84,8 +88,18 @@ class SaleController extends Controller
      */
     public function show(Sale $sale)
     {
-        $sale->load(['customer', 'creator', 'saleItems.product']);
-        return view('backend.sales.show', compact('sale'));
+        $sale->load(['customer', 'creator', 'saleItems.product', 'returns.product']);
+        
+        // Calculate returned quantities for each sale item
+        $returnedQuantities = [];
+        foreach ($sale->returns as $return) {
+            if ($return->sale_item_id) {
+                $returnedQuantities[$return->sale_item_id] = 
+                    ($returnedQuantities[$return->sale_item_id] ?? 0) + $return->quantity_returned;
+            }
+        }
+        
+        return view('backend.sales.show', compact('sale', 'returnedQuantities'));
     }
 
     /**
@@ -115,6 +129,80 @@ class SaleController extends Controller
             \Log::error('PDF Generation Error: ' . $e->getMessage());
             // Fallback: return view if PDF generation fails
             return view('backend.sales.receipt', compact('sale'));
+        }
+    }
+
+    /**
+     * Process a product return/refund.
+     */
+    public function processReturn(Request $request, Sale $sale)
+    {
+        $validated = $request->validate([
+            'sale_item_id' => ['required', 'exists:sale_items,id'],
+            'quantity_returned' => ['required', 'integer', 'min:1'],
+            'reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $saleItem = SaleItem::findOrFail($validated['sale_item_id']);
+            
+            // Verify the sale item belongs to this sale
+            if ($saleItem->sale_id !== $sale->id) {
+                throw new \Exception('Invalid sale item for this sale.');
+            }
+
+            // Check if quantity to return is valid
+            $alreadyReturned = SaleReturn::where('sale_item_id', $saleItem->id)
+                ->where('status', 'approved')
+                ->sum('quantity_returned');
+            
+            $availableToReturn = $saleItem->quantity - $alreadyReturned;
+            
+            if ($validated['quantity_returned'] > $availableToReturn) {
+                throw new \Exception("Cannot return more than available. Available: {$availableToReturn}, Requested: {$validated['quantity_returned']}");
+            }
+
+            // Calculate refund amount
+            $refundAmount = $validated['quantity_returned'] * $saleItem->unit_price;
+
+            // Create return record
+            $saleReturn = SaleReturn::create([
+                'sale_id' => $sale->id,
+                'sale_item_id' => $saleItem->id,
+                'product_id' => $saleItem->product_id,
+                'quantity_returned' => $validated['quantity_returned'],
+                'unit_price' => $saleItem->unit_price,
+                'refund_amount' => $refundAmount,
+                'reason' => $validated['reason'] ?? null,
+                'status' => 'approved', // Auto-approve for now, can be changed to 'pending' if approval needed
+                'processed_by' => auth()->id(),
+                'processed_at' => now(),
+                'created_by' => auth()->id(),
+            ]);
+
+            // Update product stock (add back the returned quantity)
+            $product = Product::find($saleItem->product_id);
+            $product->quantity += $validated['quantity_returned'];
+            $product->save();
+
+            // Update sale payment status if full refund
+            $totalReturned = SaleReturn::where('sale_id', $sale->id)
+                ->where('status', 'approved')
+                ->sum('refund_amount');
+            
+            if ($totalReturned >= $sale->final_amount) {
+                $sale->payment_status = 'refunded';
+                $sale->save();
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.sales.show', $sale)
+                ->with('success', 'Product return processed successfully. Stock has been updated.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withInput()->with('error', 'Failed to process return: ' . $e->getMessage());
         }
     }
 }

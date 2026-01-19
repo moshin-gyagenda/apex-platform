@@ -85,7 +85,7 @@
                             <p class="text-2xl font-semibold text-gray-800 mt-1">{{ number_format($stats['total_amount'], 0) }} UGX</p>
                         </div>
                         <div class="w-12 h-12 rounded-lg bg-green-50 flex items-center justify-center">
-                            <i data-lucide="dollar-sign" class="w-6 h-6 text-green-500"></i>
+                            <i data-lucide="credit-card" class="w-6 h-6 text-green-500"></i>
                         </div>
                     </div>
                 </div>

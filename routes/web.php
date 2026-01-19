@@ -40,6 +40,8 @@ Route::middleware([
         Route::resource('customers', CustomerController::class);
         Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
         Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
+        Route::get('sales/{sale}/receipt', [SaleController::class, 'receipt'])->name('sales.receipt');
+        Route::get('sales/{sale}/receipt/download', [SaleController::class, 'downloadReceipt'])->name('sales.receipt.download');
         
         // POS Routes
         Route::prefix('pos')->name('pos.')->group(function () {

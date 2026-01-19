@@ -22,6 +22,8 @@ class Sale extends Model
         'discount',
         'tax',
         'final_amount',
+        'amount_paid',
+        'balance',
         'payment_method',
         'payment_status',
         'created_by',
@@ -39,6 +41,8 @@ class Sale extends Model
             'discount' => 'decimal:2',
             'tax' => 'decimal:2',
             'final_amount' => 'decimal:2',
+            'amount_paid' => 'decimal:2',
+            'balance' => 'decimal:2',
             'created_at' => 'datetime',
             'updated_at' => 'datetime',
         ];

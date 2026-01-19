@@ -338,32 +338,73 @@
                         <span class="font-medium text-gray-800" id="cart-tax">0 UGX</span>
                     </div>
                 </div>
-                <div class="flex justify-between items-center pt-2">
+                <div class="flex justify-between items-center pt-2 pb-2 border-b border-gray-200">
                     <span class="text-lg font-semibold text-gray-800">Total:</span>
                     <span class="text-2xl font-bold text-primary-600" id="cart-total">0 UGX</span>
                 </div>
 
+                <!-- Payment Amount Section -->
+                <div class="pt-2 space-y-2">
+                    <div>
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label class="block text-sm font-medium text-gray-700">
+                                Amount Paid
+                            </label>
+                            <button 
+                                type="button"
+                                onclick="payFullAmount()"
+                                class="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+                                id="pay-full-btn"
+                                style="display: none;"
+                            >
+                                <i data-lucide="zap" class="w-3 h-3"></i>
+                                Pay Full
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <input 
+                                type="number" 
+                                id="amount-paid-input" 
+                                value="0" 
+                                min="0"
+                                step="0.01"
+                                placeholder="0.00"
+                                class="w-full py-1.5 px-3 pr-16 border border-gray-300 rounded-lg text-right text-base font-semibold focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition"
+                                oninput="calculatePaymentDetails()"
+                            >
+                            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 pointer-events-none">UGX</span>
+                        </div>
+                    </div>
+
+                    <!-- Balance Display -->
+                    <div id="balance-section" class="hidden">
+                        <div class="flex justify-between items-center p-2 rounded-lg" id="balance-container">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="alert-circle" class="w-4 h-4" id="balance-icon"></i>
+                                <span class="text-sm font-medium" id="balance-label">Balance:</span>
+                            </div>
+                            <span class="text-base font-bold" id="balance-amount">0 UGX</span>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Payment Method -->
-                <div class="pt-3 border-t border-gray-200">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Payment Method</label>
-                    <div class="grid grid-cols-3 gap-2">
+                <div class="pt-2 border-t border-gray-200">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5 flex items-center gap-2">
+                        <i data-lucide="credit-card" class="w-4 h-4 text-primary-500"></i>
+                        Payment Method
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
                         <button 
                             onclick="setPaymentMethod('cash')" 
-                            class="payment-method-btn py-2 px-3 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-sm font-medium"
+                            class="payment-method-btn py-1.5 px-2 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-sm font-medium"
                             data-method="cash"
                         >
                             Cash
                         </button>
                         <button 
-                            onclick="setPaymentMethod('card')" 
-                            class="payment-method-btn py-2 px-3 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-sm font-medium"
-                            data-method="card"
-                        >
-                            Card
-                        </button>
-                        <button 
                             onclick="setPaymentMethod('mobile_money')" 
-                            class="payment-method-btn py-2 px-3 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-sm font-medium"
+                            class="payment-method-btn py-1.5 px-2 border-2 border-gray-300 rounded-lg hover:border-primary-500 hover:bg-primary-50 transition-colors text-sm font-medium"
                             data-method="mobile_money"
                         >
                             Mobile Money
@@ -376,11 +417,11 @@
                 <button 
                     onclick="completeSale()" 
                     id="complete-sale-btn"
-                    class="w-full mt-4 py-4 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-lg shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+                    class="w-full mt-3 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold text-base shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
                     disabled
                 >
-                    <i data-lucide="check-circle" class="w-5 h-5 inline mr-2"></i>
-                    Complete Sale
+                    <i data-lucide="check-circle" class="w-4 h-4 inline mr-2"></i>
+                    <span id="complete-sale-text">Complete Sale</span>
                 </button>
             </div>
         </div>
@@ -511,18 +552,30 @@
                     <div class="flex-1">
                         <h3 class="text-lg font-semibold text-gray-800 mb-2">Complete Sale</h3>
                         <p class="text-sm text-gray-600 mb-4">Are you sure you want to complete this sale?</p>
-                        <div class="bg-gray-50 rounded-lg p-3 mb-4">
-                            <div class="flex justify-between text-sm mb-1">
+                        <div class="bg-gray-50 rounded-lg p-3 mb-4 space-y-2">
+                            <div class="flex justify-between text-sm">
                                 <span class="text-gray-600">Items:</span>
                                 <span class="font-medium text-gray-800" id="confirm-items-count"></span>
                             </div>
-                            <div class="flex justify-between text-sm mb-1">
-                                <span class="text-gray-600">Total:</span>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Total Amount:</span>
                                 <span class="font-semibold text-primary-600" id="confirm-total-amount"></span>
                             </div>
                             <div class="flex justify-between text-sm">
-                                <span class="text-gray-600">Payment:</span>
+                                <span class="text-gray-600">Amount Paid:</span>
+                                <span class="font-medium text-gray-800" id="confirm-amount-paid"></span>
+                            </div>
+                            <div class="flex justify-between text-sm" id="confirm-balance-row" style="display: none;">
+                                <span class="text-gray-600">Balance:</span>
+                                <span class="font-medium" id="confirm-balance"></span>
+                            </div>
+                            <div class="flex justify-between text-sm pt-2 border-t border-gray-200">
+                                <span class="text-gray-600">Payment Method:</span>
                                 <span class="font-medium text-gray-800 capitalize" id="confirm-payment-method"></span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-gray-600">Payment Status:</span>
+                                <span class="font-medium capitalize" id="confirm-payment-status"></span>
                             </div>
                         </div>
                         <div class="flex gap-3">
@@ -554,9 +607,15 @@
                     <h3 class="text-xl font-semibold text-gray-800 mb-2">Sale Completed Successfully!</h3>
                     <p class="text-sm text-gray-600 mb-1">Sale ID: <span class="font-medium text-primary-600" id="success-sale-id"></span></p>
                     <p class="text-sm text-gray-500 mb-6">The sale has been processed and items have been updated in stock.</p>
-                    <button onclick="closeSuccessModal()" class="w-full px-4 py-2 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors">
-                        Continue
-                    </button>
+                    <div class="flex gap-2 w-full">
+                        <a id="download-receipt-btn" href="#" target="_blank" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            Download Receipt
+                        </a>
+                        <button onclick="closeSuccessModal()" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors">
+                            Continue
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -594,12 +653,35 @@
     const taxPercentage = {{ $taxPercentage }} / 100; // Convert percentage to decimal
     let cart = [];
     let paymentMethod = 'cash';
+    let amountPaid = 0;
+    let balance = 0;
+    let paymentStatus = 'pending';
 
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
         
         // Set default payment method
         setPaymentMethod('cash');
+        
+        // Initialize payment amount input
+        const amountPaidInput = document.getElementById('amount-paid-input');
+        amountPaidInput.addEventListener('focus', function() {
+            // Select all text for easy replacement
+            this.select();
+        });
+        
+        // Allow Enter key to pay full amount
+        amountPaidInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const total = parseFloat(document.getElementById('cart-total').textContent.replace(/[^\d.]/g, '')) || 0;
+                if (total > 0 && (this.value === '0' || this.value === '')) {
+                    payFullAmount();
+                } else {
+                    calculatePaymentDetails();
+                }
+            }
+        });
         
         // Initialize searchable selects
         initializeSearchableSelects();
@@ -802,10 +884,40 @@
         const taxableAmount = Math.max(0, subtotal - discount);
         const tax = taxableAmount * taxPercentage;
         const finalAmount = subtotal - discount + tax;
+        
+        // Recalculate payment details
+        calculatePaymentDetails();
 
         document.getElementById('confirm-items-count').textContent = itemsCount + ' items';
         document.getElementById('confirm-total-amount').textContent = formatCurrency(finalAmount);
         document.getElementById('confirm-payment-method').textContent = paymentMethod.replace('_', ' ');
+        document.getElementById('confirm-amount-paid').textContent = formatCurrency(amountPaid);
+        
+        // Show/hide balance row and style it
+        const balanceRow = document.getElementById('confirm-balance-row');
+        const balanceElement = document.getElementById('confirm-balance');
+        if (balance > 0) {
+            balanceRow.style.display = 'flex';
+            balanceElement.textContent = formatCurrency(balance);
+            balanceElement.className = 'font-medium text-orange-600';
+        } else if (amountPaid > 0) {
+            balanceRow.style.display = 'flex';
+            balanceElement.textContent = formatCurrency(0);
+            balanceElement.className = 'font-medium text-green-600';
+        } else {
+            balanceRow.style.display = 'none';
+        }
+        
+        // Set payment status with appropriate styling
+        const statusElement = document.getElementById('confirm-payment-status');
+        statusElement.textContent = paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1);
+        if (paymentStatus === 'completed') {
+            statusElement.className = 'font-medium capitalize text-green-600';
+        } else if (paymentStatus === 'partial') {
+            statusElement.className = 'font-medium capitalize text-orange-600';
+        } else {
+            statusElement.className = 'font-medium capitalize text-yellow-600';
+        }
         
         document.getElementById('confirm-sale-modal').classList.remove('hidden');
     }
@@ -848,6 +960,20 @@
             return;
         }
 
+        // Get current payment values from input
+        const currentAmountPaid = parseFloat(document.getElementById('amount-paid-input').value) || 0;
+        const currentBalance = Math.max(0, finalAmount - currentAmountPaid);
+        
+        // Determine payment status based on amount paid
+        let status = 'pending';
+        if (currentAmountPaid === 0) {
+            status = 'pending';
+        } else if (currentBalance > 0) {
+            status = 'partial';
+        } else {
+            status = 'completed';
+        }
+
         // Build sale data object
         const saleData = {
             customer_id: customerId || null,
@@ -856,8 +982,10 @@
             discount: discount,
             tax: tax,
             final_amount: finalAmount,
+            amount_paid: parseFloat(currentAmountPaid.toFixed(2)),
+            balance: parseFloat(currentBalance.toFixed(2)),
             payment_method: paymentMethod,
-            payment_status: 'completed'
+            payment_status: status
         };
 
         console.log('Sending sale data:', saleData);
@@ -893,13 +1021,21 @@
         .then(data => {
             if (data.success) {
                 document.getElementById('success-sale-id').textContent = '#' + data.sale_id;
+                // Set receipt download link
+                const receiptUrl = '{{ route("admin.sales.receipt.download", ":id") }}'.replace(':id', data.sale_id);
+                document.getElementById('download-receipt-btn').href = receiptUrl;
                 document.getElementById('success-modal').classList.remove('hidden');
                 
                 cart = [];
                 updateCartDisplay();
                 if (customerSelect) customerSelect.value = '';
                 document.getElementById('discount-input').value = '0';
+                document.getElementById('amount-paid-input').value = '0';
+                amountPaid = 0;
+                balance = 0;
+                paymentStatus = 'pending';
                 calculateTotal();
+                calculatePaymentDetails();
                 setPaymentMethod('cash');
                 document.getElementById('product-search').focus();
             } else {
@@ -936,6 +1072,9 @@
             cartItems.style.display = 'none';
             clearBtn.style.display = 'none';
             completeBtn.disabled = true;
+            // Reset payment fields when cart is empty
+            document.getElementById('amount-paid-input').value = '0';
+            calculatePaymentDetails();
         } else {
             emptyCart.style.display = 'none';
             cartItems.style.display = 'block';
@@ -984,6 +1123,77 @@
         document.getElementById('cart-subtotal').textContent = formatCurrency(subtotal);
         document.getElementById('cart-tax').textContent = formatCurrency(tax);
         document.getElementById('cart-total').textContent = formatCurrency(total);
+        
+        // Recalculate payment details when total changes
+        calculatePaymentDetails();
+    }
+
+    function calculatePaymentDetails() {
+        const total = parseFloat(document.getElementById('cart-total').textContent.replace(/[^\d.]/g, '')) || 0;
+        amountPaid = parseFloat(document.getElementById('amount-paid-input').value) || 0;
+        balance = Math.max(0, total - amountPaid);
+        
+        const balanceSection = document.getElementById('balance-section');
+        const balanceContainer = document.getElementById('balance-container');
+        const balanceAmount = document.getElementById('balance-amount');
+        const balanceLabel = document.getElementById('balance-label');
+        const balanceIcon = document.getElementById('balance-icon');
+        const completeSaleText = document.getElementById('complete-sale-text');
+        
+        // Determine payment status
+        if (amountPaid === 0) {
+            paymentStatus = 'pending';
+            balanceSection.classList.add('hidden');
+            completeSaleText.textContent = 'Create Order (Pending Payment)';
+        } else if (balance > 0) {
+            paymentStatus = 'partial';
+            balanceSection.classList.remove('hidden');
+            balanceContainer.className = 'flex justify-between items-center p-2 rounded-lg bg-orange-50 border border-orange-200';
+            balanceAmount.textContent = formatCurrency(balance);
+            balanceAmount.className = 'text-base font-bold text-orange-700';
+            balanceLabel.textContent = 'Balance:';
+            balanceLabel.className = 'text-sm font-medium text-orange-700';
+            balanceIcon.setAttribute('data-lucide', 'alert-triangle');
+            balanceIcon.className = 'w-4 h-4 text-orange-600';
+            completeSaleText.textContent = 'Create Order (Partial Payment)';
+        } else {
+            paymentStatus = 'completed';
+            balanceSection.classList.remove('hidden');
+            balanceContainer.className = 'flex justify-between items-center p-2 rounded-lg bg-green-50 border border-green-200';
+            balanceAmount.textContent = formatCurrency(0);
+            balanceAmount.className = 'text-base font-bold text-green-700';
+            balanceLabel.textContent = 'Balance:';
+            balanceLabel.className = 'text-sm font-medium text-green-700';
+            balanceIcon.setAttribute('data-lucide', 'check-circle');
+            balanceIcon.className = 'w-4 h-4 text-green-600';
+            completeSaleText.textContent = 'Complete Sale';
+        }
+        
+        // Auto-fill amount paid with total if user types more than total
+        if (amountPaid > total && total > 0) {
+            document.getElementById('amount-paid-input').value = total.toFixed(2);
+            calculatePaymentDetails();
+            return;
+        }
+        
+        // Show/hide "Pay Full" button
+        const payFullBtn = document.getElementById('pay-full-btn');
+        if (total > 0 && amountPaid < total) {
+            payFullBtn.style.display = 'flex';
+        } else {
+            payFullBtn.style.display = 'none';
+        }
+        
+        lucide.createIcons();
+    }
+
+    function payFullAmount() {
+        const total = parseFloat(document.getElementById('cart-total').textContent.replace(/[^\d.]/g, '')) || 0;
+        if (total > 0) {
+            document.getElementById('amount-paid-input').value = total.toFixed(2);
+            calculatePaymentDetails();
+            document.getElementById('amount-paid-input').focus();
+        }
     }
 
     function setPaymentMethod(method) {

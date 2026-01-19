@@ -99,8 +99,10 @@ class POSController extends Controller
                 'discount' => ['nullable', 'numeric', 'min:0'],
                 'tax' => ['nullable', 'numeric', 'min:0'],
                 'final_amount' => ['required', 'numeric', 'min:0'],
-                'payment_method' => ['required', 'in:cash,card,mobile_money'],
-                'payment_status' => ['required', 'in:completed,pending'],
+                'amount_paid' => ['required', 'numeric', 'min:0'],
+                'balance' => ['required', 'numeric', 'min:0'],
+                'payment_method' => ['required', 'in:cash,mobile_money'],
+                'payment_status' => ['required', 'in:completed,pending,partial'],
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             $errors = $e->validator->errors()->all();
@@ -125,6 +127,9 @@ class POSController extends Controller
             $discount = $validated['discount'] ?? 0;
             $tax = $validated['tax'] ?? 0;
             $finalAmount = $validated['final_amount'];
+            $amountPaid = $validated['amount_paid'] ?? 0;
+            $balance = $validated['balance'] ?? 0;
+            $paymentStatus = $validated['payment_status'];
 
             // Create sale
             $sale = Sale::create([
@@ -133,12 +138,16 @@ class POSController extends Controller
                 'discount' => $discount,
                 'tax' => $tax,
                 'final_amount' => $finalAmount,
+                'amount_paid' => $amountPaid,
+                'balance' => $balance,
                 'payment_method' => $validated['payment_method'],
-                'payment_status' => $validated['payment_status'],
+                'payment_status' => $paymentStatus,
                 'created_by' => auth()->id(),
             ]);
 
             // Create sale items and update product quantities
+            // Note: For pending/partial payments, we still reduce stock as the order is created
+            // You may want to adjust this behavior based on your business logic
             foreach ($validated['items'] as $item) {
                 // Check product availability
                 $product = Product::find($item['product_id']);
@@ -154,7 +163,7 @@ class POSController extends Controller
                     'subtotal' => $item['subtotal'],
                 ]);
 
-                // Update product quantity
+                // Update product quantity (reduce stock)
                 $product->quantity -= $item['quantity'];
                 $product->save();
             }

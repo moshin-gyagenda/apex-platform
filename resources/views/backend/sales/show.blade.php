@@ -45,6 +45,10 @@
                         </div>
                     </div>
                     <div class="flex gap-2">
+                        <a href="{{ route('admin.sales.receipt.download', $sale) }}" class="inline-flex items-center px-4 py-2 bg-primary-500 text-white rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors">
+                            <i data-lucide="download" class="w-4 h-4 mr-2"></i>
+                            Download Receipt
+                        </a>
                         <button onclick="window.history.back(); return false;" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
                             <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                             Back

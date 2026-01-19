@@ -115,78 +115,56 @@
 
             <!-- Search and Filter Section -->
             <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                <form method="GET" action="{{ route('admin.sales.index') }}" class="flex flex-col gap-4">
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="flex-1">
-                            <div class="relative">
-                                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                                <input
-                                    type="text"
-                                    name="search"
-                                    value="{{ request('search') }}"
-                                    placeholder="Search by Sale ID, Customer, or Cashier..."
-                                    class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
-                                >
-                            </div>
-                        </div>
-                        <div class="sm:w-48">
-                            <select
-                                name="payment_method"
-                                class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
-                            >
-                                <option value="all">All Payment Methods</option>
-                                <option value="cash" {{ request('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
-                                <option value="card" {{ request('payment_method') == 'card' ? 'selected' : '' }}>Card</option>
-                                <option value="mobile_money" {{ request('payment_method') == 'mobile_money' ? 'selected' : '' }}>Mobile Money</option>
-                            </select>
-                        </div>
-                        <div class="sm:w-48">
-                            <select
-                                name="payment_status"
-                                class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
-                            >
-                                <option value="all">All Statuses</option>
-                                <option value="completed" {{ request('payment_status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                                <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                            </select>
-                        </div>
-                        <div class="sm:w-40">
-                            <button
-                                type="submit"
-                                class="w-full px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium"
-                            >
-                                Filter
-                            </button>
-                        </div>
-                        @if(request()->hasAny(['search', 'payment_method', 'payment_status', 'start_date', 'end_date']))
-                            <a
-                                href="{{ route('admin.sales.index') }}"
-                                class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300"
-                            >
-                                Clear
-                            </a>
-                        @endif
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-4">
-                        <div class="sm:w-48">
-                            <label class="block text-xs font-medium text-gray-700 mb-1">Start Date</label>
+                <form method="GET" action="{{ route('admin.sales.index') }}" class="flex flex-wrap items-center gap-3">
+                    <div class="flex-1 min-w-[200px]">
+                        <div class="relative">
+                            <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                             <input
-                                type="date"
-                                name="start_date"
-                                value="{{ request('start_date') }}"
-                                class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
-                            >
-                        </div>
-                        <div class="sm:w-48">
-                            <label class="block text-xs font-medium text-gray-700 mb-1">End Date</label>
-                            <input
-                                type="date"
-                                name="end_date"
-                                value="{{ request('end_date') }}"
-                                class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
+                                type="text"
+                                name="search"
+                                value="{{ request('search') }}"
+                                placeholder="Search by Sale ID, Customer, or Cashier..."
+                                class="w-full pl-9 pr-4 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition"
                             >
                         </div>
                     </div>
+                    <div class="w-40">
+                        <select
+                            name="payment_method"
+                            class="w-full py-2 px-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition bg-white"
+                        >
+                            <option value="all">All Payment Methods</option>
+                            <option value="cash" {{ request('payment_method') == 'cash' ? 'selected' : '' }}>Cash</option>
+                            <option value="mobile_money" {{ request('payment_method') == 'mobile_money' ? 'selected' : '' }}>Mobile Money</option>
+                        </select>
+                    </div>
+                    <div class="w-36">
+                        <select
+                            name="payment_status"
+                            class="w-full py-2 px-3 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition bg-white"
+                        >
+                            <option value="all">All Statuses</option>
+                            <option value="completed" {{ request('payment_status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                            <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="partial" {{ request('payment_status') == 'partial' ? 'selected' : '' }}>Partial</option>
+                        </select>
+                    </div>
+                    <button
+                        type="submit"
+                        class="px-4 py-2 text-sm bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors font-medium whitespace-nowrap"
+                    >
+                        <i data-lucide="filter" class="w-4 h-4 inline mr-1"></i>
+                        Filter
+                    </button>
+                    @if(request()->hasAny(['search', 'payment_method', 'payment_status']))
+                        <a
+                            href="{{ route('admin.sales.index') }}"
+                            class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium border border-gray-300 whitespace-nowrap"
+                        >
+                            <i data-lucide="x" class="w-4 h-4 inline mr-1"></i>
+                            Clear
+                        </a>
+                    @endif
                 </form>
             </div>
 
@@ -217,7 +195,7 @@
                                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Date</th>
                                     <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Payment</th>
                                     <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700">Total</th>
-                                    <th class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-[120px]">Actions</th>
+                                    <th class="py-3 px-4 text-center text-sm font-semibold text-gray-700">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -244,10 +222,15 @@
                                         <td class="py-3 px-4 text-sm text-right text-gray-800 font-semibold">
                                             {{ number_format($sale->final_amount, 0) }} UGX
                                         </td>
-                                        <td class="py-3 px-4 text-center">
-                                            <div class="flex items-center justify-center space-x-2">
-                                                <a href="{{ route('admin.sales.show', $sale->id) }}" class="text-primary-500 hover:text-primary-600 transition-colors" title="View">
-                                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center justify-center gap-2">
+                                                <a href="{{ route('admin.sales.show', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 hover:text-primary-700 transition-colors" title="View Sale">
+                                                    <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                                                    View
+                                                </a>
+                                                <a href="{{ route('admin.sales.receipt.download', $sale->id) }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-600 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 hover:text-green-700 transition-colors" title="Download Receipt">
+                                                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                                                    Receipt
                                                 </a>
                                             </div>
                                         </td>

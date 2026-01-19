@@ -87,4 +87,34 @@ class SaleController extends Controller
         $sale->load(['customer', 'creator', 'saleItems.product']);
         return view('backend.sales.show', compact('sale'));
     }
+
+    /**
+     * Display receipt for the sale.
+     */
+    public function receipt(Sale $sale)
+    {
+        $sale->load(['customer', 'creator', 'saleItems.product']);
+        return view('backend.sales.receipt', compact('sale'));
+    }
+
+    /**
+     * Download receipt as PDF.
+     */
+    public function downloadReceipt(Sale $sale)
+    {
+        $sale->load(['customer', 'creator', 'saleItems.product']);
+        
+        try {
+            // Use the service container to resolve the PDF instance
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('backend.sales.receipt', compact('sale'));
+            $pdf->setPaper([0, 0, 226.77, 841.89], 'portrait'); // 80mm width in points (80mm = 226.77pt)
+            
+            return $pdf->download('receipt-' . $sale->id . '.pdf');
+        } catch (\Exception $e) {
+            \Log::error('PDF Generation Error: ' . $e->getMessage());
+            // Fallback: return view if PDF generation fails
+            return view('backend.sales.receipt', compact('sale'));
+        }
+    }
 }

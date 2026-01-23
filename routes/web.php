@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\SaleController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
+Route::get('/products/{id}', [FrontendController::class, 'showProduct'])->name('frontend.products.show');
 
 // Authenticated routes
 Route::middleware([

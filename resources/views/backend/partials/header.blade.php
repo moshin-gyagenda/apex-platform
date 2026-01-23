@@ -13,11 +13,8 @@
 
                 <a href="{{ route('dashboard') }}" class="flex items-center ms-2 md:me-8 hover:opacity-80 transition-opacity duration-200">
                     <!-- Logo -->
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="MUBS Logo" class="h-10 w-10 me-3 object-contain">
-                    <div class="flex flex-col">
-                        <span class="self-center font-semibold whitespace-nowrap text-gray-900 text-base">Apex</span>
-                        <span class="text-xs text-gray-500">Apex Platform</span>
-                    </div>
+                    <img src="{{ asset('assets/images/logo.png') }}" alt="ApexDevHub Logo" class="h-12 w-auto ml-3 object-contain">
+                    
                 </a>
             </div>
 

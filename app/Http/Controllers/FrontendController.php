@@ -11,5 +11,13 @@ class FrontendController extends Controller
     {
         return view('frontend.index');
     }
+    
+    /**
+     * Display product detail page
+     */
+    public function showProduct($id)
+    {
+        return view('frontend.products.show', compact('id'));
+    }
 }
 

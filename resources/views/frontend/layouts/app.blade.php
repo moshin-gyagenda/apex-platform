@@ -133,6 +133,22 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.18);
         }
+        
+        /* Toast notification animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.3s ease-out;
+        }
     </style>
     
     @yield('styles')

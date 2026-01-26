@@ -23,86 +23,79 @@
                 <!-- Product Images -->
                 <div>
                     @php
-                        $productImages = [
-                            'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=800',
-                            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800',
-                            'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800',
-                            'https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800',
-                        ];
-                        $product = [
-                            'name' => 'iPhone 15 Pro Max 256GB',
-                            'price' => 4500000,
-                            'oldPrice' => 5200000,
-                            'discount' => 13,
-                            'rating' => 4.8,
-                            'reviews' => 1247,
-                            'inStock' => true,
-                            'brand' => 'Apple',
-                            'model' => 'iPhone 15 Pro Max',
-                            'color' => 'Natural Titanium',
-                            'storage' => '256GB',
-                            'description' => 'The iPhone 15 Pro Max features a stunning 6.7-inch Super Retina XDR display, the powerful A17 Pro chip, and an advanced camera system. With its titanium design and all-day battery life, it\'s the ultimate iPhone experience.',
-                            'specifications' => [
-                                'Display' => '6.7-inch Super Retina XDR OLED',
-                                'Processor' => 'A17 Pro chip',
-                                'Storage' => '256GB',
-                                'Camera' => '48MP Main, 12MP Ultra Wide, 12MP Telephoto',
-                                'Battery' => 'Up to 29 hours video playback',
-                                'Operating System' => 'iOS 17',
-                                'Connectivity' => '5G, Wi-Fi 6E, Bluetooth 5.3',
-                            ],
-                        ];
+                        $mainImage = $product->image 
+                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                            : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800';
+                        $productImages = [$mainImage]; // You can add more images later if you have a gallery
                     @endphp
                     
                     <!-- Main Image -->
                     <div class="mb-4">
-                        <img id="main-image" src="{{ $productImages[0] }}" alt="{{ $product['name'] }}" class="w-full h-96 object-cover rounded-xl border border-gray-200">
+                        <img id="main-image" src="{{ $mainImage }}" alt="{{ $product->name }}" class="w-full h-96 object-cover rounded-xl border border-gray-200">
                     </div>
                     
                     <!-- Thumbnail Images -->
-                    <div class="grid grid-cols-4 gap-4">
-                        @foreach($productImages as $index => $image)
-                            <button onclick="changeMainImage('{{ $image }}')" class="border-2 border-gray-200 rounded-lg overflow-hidden hover:border-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500">
-                                <img src="{{ $image }}" alt="Thumbnail {{ $index + 1 }}" class="w-full h-24 object-cover">
-                            </button>
-                        @endforeach
-                    </div>
+                    @if(count($productImages) > 1)
+                        <div class="grid grid-cols-4 gap-4">
+                            @foreach($productImages as $index => $image)
+                                <button onclick="changeMainImage('{{ $image }}')" class="border-2 border-gray-200 rounded-lg overflow-hidden hover:border-primary-500 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500">
+                                    <img src="{{ $image }}" alt="Thumbnail {{ $index + 1 }}" class="w-full h-24 object-cover">
+                                </button>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
                 
                 <!-- Product Info -->
                 <div>
                     <div class="mb-4">
-                        <span class="inline-block bg-primary-100 text-primary-600 text-xs font-semibold px-3 py-1 rounded-full mb-2">{{ $product['brand'] }}</span>
-                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{{ $product['name'] }}</h1>
+                        @if($product->brand)
+                            <span class="inline-block bg-primary-100 text-primary-600 text-xs font-semibold px-3 py-1 rounded-full mb-2">{{ $product->brand->name }}</span>
+                        @endif
+                        <h1 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">{{ $product->name }}</h1>
+                        
+                        @if($product->category)
+                            <p class="text-gray-600 mb-4">Category: <span class="font-semibold">{{ $product->category->name }}</span></p>
+                        @endif
                         
                         <!-- Rating -->
                         <div class="flex items-center space-x-2 mb-4">
                             <div class="flex items-center">
                                 @for($i = 0; $i < 5; $i++)
-                                    <i data-lucide="star" class="w-5 h-5 {{ $i < floor($product['rating']) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300' }}"></i>
+                                    <i data-lucide="star" class="w-5 h-5 fill-yellow-400 text-yellow-400"></i>
                                 @endfor
                             </div>
-                            <span class="text-gray-600">({{ $product['rating'] }})</span>
+                            <span class="text-gray-600">(4.8)</span>
                             <span class="text-gray-400">|</span>
-                            <span class="text-gray-600">{{ number_format($product['reviews']) }} Reviews</span>
+                            <span class="text-gray-600">Reviews</span>
                         </div>
                         
                         <!-- Price -->
                         <div class="mb-6">
                             <div class="flex items-center space-x-4 mb-2">
-                                <span class="text-4xl font-bold text-primary-600">UGX {{ number_format($product['price'], 0) }}</span>
-                                <span class="text-2xl text-gray-500 line-through">UGX {{ number_format($product['oldPrice'], 0) }}</span>
-                                <span class="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">-{{ $product['discount'] }}%</span>
+                                <span class="text-4xl font-bold text-primary-600">UGX {{ number_format($product->selling_price, 0) }}</span>
+                                @php
+                                    $margin = $product->cost_price > 0 ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
+                                    $showDiscount = $margin > 20;
+                                    $discount = $showDiscount ? round($margin * 0.3) : 0;
+                                @endphp
+                                @if($showDiscount && $product->cost_price > 0)
+                                    @php
+                                        $originalPrice = $product->selling_price / (1 - ($discount / 100));
+                                    @endphp
+                                    <span class="text-2xl text-gray-500 line-through">UGX {{ number_format($originalPrice, 0) }}</span>
+                                    <span class="bg-red-500 text-white text-sm font-bold px-3 py-1 rounded-full">-{{ $discount }}%</span>
+                                @endif
                             </div>
                             <p class="text-sm text-gray-600">Inclusive of all taxes</p>
                         </div>
                         
                         <!-- Stock Status -->
                         <div class="mb-6">
-                            @if($product['inStock'])
+                            @if($product->quantity > 0)
                                 <div class="flex items-center space-x-2 text-green-600 mb-2">
                                     <i data-lucide="check-circle" class="w-5 h-5"></i>
-                                    <span class="font-semibold">In Stock</span>
+                                    <span class="font-semibold">In Stock ({{ $product->quantity }} available)</span>
                                 </div>
                             @else
                                 <div class="flex items-center space-x-2 text-red-600 mb-2">
@@ -112,27 +105,18 @@
                             @endif
                         </div>
                         
-                        <!-- Variants -->
-                        <div class="mb-6 space-y-4">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-900 mb-2">Color: {{ $product['color'] }}</label>
-                                <div class="flex space-x-3">
-                                    <button class="w-12 h-12 rounded-full border-2 border-gray-300 bg-gray-200 hover:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"></button>
-                                    <button class="w-12 h-12 rounded-full border-2 border-gray-300 bg-blue-500 hover:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"></button>
-                                    <button class="w-12 h-12 rounded-full border-2 border-gray-300 bg-purple-500 hover:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"></button>
-                                    <button class="w-12 h-12 rounded-full border-2 border-primary-500 bg-gray-900 hover:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500"></button>
-                                </div>
+                        <!-- Product Details -->
+                        @if($product->sku)
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-600">SKU: <span class="font-semibold text-gray-900">{{ $product->sku }}</span></p>
                             </div>
-                            
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-900 mb-2">Storage: {{ $product['storage'] }}</label>
-                                <div class="flex space-x-3">
-                                    <button class="px-4 py-2 border-2 border-primary-500 bg-primary-50 text-primary-600 rounded-lg font-medium">256GB</button>
-                                    <button class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:border-primary-500">512GB</button>
-                                    <button class="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-lg font-medium hover:border-primary-500">1TB</button>
-                                </div>
+                        @endif
+                        
+                        @if($product->productModel)
+                            <div class="mb-4">
+                                <p class="text-sm text-gray-600">Model: <span class="font-semibold text-gray-900">{{ $product->productModel->name }}</span></p>
                             </div>
-                        </div>
+                        @endif
                         
                         <!-- Quantity and Add to Cart -->
                         <div class="mb-6">
@@ -152,9 +136,12 @@
                         
                         <!-- Action Buttons -->
                         <div class="flex flex-col sm:flex-row gap-4 mb-8">
-                            <button class="flex-1 bg-primary-500 text-white py-4 rounded-lg font-semibold hover:bg-primary-600 transition-colors flex items-center justify-center">
+                            <button 
+                                onclick="addToCart({{ $product->id }})"
+                                id="add-to-cart-btn"
+                                class="flex-1 bg-primary-500 text-white py-4 rounded-lg font-semibold hover:bg-primary-600 transition-colors flex items-center justify-center">
                                 <i data-lucide="shopping-cart" class="w-5 h-5 mr-2"></i>
-                                Add to Cart
+                                <span id="add-to-cart-text">Add to Cart</span>
                             </button>
                             <button class="flex-1 bg-white border-2 border-primary-500 text-primary-600 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors flex items-center justify-center">
                                 <i data-lucide="heart" class="w-5 h-5 mr-2"></i>
@@ -208,14 +195,14 @@
                             Specifications
                         </button>
                         <button onclick="showTab('reviews')" id="tab-reviews" class="py-4 px-1 border-b-2 border-transparent font-semibold text-gray-500 hover:text-gray-700">
-                            Reviews ({{ $product['reviews'] }})
+                            Reviews
                         </button>
                     </nav>
                 </div>
                 
                 <!-- Description Tab -->
                 <div id="content-description" class="tab-content">
-                    <p class="text-gray-700 leading-relaxed mb-6">{{ $product['description'] }}</p>
+                    <p class="text-gray-700 leading-relaxed mb-6">{{ $product->description ?? 'No description available.' }}</p>
                     <div class="grid md:grid-cols-2 gap-6">
                         <div>
                             <h3 class="font-semibold text-gray-900 mb-3">Key Features</h3>
@@ -263,12 +250,56 @@
                     <div class="bg-gray-50 rounded-lg p-6">
                         <table class="w-full">
                             <tbody class="divide-y divide-gray-200">
-                                @foreach($product['specifications'] as $key => $value)
+                                @if($product->sku)
                                     <tr class="hover:bg-white transition-colors">
-                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">{{ $key }}</td>
-                                        <td class="py-3 px-4 text-gray-700">{{ $value }}</td>
+                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">SKU</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ $product->sku }}</td>
                                     </tr>
-                                @endforeach
+                                @endif
+                                @if($product->barcode)
+                                    <tr class="hover:bg-white transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Barcode</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ $product->barcode }}</td>
+                                    </tr>
+                                @endif
+                                @if($product->category)
+                                    <tr class="hover:bg-white transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Category</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ $product->category->name }}</td>
+                                    </tr>
+                                @endif
+                                @if($product->brand)
+                                    <tr class="hover:bg-white transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Brand</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ $product->brand->name }}</td>
+                                    </tr>
+                                @endif
+                                @if($product->productModel)
+                                    <tr class="hover:bg-white transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Model</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ $product->productModel->name }}</td>
+                                    </tr>
+                                @endif
+                                <tr class="hover:bg-white transition-colors">
+                                    <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Price</td>
+                                    <td class="py-3 px-4 text-gray-700">UGX {{ number_format($product->selling_price, 2) }}</td>
+                                </tr>
+                                <tr class="hover:bg-white transition-colors">
+                                    <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Quantity Available</td>
+                                    <td class="py-3 px-4 text-gray-700">{{ $product->quantity }}</td>
+                                </tr>
+                                @if($product->warranty_months)
+                                    <tr class="hover:bg-white transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Warranty</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ $product->warranty_months }} months</td>
+                                    </tr>
+                                @endif
+                                @if($product->serial_number)
+                                    <tr class="hover:bg-white transition-colors">
+                                        <td class="py-3 px-4 font-semibold text-gray-900 w-1/3">Serial Number</td>
+                                        <td class="py-3 px-4 text-gray-700">{{ $product->serial_number }}</td>
+                                    </tr>
+                                @endif
                             </tbody>
                         </table>
                     </div>
@@ -308,38 +339,45 @@
             </div>
             
             <!-- Related Products -->
-            <div class="mt-16">
-                <h2 class="text-2xl font-bold text-gray-900 mb-8">You May Also Like</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-                    @php
-                        $relatedProducts = [
-                            ['name' => 'iPhone 15 Pro', 'price' => 4200000, 'oldPrice' => 4800000, 'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400'],
-                            ['name' => 'Samsung Galaxy S24', 'price' => 3800000, 'oldPrice' => 4500000, 'image' => 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400'],
-                            ['name' => 'Google Pixel 8 Pro', 'price' => 3500000, 'oldPrice' => 4000000, 'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400'],
-                            ['name' => 'OnePlus 12', 'price' => 3200000, 'oldPrice' => 3800000, 'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400'],
-                            ['name' => 'Xiaomi 14 Pro', 'price' => 3000000, 'oldPrice' => 3500000, 'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400'],
-                        ];
-                    @endphp
-                    
-                    @foreach($relatedProducts as $related)
-                        <a href="#" class="product-card bg-white rounded-xl overflow-hidden shadow-md block">
-                            <div class="relative">
-                                <img src="{{ $related['image'] }}" alt="{{ $related['name'] }}" class="w-full h-48 object-cover">
-                                <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                    -{{ round((($related['oldPrice'] - $related['price']) / $related['oldPrice']) * 100) }}%
-                                </span>
-                            </div>
-                            <div class="p-4">
-                                <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm">{{ $related['name'] }}</h3>
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-lg font-bold text-primary-600">UGX {{ number_format($related['price'], 0) }}</span>
-                                    <span class="text-sm text-gray-500 line-through">UGX {{ number_format($related['oldPrice'], 0) }}</span>
+            @if($relatedProducts->count() > 0)
+                <div class="mt-16">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-8">You May Also Like</h2>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                        @foreach($relatedProducts as $related)
+                            @php
+                                $margin = $related->cost_price > 0 ? (($related->selling_price - $related->cost_price) / $related->selling_price) * 100 : 0;
+                                $showDiscount = $margin > 20;
+                                $discount = $showDiscount ? round($margin * 0.3) : 0;
+                                $imageUrl = $related->image 
+                                    ? (str_starts_with($related->image, 'http') ? $related->image : asset('storage/' . $related->image))
+                                    : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                            @endphp
+                            <a href="{{ route('frontend.products.show', $related->id) }}" class="product-card bg-white rounded-xl overflow-hidden shadow-md block">
+                                <div class="relative">
+                                    <img src="{{ $imageUrl }}" alt="{{ $related->name }}" class="w-full h-48 object-cover">
+                                    @if($discount > 0)
+                                        <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                            -{{ $discount }}%
+                                        </span>
+                                    @endif
                                 </div>
-                            </div>
-                        </a>
-                    @endforeach
+                                <div class="p-4">
+                                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm">{{ $related->name }}</h3>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-lg font-bold text-primary-600">UGX {{ number_format($related->selling_price, 0) }}</span>
+                                        @if($showDiscount && $related->cost_price > 0)
+                                            @php
+                                                $originalPrice = $related->selling_price / (1 - ($discount / 100));
+                                            @endphp
+                                            <span class="text-sm text-gray-500 line-through">UGX {{ number_format($originalPrice, 0) }}</span>
+                                        @endif
+                                    </div>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
                 </div>
-            </div>
+            @endif
         </div>
     </section>
 @endsection
@@ -381,6 +419,115 @@
         const activeTab = document.getElementById('tab-' + tabName);
         activeTab.classList.add('border-primary-500', 'text-primary-600');
         activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+
+    function addToCart(productId) {
+        const quantity = parseInt(document.getElementById('quantity').value) || 1;
+        const btn = document.getElementById('add-to-cart-btn');
+        const btnText = document.getElementById('add-to-cart-text');
+        
+        // Store original state
+        const originalText = btnText.textContent;
+        const originalClasses = btn.className;
+        
+        // Disable button and show loading
+        btn.disabled = true;
+        btnText.textContent = 'Adding...';
+        
+        fetch(`{{ url('/cart/add') }}/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ quantity: quantity })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success toast notification
+                showSuccessToast('Product added to cart successfully!');
+                
+                // Update cart count in header
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                }
+                
+                // Reset button to original state
+                btnText.textContent = originalText;
+                btn.className = originalClasses;
+                btn.disabled = false;
+            } else {
+                showErrorToast(data.message || 'Failed to add product to cart');
+                btnText.textContent = originalText;
+                btn.className = originalClasses;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorToast('An error occurred. Please try again.');
+            btnText.textContent = originalText;
+            btn.className = originalClasses;
+            btn.disabled = false;
+        });
+    }
+    
+    // Toast notification functions
+    function showSuccessToast(message) {
+        const toast = document.createElement('div');
+        toast.id = 'success-toast';
+        toast.className = 'fixed top-20 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+        toast.innerHTML = `
+            <i data-lucide="check-circle" class="w-6 h-6 flex-shrink-0"></i>
+            <span class="font-medium">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    }
+    
+    function showErrorToast(message) {
+        const toast = document.createElement('div');
+        toast.id = 'error-toast';
+        toast.className = 'fixed top-20 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+        toast.innerHTML = `
+            <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0"></i>
+            <span class="font-medium">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 400);
+            }
+        }, 4000);
     }
 </script>
 @endsection

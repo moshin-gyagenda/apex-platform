@@ -15,10 +15,21 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\POSController;
 use App\Http\Controllers\Admin\TaxSettingsController;
 use App\Http\Controllers\Admin\SaleController;
+use App\Http\Controllers\CartController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/products/{id}', [FrontendController::class, 'showProduct'])->name('frontend.products.show');
+
+// Cart routes
+Route::prefix('cart')->name('cart.')->group(function () {
+    Route::get('/', [CartController::class, 'index'])->name('index');
+    Route::post('/add/{productId}', [CartController::class, 'add'])->name('add');
+    Route::put('/update/{productId}', [CartController::class, 'update'])->name('update');
+    Route::delete('/remove/{productId}', [CartController::class, 'remove'])->name('remove');
+    Route::delete('/clear', [CartController::class, 'clear'])->name('clear');
+    Route::get('/count', [CartController::class, 'count'])->name('count');
+});
 
 // Authenticated routes
 Route::middleware([

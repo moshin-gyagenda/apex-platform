@@ -164,30 +164,43 @@
             
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 @php
-                    $categories = [
-                        ['name' => 'Smartphones', 'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400'],
-                        ['name' => 'Laptops', 'image' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400'],
-                        ['name' => 'Audio', 'image' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400'],
-                        ['name' => 'Cameras', 'image' => 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400'],
-                        ['name' => 'Gaming', 'image' => 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400'],
-                        ['name' => 'Wearables', 'image' => 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=400'],
+                    // Default category images mapping
+                    $categoryImages = [
+                        'Smartphones' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
+                        'Laptops' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
+                        'Audio' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+                        'Cameras' => 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400',
+                        'Gaming' => 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400',
+                        'Wearables' => 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=400',
                     ];
                 @endphp
                 
-                @foreach($categories as $category)
-                    <a href="#" class="group relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden" style="border-radius: 10px;">
+                @forelse($categories as $category)
+                    @php
+                        // Use category image from database if available, otherwise use default mapping
+                        if ($category->image) {
+                            $categoryImage = str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image);
+                        } else {
+                            $categoryImage = $categoryImages[$category->name] ?? 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                        }
+                    @endphp
+                    <a href="{{ route('frontend.index') }}?category={{ $category->id }}" class="group relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden" style="border-radius: 10px;">
                         <div class="relative h-40 overflow-hidden">
-                            <img src="{{ $category['image'] }}" 
-                                 alt="{{ $category['name'] }}" 
+                            <img src="{{ $categoryImage }}" 
+                                 alt="{{ $category->name }}" 
                                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                  style="border-radius: 10px 10px 0 0;">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-white font-semibold text-sm md:text-base px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">{{ $category['name'] }}</span>
+                                <span class="text-white font-semibold text-sm md:text-base px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">{{ $category->name }}</span>
                             </div>
                         </div>
                     </a>
-                @endforeach
+                @empty
+                    <div class="col-span-6 text-center py-8">
+                        <p class="text-gray-500">No categories available</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -231,33 +244,40 @@
                 <div class="overflow-hidden">
                     <div id="flash-sales-carousel" class="flex space-x-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style="scrollbar-width: none; -ms-overflow-style: none;">
                         <div class="flex space-x-4 min-w-max">
-                @php
-                    $flashProducts = [
-                        ['name' => 'iPhone 15 Pro Max', 'price' => 4500000, 'oldPrice' => 5200000, 'discount' => 13, 'image' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400'],
-                        ['name' => 'Samsung Galaxy S24', 'price' => 3800000, 'oldPrice' => 4500000, 'discount' => 16, 'image' => 'https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400'],
-                        ['name' => 'MacBook Pro M3', 'price' => 8500000, 'oldPrice' => 9500000, 'discount' => 11, 'image' => 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=400'],
-                        ['name' => 'AirPods Pro 2', 'price' => 850000, 'oldPrice' => 1200000, 'discount' => 29, 'image' => 'https://images.unsplash.com/photo-1606220945770-b5b6c2c55bf1?w=400'],
-                        ['name' => 'Sony WH-1000XM5', 'price' => 1200000, 'oldPrice' => 1500000, 'discount' => 20, 'image' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400'],
-                        ['name' => 'iPad Air 5th Gen', 'price' => 3200000, 'oldPrice' => 3800000, 'discount' => 16, 'image' => 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400'],
-                    ];
-                @endphp
-                
-                            @foreach($flashProducts as $product)
+                            @forelse($flashProducts as $product)
+                                @php
+                                    // Calculate discount based on margin (if cost_price is significantly lower than selling_price, show a "sale" badge)
+                                    $margin = $product->cost_price > 0 ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
+                                    $showDiscount = $margin > 20; // Show discount badge if margin is good
+                                    $discount = $showDiscount ? round($margin * 0.3) : 0; // Show a percentage based on margin
+                                    $imageUrl = $product->image 
+                                        ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                                        : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                                @endphp
                                 <div class="product-card bg-white rounded-xl overflow-hidden shadow-md flex-shrink-0" style="width: 200px;">
-                                    <div class="relative">
-                                        <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" class="w-full h-40 object-cover">
-                                        <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                            -{{ $product['discount'] }}%
-                                        </span>
+                                    <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
+                                        <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 object-cover">
+                                        @if($discount > 0)
+                                            <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                                -{{ $discount }}%
+                                            </span>
+                                        @endif
                                         <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
                                             <i data-lucide="heart" class="w-4 h-4"></i>
                                         </button>
-                                    </div>
+                                    </a>
                                     <div class="p-3">
-                                        <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs">{{ $product['name'] }}</h3>
+                                        <a href="{{ route('frontend.products.show', $product->id) }}">
+                                            <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs hover:text-primary-600 transition-colors">{{ $product->name }}</h3>
+                                        </a>
                                         <div class="flex items-center space-x-2 mb-2">
-                                            <span class="text-sm font-bold text-primary-600">UGX {{ number_format($product['price'], 0) }}</span>
-                                            <span class="text-xs text-gray-500 line-through">UGX {{ number_format($product['oldPrice'], 0) }}</span>
+                                            <span class="text-sm font-bold text-primary-600">UGX {{ number_format($product->selling_price, 0) }}</span>
+                                            @if($showDiscount && $product->cost_price > 0)
+                                                @php
+                                                    $originalPrice = $product->selling_price / (1 - ($discount / 100));
+                                                @endphp
+                                                <span class="text-xs text-gray-500 line-through">UGX {{ number_format($originalPrice, 0) }}</span>
+                                            @endif
                                         </div>
                                         <div class="flex items-center space-x-1 mb-2">
                                             @for($i = 0; $i < 5; $i++)
@@ -265,12 +285,16 @@
                                             @endfor
                                             <span class="text-xs text-gray-500 ml-1">(4.8)</span>
                                         </div>
-                                        <button class="w-full bg-primary-500 text-white py-1.5 rounded-lg text-xs font-medium hover:bg-primary-600 transition-colors">
+                                        <button onclick="addToCart({{ $product->id }}, this)" class="w-full bg-primary-500 text-white py-1.5 rounded-lg text-xs font-medium hover:bg-primary-600 transition-colors">
                                             Add to Cart
                                         </button>
                                     </div>
                                 </div>
-                            @endforeach
+                            @empty
+                                <div class="col-span-6 text-center py-8 text-white">
+                                    <p>No flash sale products available</p>
+                                </div>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -293,71 +317,58 @@
                 <p class="text-gray-600">Handpicked selection of our best products</p>
             </div>
             
-            <!-- Carousel Container -->
-            <div class="relative">
-                <div class="overflow-hidden">
-                    <div id="featured-products-carousel" class="flex space-x-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style="scrollbar-width: none; -ms-overflow-style: none;">
-                        <div class="flex space-x-4 min-w-max">
-                @php
-                    $featuredProducts = [
-                        ['name' => 'Dell XPS 15 Laptop', 'price' => 6500000, 'oldPrice' => 7500000, 'discount' => 13, 'image' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400', 'rating' => 4.9],
-                        ['name' => 'Canon EOS R5', 'price' => 12000000, 'oldPrice' => 14000000, 'discount' => 14, 'image' => 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400', 'rating' => 4.7],
-                        ['name' => 'Nintendo Switch OLED', 'price' => 1800000, 'oldPrice' => 2200000, 'discount' => 18, 'image' => 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400', 'rating' => 4.8],
-                        ['name' => 'Samsung 4K TV 55"', 'price' => 3500000, 'oldPrice' => 4200000, 'discount' => 17, 'image' => 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400', 'rating' => 4.6],
-                        ['name' => 'Logitech MX Master 3', 'price' => 280000, 'oldPrice' => 350000, 'discount' => 20, 'image' => 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=400', 'rating' => 4.9],
-                        ['name' => 'Apple Watch Series 9', 'price' => 1800000, 'oldPrice' => 2200000, 'discount' => 18, 'image' => 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=400', 'rating' => 4.8],
-                        ['name' => 'Bose QuietComfort 45', 'price' => 1500000, 'oldPrice' => 1800000, 'discount' => 17, 'image' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400', 'rating' => 4.7],
-                        ['name' => 'DJI Mini 4 Pro', 'price' => 3200000, 'oldPrice' => 3800000, 'discount' => 16, 'image' => 'https://images.unsplash.com/photo-1473968512647-3e447244af8f?w=400', 'rating' => 4.9],
-                        ['name' => 'Razer DeathAdder V3', 'price' => 180000, 'oldPrice' => 250000, 'discount' => 28, 'image' => 'https://images.unsplash.com/photo-1527814050087-3793815479db?w=400', 'rating' => 4.8],
-                        ['name' => 'Xbox Series X', 'price' => 2800000, 'oldPrice' => 3200000, 'discount' => 13, 'image' => 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400', 'rating' => 4.9],
-                    ];
-                @endphp
-                
-                            @foreach($featuredProducts as $product)
-                                <div class="product-card bg-white rounded-xl overflow-hidden shadow-md flex-shrink-0 border border-gray-200" style="width: 220px;">
-                                    <a href="#" class="block relative">
-                                        <img src="{{ $product['image'] }}" alt="{{ $product['name'] }}" class="w-full h-48 object-cover">
-                                        @if($product['discount'] > 0)
-                                            <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                                -{{ $product['discount'] }}%
-                                            </span>
-                                        @endif
-                                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
-                                            <i data-lucide="heart" class="w-4 h-4"></i>
-                                        </button>
-                                    </a>
-                                    <div class="p-3">
-                                        <a href="#">
-                                            <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm hover:text-primary-600 transition-colors">{{ $product['name'] }}</h3>
-                                        </a>
-                                        <div class="flex items-center space-x-2 mb-2">
-                                            <span class="text-base font-bold text-primary-600">UGX {{ number_format($product['price'], 0) }}</span>
-                                            @if($product['oldPrice'] > $product['price'])
-                                                <span class="text-xs text-gray-500 line-through">UGX {{ number_format($product['oldPrice'], 0) }}</span>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center space-x-1 mb-3">
-                                            @for($i = 0; $i < 5; $i++)
-                                                <i data-lucide="star" class="w-3 h-3 {{ $i < floor($product['rating']) ? 'fill-yellow-400 text-yellow-400' : 'text-gray-300' }}"></i>
-                                            @endfor
-                                            <span class="text-xs text-gray-500 ml-1">({{ $product['rating'] }})</span>
-                                        </div>
-                                        <button class="w-full bg-primary-500 text-white py-2 rounded-lg text-sm font-medium hover:bg-primary-600 transition-colors">
-                                            Add to Cart
-                                        </button>
-                                    </div>
-                                </div>
-                            @endforeach
+            <!-- Grid Container - 2 Rows -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                @forelse($featuredProducts as $product)
+                    @php
+                        $margin = $product->cost_price > 0 ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
+                        $showDiscount = $margin > 20;
+                        $discount = $showDiscount ? round($margin * 0.3) : 0;
+                        $imageUrl = $product->image 
+                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                            : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                    @endphp
+                    <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">
+                        <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
+                            <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 sm:h-48 object-cover">
+                            @if($discount > 0)
+                                <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                    -{{ $discount }}%
+                                </span>
+                            @endif
+                            <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                            </button>
+                        </a>
+                        <div class="p-3">
+                            <a href="{{ route('frontend.products.show', $product->id) }}">
+                                <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs sm:text-sm hover:text-primary-600 transition-colors">{{ $product->name }}</h3>
+                            </a>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="text-sm sm:text-base font-bold text-primary-600">UGX {{ number_format($product->selling_price, 0) }}</span>
+                                @if($showDiscount && $product->cost_price > 0)
+                                    @php
+                                        $originalPrice = $product->selling_price / (1 - ($discount / 100));
+                                    @endphp
+                                    <span class="text-xs text-gray-500 line-through">UGX {{ number_format($originalPrice, 0) }}</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center space-x-1 mb-3">
+                                @for($i = 0; $i < 5; $i++)
+                                    <i data-lucide="star" class="w-3 h-3 fill-yellow-400 text-yellow-400"></i>
+                                @endfor
+                                <span class="text-xs text-gray-500 ml-1">(4.8)</span>
+                            </div>
+                            <button onclick="addToCart({{ $product->id }}, this)" class="w-full bg-primary-500 text-white py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-600 transition-colors">
+                                Add to Cart
+                            </button>
                         </div>
                     </div>
-                </div>
-                <!-- Navigation Buttons -->
-                <button onclick="scrollFeaturedProducts('left')" class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg z-10 hidden md:block border border-gray-200">
-                    <i data-lucide="chevron-left" class="w-5 h-5 text-gray-700"></i>
-                </button>
-                <button onclick="scrollFeaturedProducts('right')" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg z-10 hidden md:block border border-gray-200">
-                    <i data-lucide="chevron-right" class="w-5 h-5 text-gray-700"></i>
-                </button>
+                @empty
+                    <div class="col-span-full text-center py-8">
+                        <p class="text-gray-500">No featured products available</p>
+                    </div>
+                @endforelse
             </div>
             
             <div class="text-center mt-8">
@@ -456,15 +467,117 @@
         }
     }
     
-    function scrollFeaturedProducts(direction) {
-        const carousel = document.getElementById('featured-products-carousel');
-        const scrollAmount = 240; // Width of card + gap
-        if (carousel) {
-            carousel.scrollBy({
-                left: direction === 'left' ? -scrollAmount : scrollAmount,
-                behavior: 'smooth'
-            });
+    // Add to Cart function
+    function addToCart(productId, buttonElement) {
+        const btn = buttonElement || event?.target || document.querySelector(`button[onclick*="addToCart(${productId})"]`);
+        
+        // Store original button state
+        let originalText = 'Add to Cart';
+        let originalClasses = '';
+        if (btn) {
+            originalText = btn.textContent.trim();
+            originalClasses = btn.className;
+            btn.disabled = true;
+            btn.textContent = 'Adding...';
         }
+        
+        fetch(`{{ url('/cart/add') }}/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success toast notification
+                showSuccessToast('Product added to cart successfully!');
+                
+                // Update cart count in header (without reloading)
+                updateCartCount();
+                
+                // Reset button to original state
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.className = originalClasses;
+                    btn.disabled = false;
+                }
+            } else {
+                showErrorToast(data.message || 'Failed to add product to cart');
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.className = originalClasses;
+                    btn.disabled = false;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorToast('An error occurred. Please try again.');
+            if (btn) {
+                btn.textContent = originalText;
+                btn.className = originalClasses;
+                btn.disabled = false;
+            }
+        });
+    }
+    
+    // Toast notification functions
+    function showSuccessToast(message) {
+        const toast = document.createElement('div');
+        toast.id = 'success-toast';
+        toast.className = 'fixed top-20 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+        toast.innerHTML = `
+            <i data-lucide="check-circle" class="w-6 h-6 flex-shrink-0"></i>
+            <span class="font-medium">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    }
+    
+    function showErrorToast(message) {
+        const toast = document.createElement('div');
+        toast.id = 'error-toast';
+        toast.className = 'fixed top-20 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+        toast.innerHTML = `
+            <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0"></i>
+            <span class="font-medium">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 400);
+            }
+        }, 4000);
     }
     
     // Initialize carousel on page load

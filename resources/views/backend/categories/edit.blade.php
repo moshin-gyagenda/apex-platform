@@ -65,7 +65,7 @@
                 </button>
             </div>
 
-            <form action="{{ route('admin.categories.update', $category->id) }}" method="POST">
+            <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
@@ -95,6 +95,74 @@
                                 >
                                 @error('name')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <!-- Category Image -->
+                        <div>
+                            <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                                <i data-lucide="image" class="w-4 h-4 mr-2 text-primary-500"></i>
+                                Category Image <span class="text-gray-500 text-xs font-normal">(Optional)</span>
+                            </h4>
+                            <div>
+                                <input
+                                    type="file"
+                                    name="image"
+                                    id="image"
+                                    accept="image/*"
+                                    class="hidden"
+                                >
+                                
+                                <div class="relative">
+                                    <!-- Current Image Preview -->
+                                    @if($category->image)
+                                        <div id="current-image-container" class="mb-4">
+                                            <p class="text-sm text-gray-600 mb-2">Current Image:</p>
+                                            <div class="relative inline-block">
+                                                <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image) }}" alt="Current Image" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                    <!-- Image Preview (for new upload) -->
+                                    <div id="image-preview-container" class="mb-4 hidden">
+                                        <p class="text-sm text-gray-600 mb-2">New Image Preview:</p>
+                                        <div class="relative inline-block">
+                                            <img id="image-preview" alt="Preview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+                                            <button
+                                                type="button"
+                                                id="remove-image-btn"
+                                                class="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors"
+                                            >
+                                                <i data-lucide="x" class="w-4 h-4"></i>
+                                            </button>
+                                        </div>
+                                        <p id="image-name" class="mt-2 text-sm text-gray-600"></p>
+                                    </div>
+
+                                    <!-- Drag and Drop Area -->
+                                    <div
+                                        id="image-upload-area"
+                                        class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center cursor-pointer hover:border-primary-400 hover:bg-gray-50 transition-colors"
+                                    >
+                                        <div id="upload-placeholder">
+                                            <i data-lucide="upload-cloud" class="w-12 h-12 mx-auto text-gray-400 mb-3"></i>
+                                            <p class="text-sm font-medium text-gray-700 mb-1">
+                                                Click to upload or drag and drop
+                                            </p>
+                                            <p class="text-xs text-gray-500">
+                                                PNG, JPG, GIF, WEBP up to 2MB
+                                            </p>
+                                        </div>
+                                        <div id="upload-change-text" class="hidden text-sm text-gray-600">
+                                            <p class="mb-2">Click to change image</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                @error('image')
+                                    <p class="mt-2 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
                             </div>
                         </div>
@@ -128,6 +196,88 @@
                 this.closest('.alert-message').remove();
             });
         });
+
+        // Modern Image Upload with Drag & Drop
+        const imageInput = document.getElementById('image');
+        const uploadArea = document.getElementById('image-upload-area');
+        const imagePreview = document.getElementById('image-preview');
+        const imagePreviewContainer = document.getElementById('image-preview-container');
+        const imageName = document.getElementById('image-name');
+        const uploadPlaceholder = document.getElementById('upload-placeholder');
+        const uploadChangeText = document.getElementById('upload-change-text');
+        const removeImageBtn = document.getElementById('remove-image-btn');
+        const currentImageContainer = document.getElementById('current-image-container');
+
+        // Handle file selection
+        function handleFileSelect(file) {
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imageName.textContent = file.name;
+                    imagePreviewContainer.classList.remove('hidden');
+                    if (currentImageContainer) {
+                        currentImageContainer.classList.add('hidden');
+                    }
+                    uploadPlaceholder.classList.add('hidden');
+                    uploadChangeText.classList.remove('hidden');
+                    lucide.createIcons();
+                };
+                reader.readAsDataURL(file);
+            } else {
+                alert('Please select a valid image file.');
+            }
+        }
+
+        // Click to upload
+        uploadArea.addEventListener('click', function() {
+            imageInput.click();
+        });
+
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                handleFileSelect(this.files[0]);
+            }
+        });
+
+        // Drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            this.classList.add('border-primary-500', 'bg-primary-50');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-primary-500', 'bg-primary-50');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.classList.remove('border-primary-500', 'bg-primary-50');
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(e.dataTransfer.files[0]);
+                imageInput.files = dataTransfer.files;
+                handleFileSelect(e.dataTransfer.files[0]);
+            }
+        });
+
+        // Remove image
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                imageInput.value = '';
+                imagePreviewContainer.classList.add('hidden');
+                if (currentImageContainer) {
+                    currentImageContainer.classList.remove('hidden');
+                }
+                uploadPlaceholder.classList.remove('hidden');
+                uploadChangeText.classList.add('hidden');
+                imagePreview.src = '';
+                imageName.textContent = '';
+            });
+        }
     });
 </script>
 @endsection

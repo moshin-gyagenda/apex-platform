@@ -146,9 +146,13 @@
                                             <td class="py-3 px-4 text-sm text-gray-600">{{ $category->id }}</td>
                                             <td class="py-3 px-4">
                                                 <div class="flex items-center">
-                                                    <div class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center mr-3 border border-primary-100">
-                                                        <i data-lucide="folder" class="w-4 h-4 text-primary-500"></i>
-                                                    </div>
+                                                    @if($category->image)
+                                                        <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="w-10 h-10 rounded-lg object-cover mr-3 border border-gray-200">
+                                                    @else
+                                                        <div class="w-10 h-10 rounded-lg bg-primary-50 flex items-center justify-center mr-3 border border-primary-100">
+                                                            <i data-lucide="folder" class="w-5 h-5 text-primary-500"></i>
+                                                        </div>
+                                                    @endif
                                                     <div class="font-medium text-sm text-gray-800">{{ $category->name }}</div>
                                                 </div>
                                             </td>

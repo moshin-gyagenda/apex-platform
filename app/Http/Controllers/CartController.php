@@ -4,16 +4,38 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
 
 class CartController extends Controller
 {
     /**
+     * Normalize cart keys to integers
+     * This ensures consistency when session stores keys as strings
+     */
+    private function normalizeCart(array $cart): array
+    {
+        $normalizedCart = [];
+        foreach ($cart as $key => $value) {
+            $normalizedKey = (int) $key;
+            // Handle duplicate keys by merging quantities
+            if (isset($normalizedCart[$normalizedKey])) {
+                $normalizedCart[$normalizedKey] += (int) $value;
+            } else {
+                $normalizedCart[$normalizedKey] = (int) $value;
+            }
+        }
+        return $normalizedCart;
+    }
+
+    /**
      * Display the cart page
      */
-    public function index()
+    public function index(Request $request)
     {
-        $cart = Session::get('cart', []);
+        $cart = $request->session()->get('cart', []);
+        
+        // Normalize cart keys to integers
+        $cart = $this->normalizeCart($cart);
+        
         $cartItems = [];
         $total = 0;
 
@@ -50,7 +72,13 @@ class CartController extends Controller
             ], 400);
         }
 
-        $cart = Session::get('cart', []);
+        $cart = $request->session()->get('cart', []);
+        
+        // Normalize cart keys to integers
+        $cart = $this->normalizeCart($cart);
+        
+        // Ensure productId is treated as integer for consistency
+        $productId = (int) $productId;
         
         // Check if adding this quantity would exceed stock
         $currentQuantity = $cart[$productId] ?? 0;
@@ -60,7 +88,7 @@ class CartController extends Controller
                 'message' => 'Insufficient stock available'
             ], 400);
         }
-
+        
         // Add or update quantity
         if (isset($cart[$productId])) {
             $cart[$productId] += $quantityToAdd;
@@ -68,7 +96,9 @@ class CartController extends Controller
             $cart[$productId] = $quantityToAdd;
         }
 
-        Session::put('cart', $cart);
+        // Save the updated cart to session
+        $request->session()->put('cart', $cart);
+        $request->session()->save();
 
         $cartCount = array_sum($cart);
 
@@ -97,7 +127,13 @@ class CartController extends Controller
             ], 400);
         }
 
-        $cart = Session::get('cart', []);
+        $cart = $request->session()->get('cart', []);
+        
+        // Normalize cart keys to integers
+        $cart = $this->normalizeCart($cart);
+        
+        // Ensure productId is treated as integer for consistency
+        $productId = (int) $productId;
         
         if ($request->quantity == 0) {
             unset($cart[$productId]);
@@ -105,7 +141,9 @@ class CartController extends Controller
             $cart[$productId] = $request->quantity;
         }
 
-        Session::put('cart', $cart);
+        // Save the updated cart to session
+        $request->session()->put('cart', $cart);
+        $request->session()->save();
 
         $cartCount = array_sum($cart);
 
@@ -119,30 +157,54 @@ class CartController extends Controller
     /**
      * Remove product from cart
      */
-    public function remove($productId)
+    public function remove(Request $request, $productId)
     {
-        $cart = Session::get('cart', []);
+        // Get cart from session
+        $cart = $request->session()->get('cart', []);
         
-        if (isset($cart[$productId])) {
+        // Ensure cart is an array
+        if (!is_array($cart)) {
+            $cart = [];
+        }
+        
+        // Normalize cart keys to integers
+        $cart = $this->normalizeCart($cart);
+        
+        // Convert productId to integer
+        $productId = (int) $productId;
+        
+        // Remove the item from cart
+        $removed = false;
+        if (isset($cart[$productId]) && $cart[$productId] > 0) {
             unset($cart[$productId]);
-            Session::put('cart', $cart);
+            $removed = true;
+            
+            // Save the updated cart to session
+            $request->session()->put('cart', $cart);
+            $request->session()->save();
         }
 
         $cartCount = array_sum($cart);
 
         return response()->json([
-            'success' => true,
-            'message' => 'Product removed from cart',
-            'cart_count' => $cartCount
+            'success' => $removed,
+            'message' => $removed ? 'Product removed from cart' : 'Product not found in cart',
+            'cart_count' => $cartCount,
+            'debug' => [
+                'productId' => $productId,
+                'cartKeys' => array_keys($cart),
+                'cartSize' => count($cart)
+            ]
         ]);
     }
 
     /**
      * Clear cart
      */
-    public function clear()
+    public function clear(Request $request)
     {
-        Session::forget('cart');
+        $request->session()->forget('cart');
+        $request->session()->save();
         
         return response()->json([
             'success' => true,
@@ -153,9 +215,13 @@ class CartController extends Controller
     /**
      * Get cart count (for AJAX requests)
      */
-    public function count()
+    public function count(Request $request)
     {
-        $cart = Session::get('cart', []);
+        $cart = $request->session()->get('cart', []);
+        
+        // Normalize cart keys to integers
+        $cart = $this->normalizeCart($cart);
+        
         $cartCount = array_sum($cart);
         
         return response()->json([

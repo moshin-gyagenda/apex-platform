@@ -45,31 +45,41 @@
             <div class="flex items-center space-x-4 lg:space-x-6">
                 <!-- Account Dropdown -->
                 <div class="relative group">
-                    @auth
-                        <button class="flex items-center space-x-1 text-gray-700 hover:text-primary-600 transition-colors focus:outline-none">
-                            <i data-lucide="user" class="w-5 h-5"></i>
-                            <span class="hidden sm:block text-sm font-medium">Account</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 hidden sm:block"></i>
-                        </button>
-                        <div class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <div class="py-2">
+                    <button class="flex items-center space-x-1 text-gray-700 hover:text-primary-600 transition-colors focus:outline-none">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                        <span class="hidden sm:block text-sm font-medium">Account</span>
+                        <i data-lucide="chevron-down" class="w-4 h-4 hidden sm:block"></i>
+                    </button>
+                    <div class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                        <div class="py-2">
+                            @auth
                                 <div class="px-4 py-2 border-b border-gray-200">
                                     <p class="text-sm font-medium text-gray-900">{{ auth()->user()->name ?? 'User' }}</p>
                                     <p class="text-xs text-gray-500 truncate">{{ auth()->user()->email ?? '' }}</p>
                                 </div>
-                                <a href="{{ route('dashboard') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                    <i data-lucide="layout-dashboard" class="w-4 h-4 mr-2"></i>
-                                    Dashboard
-                                </a>
-                                <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                    <i data-lucide="shopping-bag" class="w-4 h-4 mr-2"></i>
-                                    My Orders
-                                </a>
-                                <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                    <i data-lucide="settings" class="w-4 h-4 mr-2"></i>
-                                    Settings
-                                </a>
-                                <div class="border-t border-gray-200 mt-1">
+                            @else
+                                <div class="px-4 py-2 border-b border-gray-200">
+                                    <a href="{{ route('login') }}" class="block w-full bg-primary-500 hover:bg-primary-600 text-white text-center py-2.5 rounded-lg font-medium transition-colors">
+                                        Sign In
+                                    </a>
+                                </div>
+                            @endauth
+                            
+                            <a href="{{ auth()->check() ? route('dashboard') : '#' }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                <i data-lucide="user" class="w-4 h-4 mr-2"></i>
+                                My Account
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                <i data-lucide="package" class="w-4 h-4 mr-2"></i>
+                                Orders
+                            </a>
+                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                <i data-lucide="heart" class="w-4 h-4 mr-2"></i>
+                                Wishlist
+                            </a>
+                            
+                            @auth
+                                <div class="border-t border-gray-200 mt-1 pt-1">
                                     <form method="POST" action="{{ route('logout') }}">
                                         @csrf
                                         <button type="submit" class="w-full text-left flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors">
@@ -78,27 +88,9 @@
                                         </button>
                                     </form>
                                 </div>
-                            </div>
+                            @endauth
                         </div>
-                    @else
-                        <button class="flex items-center space-x-1 text-gray-700 hover:text-primary-600 transition-colors focus:outline-none">
-                            <i data-lucide="user" class="w-5 h-5"></i>
-                            <span class="hidden sm:block text-sm font-medium">Account</span>
-                            <i data-lucide="chevron-down" class="w-4 h-4 hidden sm:block"></i>
-                        </button>
-                        <div class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                            <div class="py-2">
-                                <a href="{{ route('login') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                    <i data-lucide="log-in" class="w-4 h-4 mr-2"></i>
-                                    Sign In
-                                </a>
-                                <a href="{{ route('register') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                    <i data-lucide="user-plus" class="w-4 h-4 mr-2"></i>
-                                    Sign Up
-                                </a>
-                            </div>
-                        </div>
-                    @endauth
+                    </div>
                 </div>
 
                 <!-- Help Dropdown -->
@@ -108,24 +100,39 @@
                         <span class="hidden sm:block text-sm font-medium">Help</span>
                         <i data-lucide="chevron-down" class="w-4 h-4 hidden sm:block"></i>
                     </button>
-                    <div class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                    <div class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div class="py-2">
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                <i data-lucide="help-circle" class="w-4 h-4 mr-2"></i>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 Help Center
                             </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                <i data-lucide="phone" class="w-4 h-4 mr-2"></i>
-                                Contact Us
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                Place an Order
                             </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
-                                FAQ
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                Payments Options
                             </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
-                                <i data-lucide="truck" class="w-4 h-4 mr-2"></i>
-                                Shipping Info
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                Delivery Timelines & Track your order
                             </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                Returns and Refunds
+                            </a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                                Warranty
+                            </a>
+                            
+                            <div class="border-t border-gray-200 mt-2 pt-2 px-4 space-y-2">
+                                <a href="tel:+256700000000" class="flex items-center justify-center w-full bg-primary-500 hover:bg-primary-600 text-white py-2.5 rounded-lg font-medium transition-colors">
+                                    <i data-lucide="message-circle" class="w-4 h-4 mr-2"></i>
+                                    Live Help
+                                </a>
+                                <a href="https://wa.me/256700000000" target="_blank" class="flex items-center justify-center w-full bg-green-500 hover:bg-green-600 text-white py-2.5 rounded-lg font-medium transition-colors">
+                                    <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                                    </svg>
+                                    WhatsApp
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

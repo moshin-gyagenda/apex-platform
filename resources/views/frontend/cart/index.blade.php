@@ -27,7 +27,7 @@
                             <div class="p-6 border-b border-gray-200">
                                 <div class="flex items-center justify-between">
                                     <h2 class="text-xl font-semibold text-gray-900">Cart Items ({{ count($cartItems) }})</h2>
-                                    <button onclick="clearCart()" class="text-sm text-red-600 hover:text-red-700 font-medium">
+                                    <button onclick="showClearCartModal()" class="text-sm text-red-600 hover:text-red-700 font-medium">
                                         Clear Cart
                                     </button>
                                 </div>
@@ -78,7 +78,7 @@
                                             </div>
                                             
                                             <!-- Remove Button -->
-                                            <button onclick="removeFromCart({{ $product->id }})" class="flex-shrink-0 text-red-600 hover:text-red-700 p-2">
+                                            <button onclick="showRemoveItemModal({{ $product->id }}, '{{ addslashes($product->name) }}')" class="flex-shrink-0 text-red-600 hover:text-red-700 p-2">
                                                 <i data-lucide="trash-2" class="w-5 h-5"></i>
                                             </button>
                                         </div>
@@ -134,13 +134,145 @@
             @endif
         </div>
     </section>
+
+    <!-- Confirmation Modal for Remove Item -->
+    <div id="remove-item-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg border border-gray-300 shadow-xl p-6 max-w-md w-full mx-4">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">Remove Item</h3>
+                    <p class="mt-2 text-sm text-gray-600">
+                        Are you sure you want to remove <span id="remove-product-name" class="font-medium text-gray-800"></span> from your cart?
+                    </p>
+                    <div class="mt-4 flex gap-3">
+                        <button id="confirm-remove-item" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+                            Yes, Remove
+                        </button>
+                        <button onclick="closeRemoveItemModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirmation Modal for Clear Cart -->
+    <div id="clear-cart-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg border border-gray-300 shadow-xl p-6 max-w-md w-full mx-4">
+            <div class="flex items-start gap-4">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-semibold text-gray-800">Clear Cart</h3>
+                    <p class="mt-2 text-sm text-gray-600">
+                        Are you sure you want to clear your entire cart? This action cannot be undone and all items will be removed.
+                    </p>
+                    <div class="mt-4 flex gap-3">
+                        <button id="confirm-clear-cart" class="flex-1 px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-lg hover:bg-red-600 transition-colors">
+                            Yes, Clear Cart
+                        </button>
+                        <button onclick="closeClearCartModal()" class="flex-1 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
 <script>
+    // Toast notification functions
+    function showSuccessToast(message) {
+        const toast = document.createElement('div');
+        toast.id = 'success-toast-' + Date.now();
+        toast.className = 'fixed top-20 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+        toast.innerHTML = `
+            <i data-lucide="check-circle" class="w-6 h-6 flex-shrink-0"></i>
+            <span class="font-medium">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Auto remove after 3 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }
+        }, 3000);
+    }
+    
+    function showErrorToast(message) {
+        const toast = document.createElement('div');
+        toast.id = 'error-toast-' + Date.now();
+        toast.className = 'fixed top-20 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+        toast.innerHTML = `
+            <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0"></i>
+            <span class="font-medium">${message}</span>
+            <button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        `;
+        document.body.appendChild(toast);
+        
+        // Initialize icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+        
+        // Auto remove after 4 seconds
+        setTimeout(() => {
+            if (toast.parentElement) {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 400);
+            }
+        }, 4000);
+    }
+
+    // Modal functions
+    let currentProductIdToRemove = null;
+
+    function showRemoveItemModal(productId, productName) {
+        currentProductIdToRemove = productId;
+        document.getElementById('remove-product-name').textContent = productName;
+        document.getElementById('remove-item-modal').classList.remove('hidden');
+    }
+
+    function closeRemoveItemModal() {
+        document.getElementById('remove-item-modal').classList.add('hidden');
+        currentProductIdToRemove = null;
+    }
+
+    function showClearCartModal() {
+        document.getElementById('clear-cart-modal').classList.remove('hidden');
+    }
+
+    function closeClearCartModal() {
+        document.getElementById('clear-cart-modal').classList.add('hidden');
+    }
+
+    // Cart operations
     function updateQuantity(productId, newQuantity) {
         if (newQuantity < 1) {
-            removeFromCart(productId);
+            // Get product name for modal
+            const productName = document.querySelector(`#cart-item-${productId} h3`).textContent.trim();
+            showRemoveItemModal(productId, productName);
             return;
         }
         
@@ -155,21 +287,23 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload(); // Reload to update prices
+                showSuccessToast('Cart updated successfully!');
+                // Reload to update prices and totals
+                setTimeout(() => {
+                    location.reload();
+                }, 500);
             } else {
-                alert(data.message || 'Failed to update quantity');
+                showErrorToast(data.message || 'Failed to update quantity');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            showErrorToast('An error occurred. Please try again.');
         });
     }
     
     function removeFromCart(productId) {
-        if (!confirm('Are you sure you want to remove this item from your cart?')) {
-            return;
-        }
+        console.log('Removing product from cart:', productId, 'Type:', typeof productId);
         
         fetch(`{{ url('/cart/remove') }}/${productId}`, {
             method: 'DELETE',
@@ -178,13 +312,23 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Response status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Remove response:', data);
             if (data.success) {
+                showSuccessToast('Item removed from cart');
+                
                 // Remove item from DOM
                 const itemElement = document.getElementById(`cart-item-${productId}`);
                 if (itemElement) {
-                    itemElement.remove();
+                    itemElement.style.transition = 'opacity 0.3s';
+                    itemElement.style.opacity = '0';
+                    setTimeout(() => {
+                        itemElement.remove();
+                    }, 300);
                 }
                 
                 // Update cart count in header
@@ -192,27 +336,29 @@
                     updateCartCount();
                 }
                 
-                // Reload if cart is empty
+                // Reload if cart is empty, otherwise update totals
                 if (data.cart_count === 0) {
-                    location.reload();
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
                 } else {
-                    location.reload(); // Reload to update totals
+                    // Update totals without reload
+                    setTimeout(() => {
+                        location.reload();
+                    }, 500);
                 }
             } else {
-                alert(data.message || 'Failed to remove item');
+                console.error('Remove failed:', data);
+                showErrorToast(data.message || 'Failed to remove item');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            showErrorToast('An error occurred. Please try again.');
         });
     }
     
     function clearCart() {
-        if (!confirm('Are you sure you want to clear your entire cart?')) {
-            return;
-        }
-        
         fetch('{{ route("cart.clear") }}', {
             method: 'DELETE',
             headers: {
@@ -223,27 +369,59 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                showSuccessToast('Cart cleared successfully!');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
             } else {
-                alert(data.message || 'Failed to clear cart');
+                showErrorToast(data.message || 'Failed to clear cart');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred. Please try again.');
+            showErrorToast('An error occurred. Please try again.');
         });
     }
     
     function proceedToCheckout() {
-        // TODO: Implement checkout functionality
-        alert('Checkout functionality will be implemented soon!');
+        showErrorToast('Checkout functionality will be implemented soon!');
     }
     
-    // Initialize Lucide icons
+    // Initialize
     document.addEventListener('DOMContentLoaded', function() {
+        // Initialize Lucide icons
         if (typeof lucide !== 'undefined') {
             lucide.createIcons();
         }
+
+        // Confirm remove item
+        document.getElementById('confirm-remove-item').addEventListener('click', function() {
+            if (currentProductIdToRemove) {
+                // Store the productId before closing the modal (which resets it to null)
+                const productIdToRemove = currentProductIdToRemove;
+                closeRemoveItemModal();
+                removeFromCart(productIdToRemove);
+            }
+        });
+
+        // Confirm clear cart
+        document.getElementById('confirm-clear-cart').addEventListener('click', function() {
+            closeClearCartModal();
+            clearCart();
+        });
+
+        // Close modals when clicking outside
+        document.getElementById('remove-item-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRemoveItemModal();
+            }
+        });
+
+        document.getElementById('clear-cart-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeClearCartModal();
+            }
+        });
     });
 </script>
 @endsection

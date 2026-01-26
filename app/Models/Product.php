@@ -74,4 +74,12 @@ class Product extends Model
     {
         return $this->belongsTo(ProductModel::class, 'model_id');
     }
+
+    /**
+     * Get the order items for the product.
+     */
+    public function orderItems()
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

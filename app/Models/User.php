@@ -29,9 +29,12 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'first_name',
+        'last_name',
         'email',
         'mobile_number',
         'password',
+        'profile_photo',
         'last_login_location',
         'last_login_latitude',
         'last_login_longitude',
@@ -71,5 +74,29 @@ class User extends Authenticatable
             'last_login_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Get the orders for the user.
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    /**
+     * Get the shipping info for the user.
+     */
+    public function shippingInfo()
+    {
+        return $this->hasOne(ShippingInfo::class)->latestOfMany();
+    }
+
+    /**
+     * Get all shipping info records for the user.
+     */
+    public function shippingInfos()
+    {
+        return $this->hasMany(ShippingInfo::class);
     }
 }

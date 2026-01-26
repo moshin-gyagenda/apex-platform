@@ -58,10 +58,11 @@ class RolePermissionSeeder extends Seeder
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Define roles for Mubs Script Marking & Tracing System
+        // Define roles for Mubs Script Marking & Tracing System and E-commerce
         $roles = [
             'super-admin',
             'admin',
+            'client', // E-commerce client role for frontend users
             'marker',
             'examiner',
             'student',
@@ -147,6 +148,10 @@ class RolePermissionSeeder extends Seeder
             'view-reports',
             'export-reports',
         ]);
+
+        // Client - E-commerce frontend user (no special permissions needed, just authenticated access)
+        // Clients can access frontend routes but not admin routes
+        // No specific permissions assigned as they use standard authenticated routes
     }
 }
 

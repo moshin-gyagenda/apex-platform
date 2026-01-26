@@ -16,12 +16,18 @@ use App\Http\Controllers\Admin\POSController;
 use App\Http\Controllers\Admin\TaxSettingsController;
 use App\Http\Controllers\Admin\SaleController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
+use App\Http\Controllers\ShippingInfoController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
 Route::get('/products/{id}', [FrontendController::class, 'showProduct'])->name('frontend.products.show');
 
-// Cart routes
+// Frontend category routes
+Route::get('/category/{id}', [FrontendController::class, 'category'])->name('frontend.category');
+Route::get('/sub-category/{id}', [FrontendController::class, 'subCategory'])->name('frontend.sub-category');
+
+// Cart routes (public - anyone can add to cart)
 Route::prefix('cart')->name('cart.')->group(function () {
     Route::get('/', [CartController::class, 'index'])->name('index');
     Route::post('/add/{productId}', [CartController::class, 'add'])->name('add');
@@ -39,6 +45,58 @@ Route::middleware([
 ])->group(function () {
     // Dashboard route for Apex Platform
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
+    // Frontend Customer Dashboard
+    Route::prefix('customer')->name('customer.')->group(function () {
+        Route::get('/dashboard', [FrontendController::class, 'dashboard'])->name('dashboard.index');
+        Route::get('/account-settings', [FrontendController::class, 'accountSettings'])->name('account-setting');
+    });
+    
+    // Frontend routes (for authenticated users - clients and admins can access)
+    Route::prefix('frontend')->name('frontend.')->group(function () {
+        // Dashboard
+        Route::get('/dashboard', [FrontendController::class, 'dashboard'])->name('dashboard.index');
+        Route::get('/dashboard/account-settings', [FrontendController::class, 'accountSettings'])->name('dashboard.account-settings');
+        
+        // Wishlist
+        Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlists.index');
+        
+        // Checkout (requires authentication)
+        Route::get('/checkout', [FrontendController::class, 'checkout'])->name('checkouts.index');
+        
+        // Payments
+        Route::get('/payments', [FrontendController::class, 'payments'])->name('payments.index');
+        
+        // Orders
+        Route::get('/orders/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+    });
+    
+    // Shipping Info routes
+    Route::prefix('shipping-info')->name('shipping-info.')->group(function () {
+        Route::post('/store', [ShippingInfoController::class, 'store'])->name('store');
+        Route::put('/{id}', [ShippingInfoController::class, 'update'])->name('update');
+    });
+    
+    Route::post('/shipping-store', [ShippingInfoController::class, 'shippingStore'])->name('shipping-store.store');
+    
+    // Order routes
+    Route::prefix('orders')->name('orders.')->group(function () {
+        Route::post('/store', [OrderController::class, 'store'])->name('store');
+        Route::get('/confirm', [OrderController::class, 'confirm'])->name('confirm');
+        Route::get('/{id}', [OrderController::class, 'show'])->name('show');
+        Route::put('/{id}', [OrderController::class, 'update'])->name('update');
+    });
+    
+    // User update routes
+    Route::prefix('user')->name('user.')->group(function () {
+        Route::put('/update', [FrontendController::class, 'updateUser'])->name('update');
+    });
+    
+    // Password update route
+    Route::put('/password/update', [FrontendController::class, 'updatePassword'])->name('password.update');
+    
+    // Profile picture update route
+    Route::post('/update-profile-picture', [FrontendController::class, 'updateProfilePicture'])->name('update-profile-picture.update');
     
     // Admin routes
     Route::prefix('admin')->name('admin.')->group(function () {

@@ -4,14 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Sign In - {{ config('app.name', 'Apex Platform') }}</title>
+    <title>Sign In - Apex Electronics & Accessories</title>
     
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="{{ asset('assets/images/logo.png') }}">
     
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -38,7 +39,19 @@
                         },
                     },
                     fontFamily: {
-                        sans: ['Instrument Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+                    },
+                    navy: {
+                        50: '#f0f4fb',
+                        100: '#d9e4f5',
+                        200: '#b3c9eb',
+                        300: '#8daee1',
+                        400: '#6793d7',
+                        500: '#0f4c9e',
+                        600: '#0c3d7e',
+                        700: '#092e5f',
+                        800: '#061f3f',
+                        900: '#031020',
                     },
                 },
             },
@@ -52,57 +65,12 @@
         }
         
         body {
-            font-family: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
-            background-color: #FDFDFC;
-            color: #1b1b18;
-        }
-        
-        .form-input {
-            width: 100%;
-            padding: 0.625rem 0.875rem;
-            border: 1px solid #e3e3e0;
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            transition: all 0.2s ease;
-            background: white;
-            color: #1b1b18;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: #FF7839;
-            box-shadow: 0 0 0 3px rgba(255, 120, 57, 0.1);
-        }
-        
-        .form-input::placeholder {
-            color: #706f6c;
-        }
-        
-        .btn-primary {
-            background-color: #1b1b18;
-            color: white;
-            border: 1px solid #1b1b18;
-            transition: all 0.2s ease;
-        }
-        
-        .btn-primary:hover {
-            background-color: #000;
-            border-color: #000;
-        }
-        
-        .link-primary {
-            color: #FF7839;
-            text-decoration: underline;
-            text-underline-offset: 4px;
-            transition: color 0.2s ease;
-        }
-        
-        .link-primary:hover {
-            color: #ea5a0f;
+            font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+            background-color: #F9FAFB;
         }
         
         .custom-shadow {
-            box-shadow: inset 0px 0px 0px 1px rgba(26, 26, 0, 0.16);
+            box-shadow: inset 0px 0px 0px 1px rgba(0, 0, 0, 0.1);
         }
         
         .custom-shadow-sm {
@@ -117,15 +85,17 @@
             <div class="text-sm leading-5 flex-1 p-4 lg:p-8 bg-white custom-shadow rounded-bl-lg rounded-br-lg lg:rounded-tl-lg lg:rounded-br-none overflow-y-auto">
                 <!-- Logo -->
                 <div class="flex items-center gap-2 mb-4">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Platform Logo" class="h-10 w-10">
-                    <div class="flex flex-col">
-                        <span class="text-base font-semibold" style="color: #1b1b18;">Apex Platform</span>
-                        <span class="text-xs font-normal" style="color: #706f6c;">Inventory Management System</span>
-                    </div>
+                    <a href="{{ route('frontend.index') }}" class="flex items-center space-x-2">
+                        <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Electronics Logo" class="h-10 w-10">
+                        <div class="flex flex-col">
+                            <span class="text-base font-semibold text-gray-900">Apex Electronics</span>
+                            <span class="text-xs font-normal text-gray-600">Electronics & Accessories</span>
+                        </div>
+                    </a>
                 </div>
 
-                <h1 class="mb-1 font-medium text-base" style="color: #1b1b18;">Welcome back</h1>
-                <p class="mb-4 text-sm" style="color: #706f6c;">Sign in to access your inventory management system</p>
+                <h1 class="mb-1 font-medium text-base text-gray-900">Welcome back</h1>
+                <p class="mb-4 text-sm text-gray-600">Sign in to your account to continue shopping</p>
 
                 <!-- Validation Errors -->
                 @if ($errors->any())
@@ -167,12 +137,12 @@
 
                     <!-- Email Field -->
                     <div>
-                        <label for="login_email" class="block text-sm font-medium mb-2" style="color: #1b1b18;">
+                        <label for="login_email" class="block text-sm font-medium mb-2 text-gray-900">
                             Email Address
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-lucide="mail" class="h-5 w-5" style="color: #706f6c;"></i>
+                                <i data-lucide="mail" class="h-5 w-5 text-gray-400"></i>
                             </div>
                             <input 
                                 type="email" 
@@ -181,7 +151,7 @@
                                 value="{{ old('email') }}"
                                 required 
                                 autofocus
-                                class="form-input pl-10"
+                                class="w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
                                 placeholder="you@example.com"
                             >
                         </div>
@@ -189,12 +159,12 @@
 
                     <!-- Password Field -->
                     <div>
-                        <label for="login_password" class="block text-sm font-medium mb-2" style="color: #1b1b18;">
+                        <label for="login_password" class="block text-sm font-medium mb-2 text-gray-900">
                             Password
                         </label>
                         <div class="relative">
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <i data-lucide="lock" class="h-5 w-5" style="color: #706f6c;"></i>
+                                <i data-lucide="lock" class="h-5 w-5 text-gray-400"></i>
                             </div>
                             <input 
                                 type="password" 
@@ -202,16 +172,13 @@
                                 name="password" 
                                 required 
                                 autocomplete="current-password"
-                                class="form-input pl-10 pr-10"
+                                class="w-full pl-10 pr-10 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all text-sm"
                                 placeholder="Enter your password"
                             >
                             <button 
                                 type="button"
                                 onclick="togglePassword('login_password')"
-                                class="absolute inset-y-0 right-0 pr-3 flex items-center transition-colors"
-                                style="color: #706f6c;"
-                                onmouseover="this.style.color='#1b1b18'"
-                                onmouseout="this.style.color='#706f6c'"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
                             >
                                 <i data-lucide="eye" id="login_password-eye" class="h-5 w-5"></i>
                             </button>
@@ -225,15 +192,14 @@
                                 id="remember_me" 
                                 name="remember" 
                                 type="checkbox" 
-                                class="h-4 w-4 rounded"
-                                style="border-color: #e3e3e0; accent-color: #FF7839;"
+                                class="h-4 w-4 rounded border-gray-300 text-primary-500 focus:ring-primary-500"
                             >
-                            <label for="remember_me" class="ml-2 block text-sm" style="color: #1b1b18;">
+                            <label for="remember_me" class="ml-2 block text-sm text-gray-900">
                                 Remember me
                             </label>
                         </div>
                         @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="text-sm font-medium link-primary">
+                            <a href="{{ route('password.request') }}" class="text-sm font-medium text-primary-600 hover:text-primary-500 transition-colors">
                                 Forgot password?
                             </a>
                         @endif
@@ -242,7 +208,7 @@
                     <!-- Submit Button -->
                     <button 
                         type="submit" 
-                        class="w-full flex justify-center items-center py-2 px-5 rounded-sm text-sm font-medium btn-primary"
+                        class="w-full flex justify-center items-center py-2.5 px-5 rounded-lg text-sm font-medium text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-colors"
                     >
                         <i data-lucide="log-in" class="w-4 h-4 mr-2"></i>
                         Sign In
@@ -252,9 +218,9 @@
                 <!-- Sign Up Link -->
                 @if (Route::has('register'))
                 <div class="mt-4 text-center">
-                    <p class="text-xs" style="color: #706f6c;">
+                    <p class="text-xs text-gray-600">
                         Don't have an account?
-                        <a href="{{ route('register') }}" class="font-medium link-primary">
+                        <a href="{{ route('register') }}" class="font-medium text-primary-600 hover:text-primary-500 transition-colors">
                             Sign up for free
                         </a>
                     </p>
@@ -263,36 +229,45 @@
             </div>
 
             <!-- Right Column: Visual/Branding -->
-            <div class="relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg w-full lg:w-[438px] shrink-0 overflow-hidden flex items-center justify-center" style="background-color: #fff2f2;">
+            <div class="relative lg:-ml-px -mb-px lg:mb-0 rounded-t-lg lg:rounded-t-none lg:rounded-r-lg w-full lg:w-[438px] shrink-0 overflow-hidden flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100">
                 <!-- Branding Content -->
                 <div class="p-4 lg:p-8 text-center">
                     <div class="mb-4">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Platform" class="h-16 w-16 mx-auto mb-4">
-                        <h2 class="text-xl font-semibold mb-2" style="color: #1b1b18;">Apex Platform</h2>
-                        <p class="text-xs leading-relaxed max-w-xs mx-auto" style="color: #706f6c;">
-                            Streamline your inventory management with our powerful and intuitive platform.
+                        <a href="{{ route('frontend.index') }}" class="inline-flex items-center space-x-2 mb-4">
+                            <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Electronics" class="h-16 w-16">
+                            <div class="text-left">
+                                <div class="flex items-center space-x-1">
+                                    <span class="text-xl font-bold text-gray-900">Apex</span>
+                                    <span class="text-primary-500 text-xl">★</span>
+                                </div>
+                                <span class="text-xs text-gray-600">Electronics & Accessories</span>
+                            </div>
+                        </a>
+                        <h2 class="text-xl font-semibold mb-2 text-gray-900">Welcome to Apex</h2>
+                        <p class="text-xs leading-relaxed max-w-xs mx-auto text-gray-600">
+                            Your trusted destination for quality electronics and accessories. Shop with confidence and enjoy fast delivery.
                         </p>
                     </div>
                     
                     <!-- Feature List -->
                     <div class="space-y-3 mt-4">
                         <div class="flex items-center gap-2 text-left">
-                            <div class="flex items-center justify-center rounded-full w-6 h-6 border flex-shrink-0 custom-shadow-sm" style="background-color: #FDFDFC; border-color: #e3e3e0;">
-                                <i data-lucide="check" class="w-3 h-3" style="color: #FF7839;"></i>
+                            <div class="flex items-center justify-center rounded-full w-6 h-6 border flex-shrink-0 custom-shadow-sm bg-white border-gray-200">
+                                <i data-lucide="shopping-bag" class="w-3 h-3 text-primary-500"></i>
                             </div>
-                            <span class="text-xs" style="color: #1b1b18;">Real-time inventory tracking</span>
+                            <span class="text-xs text-gray-900">Track your orders & delivery</span>
                         </div>
                         <div class="flex items-center gap-2 text-left">
-                            <div class="flex items-center justify-center rounded-full w-6 h-6 border flex-shrink-0 custom-shadow-sm" style="background-color: #FDFDFC; border-color: #e3e3e0;">
-                                <i data-lucide="check" class="w-3 h-3" style="color: #FF7839;"></i>
+                            <div class="flex items-center justify-center rounded-full w-6 h-6 border flex-shrink-0 custom-shadow-sm bg-white border-gray-200">
+                                <i data-lucide="heart" class="w-3 h-3 text-primary-500"></i>
                             </div>
-                            <span class="text-xs" style="color: #1b1b18;">Advanced analytics & reports</span>
+                            <span class="text-xs text-gray-900">Save your favorite products</span>
                         </div>
                         <div class="flex items-center gap-2 text-left">
-                            <div class="flex items-center justify-center rounded-full w-6 h-6 border flex-shrink-0 custom-shadow-sm" style="background-color: #FDFDFC; border-color: #e3e3e0;">
-                                <i data-lucide="check" class="w-3 h-3" style="color: #FF7839;"></i>
+                            <div class="flex items-center justify-center rounded-full w-6 h-6 border flex-shrink-0 custom-shadow-sm bg-white border-gray-200">
+                                <i data-lucide="zap" class="w-3 h-3 text-primary-500"></i>
                             </div>
-                            <span class="text-xs" style="color: #1b1b18;">Secure & reliable platform</span>
+                            <span class="text-xs text-gray-900">Faster checkout experience</span>
                         </div>
                     </div>
                 </div>

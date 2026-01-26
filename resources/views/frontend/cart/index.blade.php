@@ -110,9 +110,15 @@
                                 </div>
                             </div>
                             
-                            <button onclick="proceedToCheckout()" class="w-full bg-primary-500 text-white py-3 rounded-lg font-semibold hover:bg-primary-600 transition-colors mb-4">
-                                Proceed to Checkout
-                            </button>
+                            @auth
+                                <a href="{{ route('frontend.checkouts.index') }}" class="block w-full bg-primary-500 text-white py-3 rounded-lg font-semibold hover:bg-primary-600 transition-colors mb-4 text-center">
+                                    Proceed to Checkout
+                                </a>
+                            @else
+                                <a href="{{ route('login') }}?redirect={{ urlencode(route('frontend.checkouts.index')) }}" class="block w-full bg-primary-500 text-white py-3 rounded-lg font-semibold hover:bg-primary-600 transition-colors mb-4 text-center">
+                                    Login to Checkout
+                                </a>
+                            @endauth
                             
                             <a href="{{ route('frontend.index') }}" class="block w-full text-center text-gray-600 hover:text-primary-600 font-medium">
                                 Continue Shopping
@@ -384,7 +390,11 @@
     }
     
     function proceedToCheckout() {
-        showErrorToast('Checkout functionality will be implemented soon!');
+        @auth
+            window.location.href = '{{ route("frontend.checkouts.index") }}';
+        @else
+            window.location.href = '{{ route("login") }}?redirect=' + encodeURIComponent('{{ route("frontend.checkouts.index") }}');
+        @endauth
     }
     
     // Initialize

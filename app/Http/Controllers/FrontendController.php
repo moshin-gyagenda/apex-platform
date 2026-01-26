@@ -114,32 +114,85 @@ class FrontendController extends Controller
         $user = auth()->user();
         
         // Calculate order statistics
-        $totalOrders = Order::where('user_id', $user->id)->count();
-        $totalAmount = Order::where('user_id', $user->id)->sum('total_amount');
-        $ordersThisMonth = Order::where('user_id', $user->id)
-            ->whereMonth('created_at', now()->month)
-            ->whereYear('created_at', now()->year)
-            ->count();
-        $pendingOrders = Order::where('user_id', $user->id)
-            ->where('status', 'pending')
-            ->count();
+        $stats = [
+            'total_orders' => Order::where('user_id', $user->id)->count(),
+            'total_amount' => Order::where('user_id', $user->id)->sum('total_amount'),
+            'orders_this_month' => Order::where('user_id', $user->id)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->count(),
+            'monthly_amount' => Order::where('user_id', $user->id)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->sum('total_amount'),
+            'last_month_amount' => Order::where('user_id', $user->id)
+                ->whereMonth('created_at', now()->subMonth()->month)
+                ->whereYear('created_at', now()->subMonth()->year)
+                ->sum('total_amount'),
+            'pending_orders' => Order::where('user_id', $user->id)
+                ->where('status', 'pending')
+                ->count(),
+            'processing_orders' => Order::where('user_id', $user->id)
+                ->where('status', 'processing')
+                ->count(),
+            'delivered_orders' => Order::where('user_id', $user->id)
+                ->where('status', 'delivered')
+                ->count(),
+        ];
         
-        // Get orders
+        // Calculate growth
+        if ($stats['last_month_amount'] > 0) {
+            $stats['amount_growth'] = (($stats['monthly_amount'] - $stats['last_month_amount']) / $stats['last_month_amount']) * 100;
+        } else {
+            $stats['amount_growth'] = $stats['monthly_amount'] > 0 ? 100 : 0;
+        }
+        
+        // Get recent orders
+        $recentOrders = Order::where('user_id', $user->id)
+            ->with(['orderItems.product', 'shippingInfo'])
+            ->latest()
+            ->take(5)
+            ->get();
+        
+        // Get all orders for order history
         $orders = Order::where('user_id', $user->id)
             ->with(['orderItems.product', 'shippingInfo'])
             ->orderBy('created_at', 'desc')
+            ->get();
+        
+        // Monthly orders chart data
+        $monthlyOrders = Order::selectRaw('MONTH(created_at) as month, SUM(total_amount) as revenue, COUNT(*) as count')
+            ->where('user_id', $user->id)
+            ->whereYear('created_at', now()->year)
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
+        
+        $ordersChart = [];
+        $revenueChart = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $monthData = $monthlyOrders->firstWhere('month', $i);
+            $ordersChart[] = $monthData ? $monthData->count : 0;
+            $revenueChart[] = $monthData ? $monthData->revenue : 0;
+        }
+        
+        // Orders by status
+        $ordersByStatus = Order::where('user_id', $user->id)
+            ->selectRaw('status, COUNT(*) as count, SUM(total_amount) as total')
+            ->groupBy('status')
             ->get();
         
         // Get wishlist items (if you have a wishlist table)
         $wishlistItems = collect([]); // Placeholder - implement wishlist if needed
         
         return view('frontend.dashboard.index', compact(
-            'totalOrders',
-            'totalAmount',
-            'ordersThisMonth',
-            'pendingOrders',
+            'stats',
+            'recentOrders',
             'orders',
-            'wishlistItems'
+            'wishlistItems',
+            'ordersChart',
+            'revenueChart',
+            'ordersByStatus'
         ));
     }
 

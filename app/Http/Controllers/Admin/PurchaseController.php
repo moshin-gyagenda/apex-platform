@@ -7,6 +7,7 @@ use App\Models\Purchase;
 use App\Models\PurchaseItem;
 use App\Models\Supplier;
 use App\Models\Product;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -144,6 +145,9 @@ class PurchaseController extends Controller
             }
 
             DB::commit();
+
+            // Check for low stock after purchase (in case some products are still low)
+            NotificationService::checkLowStock();
 
             return redirect()->route('admin.purchases.index')
                 ->with('success', 'Purchase created successfully.');

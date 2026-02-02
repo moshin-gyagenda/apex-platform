@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\POSController;
 use App\Http\Controllers\Admin\TaxSettingsController;
 use App\Http\Controllers\Admin\SaleController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShippingInfoController;
@@ -102,8 +103,13 @@ Route::middleware([
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('users', UserController::class);
         Route::resource('categories', CategoryController::class);
+        Route::post('categories/quick-store', [CategoryController::class, 'quickStore'])->name('categories.quick-store');
         Route::resource('brands', BrandController::class);
+        Route::post('brands/quick-store', [BrandController::class, 'quickStore'])->name('brands.quick-store');
         Route::resource('product-models', ProductModelController::class);
+        Route::get('products/search', [ProductController::class, 'search'])->name('products.search');
+        Route::get('products/export/excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');
+        Route::get('products/export/pdf', [ProductController::class, 'exportPdf'])->name('products.export.pdf');
         Route::resource('products', ProductController::class);
         Route::resource('suppliers', SupplierController::class);
         Route::resource('purchases', PurchaseController::class);
@@ -116,6 +122,7 @@ Route::middleware([
         
         // POS Routes
         Route::prefix('pos')->name('pos.')->group(function () {
+            Route::get('/search', [POSController::class, 'search'])->name('search');
             Route::get('/', [POSController::class, 'index'])->name('index');
             Route::post('/', [POSController::class, 'store'])->name('store');
             Route::get('/search-product', [POSController::class, 'searchProduct'])->name('search-product');
@@ -136,6 +143,13 @@ Route::middleware([
             Route::post('/block-ip/{ipAddress}', [SecurityController::class, 'blockIp'])->name('block-ip');
             Route::put('/unblock-ip/{ipAddress}', [SecurityController::class, 'unblockIp'])->name('unblock-ip');
             Route::get('/export', [SecurityController::class, 'export'])->name('export');
+        });
+        
+        // Notification Routes
+        Route::prefix('notifications')->name('notifications.')->group(function () {
+            Route::get('/', [NotificationController::class, 'index'])->name('index');
+            Route::put('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('read');
+            Route::put('/mark-all-read', [NotificationController::class, 'markAllAsRead'])->name('mark-all-read');
         });
     });
 });

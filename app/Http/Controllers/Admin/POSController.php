@@ -11,6 +11,7 @@ use App\Models\Category;
 use App\Models\Brand;
 use App\Models\ProductModel;
 use App\Models\Setting;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +22,7 @@ class POSController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Product::where('status', 'active')->where('quantity', '>', 0)->with(['category', 'brand']);
+        $query = Product::where('status', 'active')->with(['category', 'brand']);
         
         // Search functionality
         if ($request->filled('search')) {
@@ -39,9 +40,8 @@ class POSController extends Controller
         $brands = Brand::all();
         $productModels = ProductModel::all();
         
-        // Prepare products JSON for JavaScript (all active products with stock)
+        // Prepare products JSON for JavaScript (all active products)
         $productsJson = Product::where('status', 'active')
-            ->where('quantity', '>', 0)
             ->with(['category', 'brand', 'productModel'])
             ->get()
             ->map(function($p) {
@@ -170,6 +170,12 @@ class POSController extends Controller
 
             DB::commit();
 
+            // Create notification for new sale
+            NotificationService::notifyNewSale($sale);
+
+            // Check for low stock after sale
+            NotificationService::checkLowStock();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Sale completed successfully!',
@@ -218,5 +224,78 @@ class POSController extends Controller
             });
 
         return response()->json($products);
+    }
+
+    /**
+     * Search all products for POS (AJAX - searches all products, not just paginated).
+     */
+    public function search(Request $request)
+    {
+        // Show active products (including those with 0 quantity - they just can't be added to cart)
+        $query = Product::where('status', 'active')
+            ->with(['category', 'brand', 'productModel']);
+
+        // Search functionality (case-insensitive)
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
+                  ->orWhereRaw('LOWER(sku) LIKE ?', ['%' . $search . '%'])
+                  ->orWhereRaw('LOWER(barcode) LIKE ?', ['%' . $search . '%'])
+                  ->orWhereHas('category', function($q) use ($search) {
+                      $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                  })
+                  ->orWhereHas('brand', function($q) use ($search) {
+                      $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                  });
+            });
+        }
+
+        // Filter by category
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        // Filter by brand - handle "no brand" (null) products
+        if ($request->filled('brand_id')) {
+            if ($request->brand_id === 'null' || $request->brand_id === 'none') {
+                // Show only products without brands
+                $query->whereNull('brand_id');
+            } else {
+                // Show products with specific brand
+                $query->where('brand_id', $request->brand_id);
+            }
+        }
+
+
+        // Get all matching products (no pagination for search)
+        $products = $query->latest()->get();
+
+        return response()->json([
+            'products' => $products->map(function($product) {
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'barcode' => $product->barcode,
+                    'description' => $product->description,
+                    'cost_price' => (float) $product->cost_price,
+                    'selling_price' => $product->selling_price !== null ? (float) $product->selling_price : null,
+                    'quantity' => $product->quantity,
+                    'reorder_level' => $product->reorder_level,
+                    'serial_number' => $product->serial_number,
+                    'warranty_months' => $product->warranty_months,
+                    'status' => $product->status,
+                    'image' => $product->image ? asset('storage/' . $product->image) : null,
+                    'category_id' => $product->category_id,
+                    'category_name' => $product->category ? $product->category->name : null,
+                    'brand_id' => $product->brand_id,
+                    'brand_name' => $product->brand ? $product->brand->name : null,
+                    'model_id' => $product->model_id,
+                    'model_name' => $product->productModel ? $product->productModel->name : null,
+                ];
+            }),
+            'total' => $products->count(),
+        ]);
     }
 }

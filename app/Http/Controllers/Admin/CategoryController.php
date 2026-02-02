@@ -74,6 +74,19 @@ class CategoryController extends Controller
     }
 
     /**
+     * Quick store for AJAX (e.g. from product form). Expects JSON response.
+     */
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:categories,name'],
+        ]);
+
+        $category = Category::create($validated);
+        return response()->json(['id' => $category->id, 'name' => $category->name]);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(Category $category)

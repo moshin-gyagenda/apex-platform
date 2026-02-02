@@ -35,10 +35,14 @@
                         <input
                             type="text"
                             id="product-search"
-                            placeholder="Search by Product Name, SKU or Barcode..."
+                            placeholder="Search by Product Name, SKU, Barcode, Category, or Brand..."
                             autofocus
-                            class="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition"
+                            autocomplete="off"
+                            class="w-full pl-9 pr-10 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 focus:ring-1 focus:ring-primary-200 transition"
                         >
+                        <div id="search-loading" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <i data-lucide="loader-2" class="w-4 h-4 text-primary-500 animate-spin"></i>
+                        </div>
                     </div>
                     <button 
                         type="button"
@@ -53,7 +57,7 @@
                 </div>
                 
                 <!-- Filter Row -->
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 gap-3">
                     <!-- Category Filter -->
                     <div class="searchable-select-container relative" data-select-id="category-filter">
                         <label class="block text-xs font-medium text-gray-700 mb-1.5">
@@ -101,6 +105,9 @@
                             </div>
                             <div class="options-list max-h-48 overflow-y-auto">
                                 <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">All Brands</div>
+                                <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="null">
+                                    <span class="text-gray-500 italic">No Brand</span>
+                                </div>
                                 @foreach($brands as $brand)
                                     <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $brand->id }}">
                                         {{ $brand->name }}
@@ -110,39 +117,9 @@
                         </div>
                         <select id="brand-filter" class="hidden">
                             <option value="">All Brands</option>
+                            <option value="null">No Brand</option>
                             @foreach($brands as $brand)
                                 <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <!-- Product Model Filter -->
-                    <div class="searchable-select-container relative" data-select-id="model-filter">
-                        <label class="block text-xs font-medium text-gray-700 mb-1.5">
-                            <i data-lucide="box" class="w-3 h-3 inline mr-1"></i>
-                            Product Model
-                        </label>
-                        <div class="selected-display relative mt-1 py-2.5 px-3 border border-gray-300 rounded-lg bg-white cursor-pointer hover:border-primary-500 transition focus-within:border-primary-500">
-                            <div class="selected-text text-sm text-gray-500 pr-6">All Models</div>
-                            <i data-lucide="chevron-down" class="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none flex-shrink-0"></i>
-                        </div>
-                        <div class="dropdown-container hidden absolute z-50 mt-1 w-full bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-hidden">
-                            <div class="p-2 sticky top-0 bg-white border-b border-gray-200">
-                                <input type="text" class="search-input w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-primary-500" placeholder="Search models...">
-                            </div>
-                            <div class="options-list max-h-48 overflow-y-auto">
-                                <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">All Models</div>
-                                @foreach($productModels as $model)
-                                    <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $model->id }}">
-                                        {{ $model->name }}
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                        <select id="model-filter" class="hidden">
-                            <option value="">All Models</option>
-                            @foreach($productModels as $model)
-                                <option value="{{ $model->id }}">{{ $model->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -151,7 +128,7 @@
 
             <!-- Products Grid -->
             <div class="flex-1 overflow-y-auto p-4">
-                <div id="products-grid" class="grid grid-cols-4 gap-4">
+                <div id="products-grid" class="grid grid-cols-4 gap-4" data-initial-loaded="true">
                     @foreach($products as $product)
                         @php
                             $productData = [
@@ -686,19 +663,239 @@
         // Initialize searchable selects
         initializeSearchableSelects();
         
-        // Auto-search functionality
+        // Auto-search functionality with AJAX - declare variables first
         const searchInput = document.getElementById('product-search');
+        const searchLoading = document.getElementById('search-loading');
         const clearAllBtn = document.getElementById('clear-all-btn');
-        
+        const productsGrid = document.getElementById('products-grid');
+        const noProducts = document.getElementById('no-products');
+        let searchTimeout;
+
+        function performSearch() {
+            const searchTerm = searchInput.value.trim();
+            const categoryId = document.getElementById('category-filter').value;
+            const brandId = document.getElementById('brand-filter').value;
+
+            // Mark that we've performed a search
+            productsGrid.setAttribute('data-searched', 'true');
+
+            // Show loading indicator
+            if (searchLoading) searchLoading.classList.remove('hidden');
+            if (searchInput) searchInput.classList.add('opacity-50');
+
+            // Build query parameters
+            const params = new URLSearchParams();
+            if (searchTerm) params.append('search', searchTerm);
+            if (categoryId) params.append('category_id', categoryId);
+            if (brandId) params.append('brand_id', brandId);
+
+            // Fetch search results
+            fetch(`{{ route('admin.pos.search') }}?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error('HTTP error response:', text);
+                        throw new Error(`HTTP error! status: ${response.status} - ${text.substring(0, 200)}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading indicator
+                if (searchLoading) searchLoading.classList.add('hidden');
+                if (searchInput) searchInput.classList.remove('opacity-50');
+
+                // Check if data and products exist
+                if (!data || !Array.isArray(data.products)) {
+                    showNoProducts();
+                    return;
+                }
+
+                // Update products grid
+                updateProductsGrid(data.products, data.total || data.products.length);
+                updateClearButton();
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                if (searchLoading) searchLoading.classList.add('hidden');
+                if (searchInput) searchInput.classList.remove('opacity-50');
+                showNoProducts();
+            });
+        }
+
+        function updateProductsGrid(productsData, total) {
+            if (productsData.length === 0) {
+                showNoProducts();
+                return;
+            }
+
+            // Update the products array for cart functionality (merge with initial products if needed)
+            const updatedProducts = productsData.map(p => ({
+                id: p.id,
+                name: p.name,
+                sku: p.sku,
+                barcode: p.barcode,
+                selling_price: p.selling_price,
+                quantity: p.quantity,
+                image: p.image,
+                category_id: p.category_id,
+                category_name: p.category_name,
+                brand_id: p.brand_id,
+                brand_name: p.brand_name,
+                model_id: p.model_id,
+                model_name: p.model_name,
+            }));
+            
+            // Update window.products for cart functionality
+            window.products = updatedProducts;
+            
+            // Also update the original products array if it exists
+            if (typeof products !== 'undefined') {
+                products.length = 0;
+                products.push(...updatedProducts);
+            }
+
+            let gridHTML = '';
+            productsData.forEach(product => {
+                const productData = {
+                    id: product.id,
+                    name: product.name,
+                    sku: product.sku,
+                    barcode: product.barcode,
+                    description: product.description,
+                    cost_price: product.cost_price,
+                    selling_price: product.selling_price,
+                    quantity: product.quantity,
+                    reorder_level: product.reorder_level,
+                    serial_number: product.serial_number,
+                    warranty_months: product.warranty_months,
+                    status: product.status,
+                    image: product.image,
+                    category: product.category_name,
+                    brand: product.brand_name,
+                    model: product.model_name,
+                };
+
+                const stockBadge = product.quantity <= 0 
+                    ? '<div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"><span class="px-3 py-1 bg-red-600 text-white text-xs font-semibold rounded">Out of Stock</span></div>'
+                    : product.quantity <= product.reorder_level 
+                        ? '<div class="absolute top-2 right-2"><span class="px-2 py-1 bg-yellow-500 text-white text-xs font-semibold rounded">Low Stock</span></div>'
+                        : '';
+
+                const imageHTML = product.image 
+                    ? `<img src="${product.image}" alt="${product.name}" class="w-full h-40 object-cover">`
+                    : '<div class="w-full h-40 bg-gray-100 flex items-center justify-center"><i data-lucide="package" class="w-12 h-12 text-gray-300"></i></div>';
+
+                const sellingPrice = product.selling_price !== null 
+                    ? `${parseFloat(product.selling_price).toLocaleString('en-US', {maximumFractionDigits: 0})} UGX`
+                    : '—';
+
+                gridHTML += `
+                    <div 
+                        class="product-card bg-white border border-gray-200 rounded-lg overflow-hidden hover:border-primary-300 hover:shadow-md transition-all group"
+                        data-product-id="${product.id}"
+                        data-product-name="${product.name.toLowerCase()}"
+                        data-product-sku="${product.sku.toLowerCase()}"
+                        data-product-barcode="${(product.barcode || '').toLowerCase()}"
+                        data-category-id="${product.category_id || ''}"
+                        data-brand-id="${product.brand_id || ''}"
+                        data-model-id="${product.model_id || ''}"
+                        data-product-data='${JSON.stringify(productData).replace(/'/g, "&#39;")}'
+                    >
+                        <div class="relative">
+                            ${imageHTML}
+                            ${stockBadge}
+                        </div>
+                        <div class="p-3">
+                            <h3 class="font-medium text-gray-800 mb-1 text-sm line-clamp-2 min-h-[2.5rem]">
+                                ${product.name}
+                            </h3>
+                            <p class="text-xs text-gray-500 mb-2 font-mono">${product.sku}</p>
+                            <div class="flex items-center justify-between mb-3">
+                                <span class="text-base font-bold text-primary-600">
+                                    ${sellingPrice}
+                                </span>
+                            </div>
+                            <div class="flex gap-2">
+                                <button
+                                    onclick="showProductInfo(${product.id}); event.stopPropagation()"
+                                    class="flex-1 px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded hover:bg-gray-200 transition-colors flex items-center justify-center gap-1"
+                                >
+                                    <i data-lucide="info" class="w-3 h-3"></i>
+                                    Info
+                                </button>
+                                <button
+                                    onclick="addToCart(${product.id}); event.stopPropagation()"
+                                    class="flex-1 px-3 py-1.5 text-xs font-medium text-white bg-primary-500 rounded hover:bg-primary-600 transition-colors flex items-center justify-center gap-1"
+                                    ${product.quantity <= 0 ? 'disabled' : ''}
+                                >
+                                    <i data-lucide="shopping-cart" class="w-3 h-3"></i>
+                                    Add
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            productsGrid.innerHTML = gridHTML;
+            productsGrid.style.display = 'grid';
+            noProducts.classList.add('hidden');
+            lucide.createIcons();
+        }
+
+        function showNoProducts() {
+            // Only show "no products" if we've actually searched
+            // Don't hide initial server-side products if AJAX hasn't loaded yet
+            const hasSearched = productsGrid.getAttribute('data-searched') === 'true';
+            if (hasSearched) {
+                productsGrid.style.display = 'none';
+                noProducts.classList.remove('hidden');
+            }
+        }
+
+        // Real-time search with debouncing
         searchInput.addEventListener('input', function() {
-            applyFilters();
-            updateClearButton();
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300); // Wait 300ms after user stops typing
+        });
+
+        // Prevent form submission on Enter key in search input
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                performSearch();
+            }
         });
         
         // Filter change handlers
-        document.getElementById('category-filter').addEventListener('change', applyFilters);
-        document.getElementById('brand-filter').addEventListener('change', applyFilters);
-        document.getElementById('model-filter').addEventListener('change', applyFilters);
+        document.getElementById('category-filter').addEventListener('change', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+        document.getElementById('brand-filter').addEventListener('change', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300);
+        });
+        
+        // Load initial products on page load (after all functions are defined)
+        // Use a small delay to ensure all elements are ready
+        setTimeout(() => {
+            performSearch();
+        }, 100);
         
         // Barcode scanner auto-add to cart
         let barcodeTimeout;
@@ -707,82 +904,52 @@
                 e.preventDefault();
                 clearTimeout(barcodeTimeout);
                 barcodeTimeout = setTimeout(() => {
-                    const product = products.find(p => 
-                        p.barcode === this.value || 
-                        p.sku === this.value
-                    );
-                    if (product) {
-                        addToCart(product.id);
-                        this.value = '';
-                        applyFilters();
-                        updateClearButton();
-                    }
+                    // Search for product by barcode or SKU
+                    const searchValue = this.value.trim();
+                    fetch(`{{ route('admin.pos.search') }}?search=${encodeURIComponent(searchValue)}`, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data && data.products && data.products.length > 0) {
+                            // Find exact match by barcode or SKU
+                            const product = data.products.find(p => 
+                                (p.barcode && p.barcode.toLowerCase() === searchValue.toLowerCase()) || 
+                                (p.sku && p.sku.toLowerCase() === searchValue.toLowerCase())
+                            ) || data.products[0]; // Fallback to first result
+                            
+                            if (product) {
+                                addToCart(product.id);
+                                this.value = '';
+                                performSearch();
+                                updateClearButton();
+                            }
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Barcode search error:', error);
+                    });
                 }, 100);
             }
         });
     });
 
+    // Legacy function kept for compatibility but now uses AJAX search
     function applyFilters() {
-        const searchTerm = document.getElementById('product-search').value.toLowerCase().trim();
-        const categoryId = document.getElementById('category-filter').value;
-        const brandId = document.getElementById('brand-filter').value;
-        const modelId = document.getElementById('model-filter').value;
-        
-        const productCards = document.querySelectorAll('.product-card');
-        const productsGrid = document.getElementById('products-grid');
-        const noProducts = document.getElementById('no-products');
-        let visibleCount = 0;
-
-        productCards.forEach(card => {
-            const name = card.getAttribute('data-product-name');
-            const sku = card.getAttribute('data-product-sku');
-            const barcode = card.getAttribute('data-product-barcode');
-            const cardCategoryId = card.getAttribute('data-category-id');
-            const cardBrandId = card.getAttribute('data-brand-id');
-            const cardModelId = card.getAttribute('data-model-id');
-            
-            // Search filter
-            const matchesSearch = searchTerm === '' || 
-                name.includes(searchTerm) || 
-                sku.includes(searchTerm) || 
-                barcode.includes(searchTerm);
-            
-            // Category filter
-            const matchesCategory = categoryId === '' || cardCategoryId === categoryId;
-            
-            // Brand filter
-            const matchesBrand = brandId === '' || cardBrandId === brandId;
-            
-            // Model filter
-            const matchesModel = modelId === '' || cardModelId === modelId;
-            
-            if (matchesSearch && matchesCategory && matchesBrand && matchesModel) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        if (visibleCount === 0 && (searchTerm !== '' || categoryId !== '' || brandId !== '' || modelId !== '')) {
-            productsGrid.style.display = 'none';
-            noProducts.classList.remove('hidden');
-        } else {
-            productsGrid.style.display = 'grid';
-            noProducts.classList.add('hidden');
-        }
-        
-        updateClearButton();
+        performSearch();
     }
 
     function updateClearButton() {
         const searchTerm = document.getElementById('product-search').value.trim();
         const categoryId = document.getElementById('category-filter').value;
         const brandId = document.getElementById('brand-filter').value;
-        const modelId = document.getElementById('model-filter').value;
         const clearAllBtn = document.getElementById('clear-all-btn');
         
-        if (searchTerm !== '' || categoryId !== '' || brandId !== '' || modelId !== '') {
+        if (searchTerm !== '' || categoryId !== '' || brandId !== '') {
             clearAllBtn.style.display = 'flex';
         } else {
             clearAllBtn.style.display = 'none';
@@ -793,7 +960,6 @@
         document.getElementById('product-search').value = '';
         document.getElementById('category-filter').value = '';
         document.getElementById('brand-filter').value = '';
-        document.getElementById('model-filter').value = '';
         
         // Update searchable select displays
         document.querySelectorAll('.searchable-select-container').forEach(container => {
@@ -805,8 +971,7 @@
                 selectedText.textContent = 'All Categories';
             } else if (selectId === 'brand-filter') {
                 selectedText.textContent = 'All Brands';
-            } else if (selectId === 'model-filter') {
-                selectedText.textContent = 'All Models';
+                selectedText.innerHTML = 'All Brands';
             } else if (selectId === 'customer-select') {
                 selectedText.textContent = 'Walk-in Customer';
             }
@@ -815,13 +980,20 @@
             selectedText.classList.add('text-gray-500');
         });
         
-        applyFilters();
+        // Trigger search to reload all products
+        clearTimeout(searchTimeout);
+        performSearch();
         document.getElementById('product-search').focus();
     }
 
     function addToCart(productId) {
-        const product = products.find(p => p.id === productId);
-        if (!product) return;
+        // Use window.products if available (from AJAX search), otherwise fallback to initial products
+        const productsArray = window.products || products;
+        const product = productsArray.find(p => p.id === productId);
+        if (!product) {
+            console.error('Product not found:', productId);
+            return;
+        }
 
         const existingItem = cart.find(item => item.product_id === productId);
         if (existingItem) {
@@ -853,7 +1025,8 @@
 
     function updateQuantity(index, change) {
         const item = cart[index];
-        const product = products.find(p => p.id === item.product_id);
+        const productsArray = window.products || products;
+        const product = productsArray.find(p => p.id === item.product_id);
         
         const newQuantity = item.quantity + change;
         if (newQuantity < 1) {
@@ -1425,7 +1598,12 @@
             options.forEach(option => {
                 option.addEventListener('click', function() {
                     const value = this.getAttribute('data-value');
-                    const text = this.querySelector('.font-medium') ? this.querySelector('.font-medium').textContent : this.textContent.trim();
+                    let text = this.querySelector('.font-medium') ? this.querySelector('.font-medium').textContent : this.textContent.trim();
+                    
+                    // Handle "No Brand" option specially
+                    if (selectId === 'brand-filter' && value === 'null') {
+                        text = 'No Brand';
+                    }
                     
                     // Update original select
                     originalSelect.value = value;
@@ -1437,6 +1615,8 @@
                     // Update display
                     if (selectId === 'customer-select' && value === '') {
                         selectedText.innerHTML = 'Walk-in Customer';
+                    } else if (selectId === 'brand-filter' && value === 'null') {
+                        selectedText.innerHTML = '<span class="text-gray-500 italic">No Brand</span>';
                     } else {
                         selectedText.textContent = text;
                     }

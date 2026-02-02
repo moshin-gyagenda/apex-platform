@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ShippingInfo;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -116,6 +117,12 @@ class OrderController extends Controller
 
             // Commit the transaction
             DB::commit();
+
+            // Create notification for new order
+            NotificationService::notifyNewOrder($order);
+
+            // Check for low stock after order
+            NotificationService::checkLowStock();
 
             // Redirect to the order confirmation page with success message
             return redirect()->route('orders.confirm')->with('success', 'Order placed successfully!');

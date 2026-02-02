@@ -53,11 +53,19 @@
         <div class="container mx-auto py-6 px-4 sm:px-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h1 class="text-xl font-semibold text-gray-800">Product Management</h1>
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap gap-2">
                     <button onclick="window.history.back(); return false;" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                         <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                         Back
                     </button>
+                    <a href="{{ route('admin.products.export.excel', request()->query()) }}" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-600 transition-colors">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 mr-2"></i>
+                        Export Excel
+                    </a>
+                    <a href="{{ route('admin.products.export.pdf', request()->query()) }}" class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-red-600 transition-colors">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                        Export PDF
+                    </a>
                     <a href="{{ route('admin.products.create') }}" class="inline-flex items-center px-4 py-2 bg-primary-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-primary-600 transition-colors">
                         <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                         Add New Product
@@ -115,7 +123,7 @@
 
             <!-- Search and Filter Section -->
             <div class="bg-white rounded-lg border border-gray-200 p-4 mb-6">
-                <form method="GET" action="{{ route('admin.products.index') }}" class="flex flex-col gap-4">
+                <form method="GET" action="{{ route('admin.products.index') }}" id="filter-form" class="flex flex-col gap-4">
                     <div class="flex flex-col sm:flex-row gap-4">
                         <div class="flex-1">
                             <div class="relative">
@@ -123,10 +131,15 @@
                                 <input
                                     type="text"
                                     name="search"
+                                    id="product-search-input"
                                     value="{{ request('search') }}"
-                                    placeholder="Search by name, SKU, or barcode..."
+                                    placeholder="Search by name, SKU, barcode, category, or brand..."
                                     class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
+                                    autocomplete="off"
                                 >
+                                <div id="search-loading" class="hidden absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <i data-lucide="loader-2" class="w-5 h-5 text-primary-500 animate-spin"></i>
+                                </div>
                             </div>
                         </div>
                         <div class="sm:w-48">
@@ -209,12 +222,11 @@
                                     <tr class="border-b border-gray-200 bg-gray-50">
                                         <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">ID</th>
                                         <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Name</th>
-                                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden lg:table-cell">SKU</th>
                                         <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Category</th>
                                         <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Brand</th>
                                         <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Quantity</th>
-                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden xl:table-cell">Price</th>
-                                        <th class="py-3 px-4 text-center text-sm font-semibold text-gray-700">Status</th>
+                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Cost Price</th>
+                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700">Selling Price</th>
                                         <th class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-[120px]">Actions</th>
                                     </tr>
                                 </thead>
@@ -229,12 +241,8 @@
                                                     </div>
                                                     <div>
                                                         <div class="font-medium text-sm text-gray-800">{{ $product->name }}</div>
-                                                        <div class="text-xs text-gray-500 lg:hidden">{{ $product->sku }}</div>
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td class="py-3 px-4 text-sm text-gray-600 hidden lg:table-cell">
-                                                <span class="font-mono text-xs">{{ $product->sku }}</span>
                                             </td>
                                             <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">
@@ -243,7 +251,7 @@
                                             </td>
                                             <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
                                                 <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700 border border-primary-200">
-                                                    {{ $product->brand->name }}
+                                                    {{ $product->brand?->name ?? '—' }}
                                                 </span>
                                             </td>
                                             <td class="py-3 px-4 text-sm text-right hidden lg:table-cell">
@@ -251,13 +259,11 @@
                                                     {{ $product->quantity }}
                                                 </span>
                                             </td>
-                                            <td class="py-3 px-4 text-sm text-right text-gray-800 hidden xl:table-cell">
-                                                {{ number_format($product->selling_price, 0) }} UGX
+                                            <td class="py-3 px-4 text-sm text-right text-gray-800 hidden lg:table-cell">
+                                                Ugx {{ number_format($product->cost_price, 0) }}
                                             </td>
-                                            <td class="py-3 px-4 text-center">
-                                                <span class="px-2 py-1 text-xs font-medium rounded-full {{ $product->status === 'active' ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-700 border border-gray-200' }}">
-                                                    {{ ucfirst($product->status) }}
-                                                </span>
+                                            <td class="py-3 px-4 text-sm text-right text-gray-800">
+                                                {{ $product->selling_price !== null ? 'Ugx ' . number_format($product->selling_price, 0) : '—' }}
                                             </td>
                                             <td class="py-3 px-4 text-center">
                                                 <div class="flex items-center justify-center space-x-2">
@@ -336,21 +342,269 @@
             });
         });
 
-        // Delete confirmation popup
+        // Delete confirmation popup variables
         let deleteFormId = null;
-        const deleteButtons = document.querySelectorAll('.delete-button');
         const popup = document.getElementById('confirmation-popup');
         const productNameDisplay = document.getElementById('product-name-display');
         const confirmDeleteBtn = document.getElementById('confirm-delete');
         const cancelDeleteBtn = document.getElementById('cancel-delete');
 
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                deleteFormId = this.getAttribute('data-product-id');
-                const productName = this.getAttribute('data-product-name');
-                productNameDisplay.textContent = productName;
-                popup.classList.remove('hidden');
+        // Auto-search functionality
+        const searchInput = document.getElementById('product-search-input');
+        const productsContent = document.getElementById('products-content');
+        const searchLoading = document.getElementById('search-loading');
+        const categorySelect = document.querySelector('select[name="category_id"]');
+        const brandSelect = document.querySelector('select[name="brand_id"]');
+        const statusSelect = document.querySelector('select[name="status"]');
+        let searchTimeout;
+
+        function performSearch() {
+            const searchTerm = searchInput.value.trim();
+            const categoryId = categorySelect.value;
+            const brandId = brandSelect.value;
+            const status = statusSelect.value;
+
+            // Show loading indicator
+            searchLoading.classList.remove('hidden');
+            searchInput.classList.add('opacity-50');
+
+            // Build query parameters
+            const params = new URLSearchParams();
+            if (searchTerm) params.append('search', searchTerm);
+            if (categoryId) params.append('category_id', categoryId);
+            if (brandId) params.append('brand_id', brandId);
+            if (status) params.append('status', status);
+
+            // Fetch search results
+            fetch(`{{ route('admin.products.search') }}?${params.toString()}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Hide loading indicator
+                searchLoading.classList.add('hidden');
+                searchInput.classList.remove('opacity-50');
+
+                // Check if data and products exist
+                if (!data || !Array.isArray(data.products)) {
+                    console.error('Invalid response structure:', data);
+                    productsContent.innerHTML = `
+                        <div class="flex flex-col items-center justify-center py-12">
+                            <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                                <i data-lucide="alert-circle" class="w-12 h-12 text-gray-400"></i>
+                            </div>
+                            <h3 class="text-lg font-medium text-gray-700">Error loading products</h3>
+                            <p class="mt-2 text-sm text-gray-500 text-center max-w-sm">
+                                Please try again or refresh the page.
+                            </p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                // Update products table
+                updateProductsTable(data.products, data.total || data.products.length);
+                
+                // Reinitialize delete buttons
+                initializeDeleteButtons();
+            })
+            .catch(error => {
+                console.error('Search error:', error);
+                searchLoading.classList.add('hidden');
+                searchInput.classList.remove('opacity-50');
+                
+                // Show error message
+                productsContent.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12">
+                        <div class="w-24 h-24 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                            <i data-lucide="alert-circle" class="w-12 h-12 text-red-400"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-700">Search Error</h3>
+                        <p class="mt-2 text-sm text-gray-500 text-center max-w-sm">
+                            Unable to search products. Please check your connection and try again.
+                        </p>
+                        <button onclick="window.location.reload()" class="mt-4 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm">
+                            Reload Page
+                        </button>
+                    </div>
+                `;
+                lucide.createIcons();
             });
+        }
+
+        function updateProductsTable(products, total) {
+            if (products.length === 0) {
+                productsContent.innerHTML = `
+                    <div class="flex flex-col items-center justify-center py-12">
+                        <div class="w-24 h-24 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                            <i data-lucide="package" class="w-12 h-12 text-gray-400"></i>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-700">No products found</h3>
+                        <p class="mt-2 text-sm text-gray-500 text-center max-w-sm">
+                            No products match your search criteria.
+                        </p>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            let tableHTML = `
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="border-b border-gray-200 bg-gray-50">
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">ID</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Name</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Category</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Brand</th>
+                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Quantity</th>
+                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Cost Price</th>
+                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700">Selling Price</th>
+                                <th class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-[120px]">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            products.forEach((product, index) => {
+                const quantityClass = product.quantity <= product.reorder_level ? 'text-red-600 font-semibold' : 'text-gray-800';
+                const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30';
+                const sellingPrice = product.selling_price !== null ? `Ugx ${parseFloat(product.selling_price).toLocaleString('en-US', {maximumFractionDigits: 0})}` : '—';
+
+                tableHTML += `
+                    <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors ${rowBg}">
+                        <td class="py-3 px-4 text-sm text-gray-600">${product.id}</td>
+                        <td class="py-3 px-4">
+                            <div class="flex items-center">
+                                <div class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center mr-3 border border-primary-100">
+                                    <i data-lucide="package" class="w-4 h-4 text-primary-500"></i>
+                                </div>
+                                <div>
+                                    <div class="font-medium text-sm text-gray-800">${product.name}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">
+                                ${product.category}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700 border border-primary-200">
+                                ${product.brand}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-right hidden lg:table-cell">
+                            <span class="${quantityClass}">
+                                ${product.quantity}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-sm text-right text-gray-800 hidden lg:table-cell">
+                            Ugx ${parseFloat(product.cost_price).toLocaleString('en-US', {maximumFractionDigits: 0})}
+                        </td>
+                        <td class="py-3 px-4 text-sm text-right text-gray-800">
+                            ${sellingPrice}
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center space-x-2">
+                                <a href="${product.edit_url}" class="text-primary-500 hover:text-primary-600 transition-colors" title="Edit">
+                                    <i data-lucide="edit" class="w-4 h-4"></i>
+                                </a>
+                                <a href="${product.show_url}" class="text-primary-500 hover:text-primary-600 transition-colors" title="View">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                </a>
+                                <button
+                                    type="button"
+                                    class="delete-button text-red-500 hover:text-red-600 transition-colors"
+                                    title="Delete"
+                                    data-product-id="${product.id}"
+                                    data-product-name="${product.name}">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                </button>
+                                <form id="delete-form-${product.id}" action="${product.delete_url}" method="POST" class="hidden">
+                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                                    <input type="hidden" name="_method" value="DELETE">
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+                ${total > 0 ? `<div class="mt-4 px-4 py-3 border-t border-gray-200 text-sm text-gray-600 text-center">Showing ${total} product${total !== 1 ? 's' : ''}</div>` : ''}
+            `;
+
+            productsContent.innerHTML = tableHTML;
+            lucide.createIcons();
+        }
+
+        function initializeDeleteButtons() {
+            const deleteButtons = document.querySelectorAll('.delete-button');
+            deleteButtons.forEach(button => {
+                // Remove existing listeners by cloning and replacing
+                const newButton = button.cloneNode(true);
+                button.parentNode.replaceChild(newButton, button);
+                
+                newButton.addEventListener('click', function() {
+                    deleteFormId = this.getAttribute('data-product-id');
+                    const productName = this.getAttribute('data-product-name');
+                    productNameDisplay.textContent = productName;
+                    popup.classList.remove('hidden');
+                });
+            });
+        }
+
+        // Initialize delete buttons on page load
+        initializeDeleteButtons();
+
+        // Prevent form submission on Enter key in search input
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                clearTimeout(searchTimeout);
+                performSearch();
+            }
+        });
+
+        // Real-time search with debouncing
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                performSearch();
+            }, 300); // Wait 300ms after user stops typing
+        });
+
+        // Also search when filters change
+        [categorySelect, brandSelect, statusSelect].forEach(select => {
+            select.addEventListener('change', function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    performSearch();
+                }, 300);
+            });
+        });
+
+        // Keep form submit button for manual filtering if needed
+        const filterForm = document.getElementById('filter-form');
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            clearTimeout(searchTimeout);
+            performSearch();
         });
 
         confirmDeleteBtn.addEventListener('click', function() {

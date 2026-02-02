@@ -68,6 +68,19 @@ class BrandController extends Controller
     }
 
     /**
+     * Quick store for AJAX (e.g. from product form). Expects JSON response.
+     */
+    public function quickStore(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:brands,name'],
+        ]);
+
+        $brand = Brand::create($validated);
+        return response()->json(['id' => $brand->id, 'name' => $brand->name]);
+    }
+
+    /**
      * Display the specified resource.
      */
     public function show(Brand $brand)

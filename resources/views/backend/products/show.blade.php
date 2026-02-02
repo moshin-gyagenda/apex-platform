@@ -103,7 +103,7 @@
                                         <label class="text-xs font-medium text-gray-500 uppercase">Brand</label>
                                         <p class="mt-1">
                                             <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700 border border-primary-200">
-                                                {{ $product->brand->name }}
+                                                {{ $product->brand?->name ?? '—' }}
                                             </span>
                                         </p>
                                     </div>
@@ -137,7 +137,7 @@
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-500 uppercase">Selling Price</label>
-                                        <p class="mt-1 text-sm text-gray-800 font-medium">{{ number_format($product->selling_price, 0) }} UGX</p>
+                                        <p class="mt-1 text-sm text-gray-800 font-medium">{{ $product->selling_price !== null ? number_format($product->selling_price, 0) . ' UGX' : '—' }}</p>
                                     </div>
                                     <div>
                                         <label class="text-xs font-medium text-gray-500 uppercase">Quantity</label>

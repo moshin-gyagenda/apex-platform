@@ -9,6 +9,7 @@ use App\Models\Purchase;
 use App\Models\Customer;
 use App\Models\Category;
 use App\Models\Supplier;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -18,6 +19,9 @@ class DashboardController extends Controller
      */
     public function index()
     {
+        // Check for low stock products and create notifications
+        NotificationService::checkLowStock();
+
         // Overview Statistics
         $stats = [
             // Products

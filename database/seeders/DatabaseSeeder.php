@@ -21,11 +21,11 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CategorySeeder::class,
             BrandSeeder::class,
-            ProductModelSeeder::class,
-            ProductSeeder::class,
-            SupplierSeeder::class,
-            PurchaseSeeder::class,
-            CustomerSeeder::class,
+            // ProductModelSeeder::class,
+            // ProductSeeder::class,
+            // SupplierSeeder::class,
+            // PurchaseSeeder::class,
+            // CustomerSeeder::class,
         ]);
     }
 }

@@ -20,7 +20,7 @@
                 <li aria-current="page">
                     <div class="flex items-center">
                         <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 mx-2"></i>
-                        <span class="text-sm font-medium text-gray-500">Create Product</span>
+                        <span class="text-sm font-medium text-gray-500">Edit Product</span>
                     </div>
                 </li>
             </ol>
@@ -58,19 +58,20 @@
 
         <div class="container mx-auto py-6 px-4 sm:px-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <h1 class="text-xl font-semibold text-gray-800">Create New Product</h1>
+                <h1 class="text-xl font-semibold text-gray-800">Edit Product</h1>
                 <button onclick="window.history.back(); return false;" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                     <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                     Back
                 </button>
             </div>
 
-            <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.products.update', $product) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @method('PUT')
                 <div class="bg-white rounded-lg border border-gray-200 overflow-hidden">
                     <div class="px-4 py-4 border-b border-gray-200 bg-gray-50">
                         <h3 class="text-lg font-semibold text-gray-800">Product Information</h3>
-                        <p class="mt-1 text-sm text-gray-500">Enter the details for the new product</p>
+                        <p class="mt-1 text-sm text-gray-500">Update the product details</p>
                     </div>
                     <div class="px-4 py-5 sm:p-6 space-y-6">
                         <!-- Basic Information -->
@@ -97,7 +98,7 @@
                                                 <div class="options-list max-h-48 overflow-y-auto">
                                                     <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">Select a category</div>
                                                     @foreach($categories as $category)
-                                                        <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'data-selected="true"' : '' }}>
+                                                        <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'data-selected="true"' : '' }}>
                                                             {{ $category->name }}
                                                         </div>
                                                     @endforeach
@@ -110,9 +111,9 @@
                                         </button>
                                     </div>
                                     <select id="category_id" name="category_id" class="hidden" required>
-                                        <option value="" disabled selected>Select a category</option>
+                                        <option value="" disabled {{ !old('category_id', $product->category_id) ? 'selected' : '' }}>Select a category</option>
                                         @foreach($categories as $category)
-                                            <option value="{{ $category->id }}" {{ old('category_id') == $category->id ? 'selected' : '' }}>
+                                            <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>
                                                 {{ $category->name }}
                                             </option>
                                         @endforeach
@@ -139,7 +140,7 @@
                                                 <div class="options-list max-h-48 overflow-y-auto">
                                                     <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">Select a brand (optional)</div>
                                                     @foreach($brands as $brand)
-                                                        <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'data-selected="true"' : '' }}>
+                                                        <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'data-selected="true"' : '' }}>
                                                             {{ $brand->name }}
                                                         </div>
                                                     @endforeach
@@ -152,9 +153,9 @@
                                         </button>
                                     </div>
                                     <select id="brand_id" name="brand_id" class="hidden">
-                                        <option value="" selected>Select a brand (optional)</option>
+                                        <option value="" {{ !old('brand_id', $product->brand_id) ? 'selected' : '' }}>Select a brand (optional)</option>
                                         @foreach($brands as $brand)
-                                            <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
+                                            <option value="{{ $brand->id }}" {{ old('brand_id', $product->brand_id) == $brand->id ? 'selected' : '' }}>
                                                 {{ $brand->name }}
                                             </option>
                                         @endforeach
@@ -180,7 +181,7 @@
                                             <div class="options-list max-h-48 overflow-y-auto">
                                                 <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="">Select a model (optional)</div>
                                                 @foreach($productModels as $model)
-                                                    <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $model->id }}" {{ old('model_id') == $model->id ? 'data-selected="true"' : '' }}>
+                                                    <div class="option p-2.5 hover:bg-primary-50 cursor-pointer text-gray-700" data-value="{{ $model->id }}" {{ old('model_id', $product->model_id) == $model->id ? 'data-selected="true"' : '' }}>
                                                         {{ $model->name }} ({{ $model->brand->name }})
                                                     </div>
                                                 @endforeach
@@ -188,9 +189,9 @@
                                         </div>
                                     </div>
                                     <select id="model_id" name="model_id" class="hidden">
-                                        <option value="" selected>Select a model (optional)</option>
+                                        <option value="" {{ !old('model_id', $product->model_id) ? 'selected' : '' }}>Select a model (optional)</option>
                                         @foreach($productModels as $model)
-                                            <option value="{{ $model->id }}" {{ old('model_id') == $model->id ? 'selected' : '' }}>
+                                            <option value="{{ $model->id }}" {{ old('model_id', $product->model_id) == $model->id ? 'selected' : '' }}>
                                                 {{ $model->name }} ({{ $model->brand->name }})
                                             </option>
                                         @endforeach
@@ -208,7 +209,7 @@
                                         type="text"
                                         name="name"
                                         id="name"
-                                        value="{{ old('name') }}"
+                                        value="{{ old('name', $product->name) }}"
                                         placeholder="e.g., Apple iPhone 13 128GB"
                                         required
                                         class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
@@ -223,7 +224,7 @@
                                         SKU
                                     </label>
                                     <div class="w-full py-2 px-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-600 text-sm">
-                                        Auto-generated on save
+                                        {{ $product->sku }}
                                     </div>
                                 </div>
 
@@ -235,7 +236,7 @@
                                         type="text"
                                         name="barcode"
                                         id="barcode"
-                                        value="{{ old('barcode') }}"
+                                        value="{{ old('barcode', $product->barcode) }}"
                                         placeholder="e.g., 1234567890123"
                                         class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
                                     >
@@ -255,7 +256,7 @@
                                     rows="3"
                                     placeholder="Enter product description..."
                                     class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
-                                >{{ old('description') }}</textarea>
+                                >{{ old('description', $product->description) }}</textarea>
                                 @error('description')
                                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                                 @enderror
@@ -277,7 +278,7 @@
                                         type="number"
                                         name="cost_price"
                                         id="cost_price"
-                                        value="{{ old('cost_price') }}"
+                                        value="{{ old('cost_price', $product->cost_price) }}"
                                         step="0.01"
                                         min="0"
                                         placeholder="0"
@@ -297,7 +298,7 @@
                                         type="number"
                                         name="selling_price"
                                         id="selling_price"
-                                        value="{{ old('selling_price') }}"
+                                        value="{{ old('selling_price', $product->selling_price) }}"
                                         step="0.01"
                                         min="0"
                                         placeholder="0"
@@ -325,7 +326,7 @@
                                         type="number"
                                         name="quantity"
                                         id="quantity"
-                                        value="{{ old('quantity', 0) }}"
+                                        value="{{ old('quantity', $product->quantity) }}"
                                         min="0"
                                         placeholder="0"
                                         class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
@@ -343,7 +344,7 @@
                                         type="number"
                                         name="reorder_level"
                                         id="reorder_level"
-                                        value="{{ old('reorder_level', 0) }}"
+                                        value="{{ old('reorder_level', $product->reorder_level) }}"
                                         min="0"
                                         placeholder="0"
                                         class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
@@ -361,7 +362,7 @@
                                         type="text"
                                         name="serial_number"
                                         id="serial_number"
-                                        value="{{ old('serial_number') }}"
+                                        value="{{ old('serial_number', $product->serial_number) }}"
                                         placeholder="e.g., SN-001"
                                         class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
                                     >
@@ -387,7 +388,7 @@
                                         type="number"
                                         name="warranty_months"
                                         id="warranty_months"
-                                        value="{{ old('warranty_months') }}"
+                                        value="{{ old('warranty_months', $product->warranty_months) }}"
                                         min="0"
                                         placeholder="e.g., 12"
                                         class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
@@ -407,8 +408,8 @@
                                         required
                                         class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
                                     >
-                                        <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active</option>
-                                        <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                        <option value="active" {{ old('status', $product->status) == 'active' ? 'selected' : '' }}>Active</option>
+                                        <option value="inactive" {{ old('status', $product->status) == 'inactive' ? 'selected' : '' }}>Inactive</option>
                                     </select>
                                     @error('status')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -433,8 +434,18 @@
                                 >
                                 
                                 <div class="relative">
+                                    <!-- Current Image (Edit) -->
+                                    @if($product->image)
+                                    <div id="current-image-container" class="mb-4">
+                                        <div class="relative inline-block">
+                                            <img src="{{ Storage::url($product->image) }}" alt="Current" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+                                            <span class="absolute bottom-2 left-2 text-xs bg-gray-800 text-white px-2 py-1 rounded">Current image</span>
+                                        </div>
+                                        <p class="mt-2 text-sm text-gray-600">Upload a new image below to replace</p>
+                                    </div>
+                                    @endif
                                     <!-- Image Preview -->
-                                    <div id="image-preview-container" class="mb-4 hidden">
+                                    <div id="image-preview-container" class="mb-4 {{ $product->image ? 'hidden' : '' }}">
                                         <div class="relative inline-block">
                                             <img id="image-preview" alt="Preview" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
                                             <button
@@ -481,7 +492,7 @@
                         </button>
                         <button type="submit" class="inline-flex items-center px-4 py-2 bg-primary-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-primary-600 transition-colors">
                             <i data-lucide="save" class="w-4 h-4 mr-2"></i>
-                            Create Product
+                            Update Product
                         </button>
                     </div>
                 </div>

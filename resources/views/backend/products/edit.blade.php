@@ -275,15 +275,14 @@
                                         Cost Price <span class="text-red-500">*</span>
                                     </label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="cost_price"
                                         id="cost_price"
-                                        value="{{ old('cost_price', $product->cost_price) }}"
-                                        step="0.01"
-                                        min="0"
-                                        placeholder="0"
+                                        value="{{ old('cost_price', $product->cost_price ? number_format($product->cost_price, 2, '.', ',') : '') }}"
+                                        placeholder="0.00"
                                         required
-                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
+                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition number-input"
+                                        data-decimal="true"
                                     >
                                     @error('cost_price')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -295,14 +294,13 @@
                                         Selling Price
                                     </label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="selling_price"
                                         id="selling_price"
-                                        value="{{ old('selling_price', $product->selling_price) }}"
-                                        step="0.01"
-                                        min="0"
-                                        placeholder="0"
-                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
+                                        value="{{ old('selling_price', $product->selling_price ? number_format($product->selling_price, 2, '.', ',') : '') }}"
+                                        placeholder="0.00"
+                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition number-input"
+                                        data-decimal="true"
                                     >
                                     @error('selling_price')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -323,13 +321,13 @@
                                         Quantity
                                     </label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="quantity"
                                         id="quantity"
-                                        value="{{ old('quantity', $product->quantity) }}"
-                                        min="0"
+                                        value="{{ old('quantity', $product->quantity ? number_format($product->quantity, 0, '.', ',') : '') }}"
                                         placeholder="0"
-                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
+                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition number-input"
+                                        data-decimal="false"
                                     >
                                     @error('quantity')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -341,13 +339,13 @@
                                         Reorder Level
                                     </label>
                                     <input
-                                        type="number"
+                                        type="text"
                                         name="reorder_level"
                                         id="reorder_level"
-                                        value="{{ old('reorder_level', $product->reorder_level) }}"
-                                        min="0"
+                                        value="{{ old('reorder_level', $product->reorder_level ? number_format($product->reorder_level, 0, '.', ',') : '') }}"
                                         placeholder="0"
-                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition"
+                                        class="w-full py-2 px-3 border border-gray-300 rounded-lg focus:outline-none focus:border-primary-500 transition number-input"
+                                        data-decimal="false"
                                     >
                                     @error('reorder_level')
                                         <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
@@ -647,6 +645,95 @@
 
         // Initialize searchable selects
         initializeSearchableSelects();
+
+        // Number formatting with thousand separators
+        function formatNumber(value, allowDecimal = false) {
+            // Remove all non-numeric characters except decimal point
+            let cleaned = value.replace(/[^\d.]/g, '');
+            
+            // Handle decimal point
+            if (allowDecimal) {
+                // Only allow one decimal point
+                const parts = cleaned.split('.');
+                if (parts.length > 2) {
+                    cleaned = parts[0] + '.' + parts.slice(1).join('');
+                }
+                // Limit to 2 decimal places
+                if (parts.length === 2 && parts[1].length > 2) {
+                    cleaned = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+            } else {
+                // Remove decimal point for integers
+                cleaned = cleaned.replace(/\./g, '');
+            }
+            
+            if (!cleaned) return '';
+            
+            // Split into integer and decimal parts
+            const parts = cleaned.split('.');
+            const integerPart = parts[0];
+            const decimalPart = parts[1] || '';
+            
+            // Add thousand separators to integer part
+            const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            
+            // Combine parts
+            return allowDecimal && decimalPart ? formattedInteger + '.' + decimalPart : formattedInteger;
+        }
+
+        function unformatNumber(value) {
+            return value.replace(/,/g, '');
+        }
+
+        function getCursorPositionAfterFormat(oldValue, newValue, cursorPos) {
+            // Count commas before cursor in old value
+            const beforeCursor = oldValue.substring(0, cursorPos);
+            const commasBefore = (beforeCursor.match(/,/g) || []).length;
+            
+            // Count commas before cursor in new value
+            const unformattedBefore = unformatNumber(beforeCursor);
+            const newBeforeCursor = formatNumber(unformattedBefore, oldValue.includes('.'));
+            const newCommasBefore = (newBeforeCursor.match(/,/g) || []).length;
+            
+            // Adjust cursor position
+            const diff = newCommasBefore - commasBefore;
+            return Math.max(0, Math.min(newValue.length, cursorPos + diff));
+        }
+
+        // Apply formatting to all number inputs
+        document.querySelectorAll('.number-input').forEach(input => {
+            const allowDecimal = input.getAttribute('data-decimal') === 'true';
+            
+            // Format on input
+            input.addEventListener('input', function(e) {
+                const cursorPosition = this.selectionStart;
+                const oldValue = this.value;
+                const newValue = formatNumber(this.value, allowDecimal);
+                
+                if (oldValue !== newValue) {
+                    this.value = newValue;
+                    const newCursorPos = getCursorPositionAfterFormat(oldValue, newValue, cursorPosition);
+                    this.setSelectionRange(newCursorPos, newCursorPos);
+                }
+            });
+            
+            // Format on blur
+            input.addEventListener('blur', function() {
+                if (this.value) {
+                    this.value = formatNumber(this.value, allowDecimal);
+                }
+            });
+            
+            // Unformat before form submission
+            const form = input.closest('form');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    document.querySelectorAll('.number-input').forEach(inp => {
+                        inp.value = unformatNumber(inp.value);
+                    });
+                });
+            }
+        });
 
         // Add Category modal
         const addCategoryBtn = document.getElementById('add-category-btn');

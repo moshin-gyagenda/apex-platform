@@ -2,30 +2,30 @@
 @section('content')
 
 <div class="p-4 sm:ml-64 mt-16 flex flex-col min-h-screen">
-    <!-- POS Header -->
-    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-4 px-6 py-4 flex items-center justify-between flex-shrink-0">
-        <div class="flex items-center gap-4">
+            <!-- POS Header -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm mb-4 px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 flex-shrink-0">
+        <div class="flex items-center gap-3 sm:gap-4 flex-wrap">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                    <i data-lucide="shopping-cart" class="w-6 h-6 text-primary-500"></i>
+                <h1 class="text-xl sm:text-2xl font-bold text-gray-800 flex items-center gap-2 sm:gap-3">
+                    <i data-lucide="shopping-cart" class="w-5 h-5 sm:w-6 sm:h-6 text-primary-500"></i>
                     Point of Sale
                 </h1>
-                <p class="text-sm text-gray-500 mt-1">Cashier: <span class="font-medium text-gray-700">{{ auth()->user()->name }}</span></p>
+                <p class="text-xs sm:text-sm text-gray-500 mt-1">Cashier: <span class="font-medium text-gray-700">{{ auth()->user()->name }}</span></p>
             </div>
             <span class="px-3 py-1 bg-green-100 text-green-700 text-xs font-medium rounded-full border border-green-200 flex items-center gap-1">
                 <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                 Online
             </span>
         </div>
-        <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+        <a href="{{ route('dashboard') }}" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors shrink-0">
             <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
             Dashboard
         </a>
     </div>
 
-    <div class="flex flex-1 overflow-hidden">
+    <div class="flex flex-col lg:flex-row flex-1 overflow-hidden min-h-0">
         <!-- Left Panel: Products -->
-        <div class="w-2/3 flex flex-col border-r border-gray-200 bg-white overflow-hidden">
+        <div class="w-full lg:w-2/3 flex flex-col border-r-0 lg:border-r border-gray-200 bg-white overflow-hidden min-h-[50vh] lg:min-h-0">
             <!-- Search and Filters -->
             <div class="p-4 border-b border-gray-200 bg-white flex-shrink-0 space-y-3">
                 <!-- Search Bar -->
@@ -127,8 +127,8 @@
             </div>
 
             <!-- Products Grid -->
-            <div class="flex-1 overflow-y-auto p-4">
-                <div id="products-grid" class="grid grid-cols-4 gap-4" data-initial-loaded="true">
+            <div class="flex-1 overflow-y-auto p-3 sm:p-4">
+                <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4" data-initial-loaded="true">
                     @foreach($products as $product)
                         @php
                             $productData = [
@@ -225,7 +225,7 @@
         </div>
 
         <!-- Right Panel: Cart & Checkout -->
-        <div class="w-1/3 flex flex-col bg-gray-50 overflow-hidden">
+        <div class="w-full lg:w-1/3 flex flex-col bg-gray-50 overflow-hidden min-h-0 border-t lg:border-t-0 border-gray-200">
             <!-- Customer Selection -->
             <div class="p-4 bg-white border-b border-gray-200 flex-shrink-0">
                 <label class="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
@@ -792,7 +792,10 @@
                     ? `<img src="${product.image}" alt="${product.name}" class="w-full h-40 object-cover">`
                     : '<div class="w-full h-40 bg-gray-100 flex items-center justify-center"><i data-lucide="package" class="w-12 h-12 text-gray-300"></i></div>';
 
-                const sellingPrice = product.selling_price !== null 
+                const costPriceStr = product.cost_price != null 
+                    ? `${parseFloat(product.cost_price).toLocaleString('en-US', {maximumFractionDigits: 0})} UGX`
+                    : '—';
+                const sellingPriceStr = product.selling_price !== null 
                     ? `${parseFloat(product.selling_price).toLocaleString('en-US', {maximumFractionDigits: 0})} UGX`
                     : '—';
 
@@ -816,11 +819,10 @@
                             <h3 class="font-medium text-gray-800 mb-1 text-sm line-clamp-2 min-h-[2.5rem]">
                                 ${product.name}
                             </h3>
-                            <p class="text-xs text-gray-500 mb-2 font-mono">${product.sku}</p>
-                            <div class="flex items-center justify-between mb-3">
-                                <span class="text-base font-bold text-primary-600">
-                                    ${sellingPrice}
-                                </span>
+                            <p class="text-xs text-gray-500 mb-1.5 font-mono">${product.sku}</p>
+                            <div class="space-y-0.5 mb-3 text-sm">
+                                <div class="text-gray-600">Cost: <span class="font-semibold text-gray-800">${costPriceStr}</span></div>
+                                <div class="text-gray-600">Sell: <span class="font-bold text-primary-600">${sellingPriceStr}</span></div>
                             </div>
                             <div class="flex gap-2">
                                 <button

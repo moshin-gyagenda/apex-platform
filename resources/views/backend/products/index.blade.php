@@ -216,17 +216,48 @@
                             </a>
                         </div>
                     @else
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
+                        <!-- Mobile: Card list (cost & selling price always visible) -->
+                        <div class="block md:hidden divide-y divide-gray-200">
+                            @foreach($products as $product)
+                                <div class="p-4 bg-white hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-start justify-between gap-3">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="font-medium text-gray-800 truncate">{{ $product->name }}</div>
+                                            <div class="flex flex-wrap gap-1.5 mt-1">
+                                                <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">{{ $product->category->name }}</span>
+                                                @if($product->brand?->name)
+                                                    <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-primary-100 text-primary-700">{{ $product->brand->name }}</span>
+                                                @endif
+                                            </div>
+                                            <div class="mt-2 flex flex-col gap-0.5 text-sm">
+                                                <span class="text-gray-600">Cost: <strong class="text-gray-800">Ugx {{ number_format($product->cost_price, 0) }}</strong></span>
+                                                <span class="text-gray-600">Selling: <strong class="text-primary-600">{{ $product->selling_price !== null ? 'Ugx ' . number_format($product->selling_price, 0) : '—' }}</strong></span>
+                                            </div>
+                                            <div class="mt-1 text-xs text-gray-500">Qty: <span class="{{ $product->quantity <= $product->reorder_level ? 'text-red-600 font-semibold' : '' }}">{{ $product->quantity }}</span></div>
+                                        </div>
+                                        <div class="flex items-center gap-2 flex-shrink-0">
+                                            <a href="{{ route('admin.products.edit', $product->id) }}" class="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors" title="Edit"><i data-lucide="edit" class="w-4 h-4"></i></a>
+                                            <a href="{{ route('admin.products.show', $product->id) }}" class="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors" title="View"><i data-lucide="eye" class="w-4 h-4"></i></a>
+                                            <button type="button" class="delete-button p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                            <form id="delete-form-mobile-{{ $product->id }}" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="hidden">@csrf @method('DELETE')</form>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
+                        <!-- Desktop: Table (cost & selling price always visible) -->
+                        <div class="hidden md:block overflow-x-auto">
+                            <table class="w-full min-w-[640px]">
                                 <thead>
                                     <tr class="border-b border-gray-200 bg-gray-50">
                                         <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">ID</th>
                                         <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Name</th>
-                                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Category</th>
-                                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Brand</th>
-                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Quantity</th>
-                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Cost Price</th>
-                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700">Selling Price</th>
+                                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Category</th>
+                                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Brand</th>
+                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700">Qty</th>
+                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 whitespace-nowrap">Cost Price</th>
+                                        <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 whitespace-nowrap">Selling Price</th>
                                         <th class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-[120px]">Actions</th>
                                     </tr>
                                 </thead>
@@ -236,55 +267,29 @@
                                             <td class="py-3 px-4 text-sm text-gray-600">{{ $product->id }}</td>
                                             <td class="py-3 px-4">
                                                 <div class="flex items-center">
-                                                    <div class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center mr-3 border border-primary-100">
+                                                    <div class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center mr-3 border border-primary-100 flex-shrink-0">
                                                         <i data-lucide="package" class="w-4 h-4 text-primary-500"></i>
                                                     </div>
-                                                    <div>
-                                                        <div class="font-medium text-sm text-gray-800">{{ $product->name }}</div>
-                                                    </div>
+                                                    <div class="font-medium text-sm text-gray-800 min-w-0 truncate max-w-[180px]">{{ $product->name }}</div>
                                                 </div>
                                             </td>
-                                            <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
-                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">
-                                                    {{ $product->category->name }}
-                                                </span>
+                                            <td class="py-3 px-4 text-sm text-gray-600">
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">{{ $product->category->name }}</span>
                                             </td>
-                                            <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
-                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700 border border-primary-200">
-                                                    {{ $product->brand?->name ?? '—' }}
-                                                </span>
+                                            <td class="py-3 px-4 text-sm text-gray-600">
+                                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700 border border-primary-200">{{ $product->brand?->name ?? '—' }}</span>
                                             </td>
-                                            <td class="py-3 px-4 text-sm text-right hidden lg:table-cell">
-                                                <span class="{{ $product->quantity <= $product->reorder_level ? 'text-red-600 font-semibold' : 'text-gray-800' }}">
-                                                    {{ $product->quantity }}
-                                                </span>
+                                            <td class="py-3 px-4 text-sm text-right">
+                                                <span class="{{ $product->quantity <= $product->reorder_level ? 'text-red-600 font-semibold' : 'text-gray-800' }}">{{ $product->quantity }}</span>
                                             </td>
-                                            <td class="py-3 px-4 text-sm text-right text-gray-800 hidden lg:table-cell">
-                                                Ugx {{ number_format($product->cost_price, 0) }}
-                                            </td>
-                                            <td class="py-3 px-4 text-sm text-right text-gray-800">
-                                                {{ $product->selling_price !== null ? 'Ugx ' . number_format($product->selling_price, 0) : '—' }}
-                                            </td>
+                                            <td class="py-3 px-4 text-sm text-right text-gray-800 whitespace-nowrap">Ugx {{ number_format($product->cost_price, 0) }}</td>
+                                            <td class="py-3 px-4 text-sm text-right text-gray-800 whitespace-nowrap">{{ $product->selling_price !== null ? 'Ugx ' . number_format($product->selling_price, 0) : '—' }}</td>
                                             <td class="py-3 px-4 text-center">
                                                 <div class="flex items-center justify-center space-x-2">
-                                                    <a href="{{ route('admin.products.edit', $product->id) }}" class="text-primary-500 hover:text-primary-600 transition-colors" title="Edit">
-                                                        <i data-lucide="edit" class="w-4 h-4"></i>
-                                                    </a>
-                                                    <a href="{{ route('admin.products.show', $product->id) }}" class="text-primary-500 hover:text-primary-600 transition-colors" title="View">
-                                                        <i data-lucide="eye" class="w-4 h-4"></i>
-                                                    </a>
-                                                    <button
-                                                        type="button"
-                                                        class="delete-button text-red-500 hover:text-red-600 transition-colors"
-                                                        title="Delete"
-                                                        data-product-id="{{ $product->id }}"
-                                                        data-product-name="{{ $product->name }}">
-                                                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                                    </button>
-                                                    <form id="delete-form-{{ $product->id }}" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="hidden">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                    </form>
+                                                    <a href="{{ route('admin.products.edit', $product->id) }}" class="text-primary-500 hover:text-primary-600 transition-colors" title="Edit"><i data-lucide="edit" class="w-4 h-4"></i></a>
+                                                    <a href="{{ route('admin.products.show', $product->id) }}" class="text-primary-500 hover:text-primary-600 transition-colors" title="View"><i data-lucide="eye" class="w-4 h-4"></i></a>
+                                                    <button type="button" class="delete-button text-red-500 hover:text-red-600 transition-colors" title="Delete" data-product-id="{{ $product->id }}" data-product-name="{{ $product->name }}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                                    <form id="delete-form-{{ $product->id }}" action="{{ route('admin.products.destroy', $product->id) }}" method="POST" class="hidden">@csrf @method('DELETE')</form>
                                                 </div>
                                             </td>
                                         </tr>
@@ -459,18 +464,51 @@
                 return;
             }
 
+            const costFmt = (v) => v != null ? `Ugx ${parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0})}` : '—';
+            const sellFmt = (v) => v != null ? `Ugx ${parseFloat(v).toLocaleString('en-US', {maximumFractionDigits: 0})}` : '—';
+
+            let mobileHTML = '<div class="block md:hidden divide-y divide-gray-200">';
+            products.forEach((product) => {
+                const brandLabel = product.brand || '—';
+                mobileHTML += `
+                    <div class="p-4 bg-white hover:bg-gray-50 transition-colors">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1 min-w-0">
+                                <div class="font-medium text-gray-800 truncate">${product.name}</div>
+                                <div class="flex flex-wrap gap-1.5 mt-1">
+                                    <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-blue-100 text-blue-700">${product.category}</span>
+                                    ${brandLabel !== '—' ? `<span class="px-2 py-0.5 text-xs font-medium rounded-full bg-primary-100 text-primary-700">${brandLabel}</span>` : ''}
+                                </div>
+                                <div class="mt-2 flex flex-col gap-0.5 text-sm">
+                                    <span class="text-gray-600">Cost: <strong class="text-gray-800">${costFmt(product.cost_price)}</strong></span>
+                                    <span class="text-gray-600">Selling: <strong class="text-primary-600">${sellFmt(product.selling_price)}</strong></span>
+                                </div>
+                                <div class="mt-1 text-xs text-gray-500">Qty: <span class="${product.quantity <= product.reorder_level ? 'text-red-600 font-semibold' : ''}">${product.quantity}</span></div>
+                            </div>
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <a href="${product.edit_url}" class="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors" title="Edit"><i data-lucide="edit" class="w-4 h-4"></i></a>
+                                <a href="${product.show_url}" class="p-2 text-primary-500 hover:bg-primary-50 rounded-lg transition-colors" title="View"><i data-lucide="eye" class="w-4 h-4"></i></a>
+                                <button type="button" class="delete-button p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors" title="Delete" data-product-id="${product.id}" data-product-name="${product.name}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <form id="delete-form-mobile-${product.id}" action="${product.delete_url}" method="POST" class="hidden"><input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE"></form>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            mobileHTML += '</div>';
+
             let tableHTML = `
-                <div class="overflow-x-auto">
-                    <table class="w-full">
+                <div class="hidden md:block overflow-x-auto">
+                    <table class="w-full min-w-[640px]">
                         <thead>
                             <tr class="border-b border-gray-200 bg-gray-50">
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">ID</th>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Name</th>
-                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Category</th>
-                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 hidden md:table-cell">Brand</th>
-                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Quantity</th>
-                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 hidden lg:table-cell">Cost Price</th>
-                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700">Selling Price</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Category</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700">Brand</th>
+                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700">Qty</th>
+                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 whitespace-nowrap">Cost Price</th>
+                                <th class="py-3 px-4 text-right text-sm font-semibold text-gray-700 whitespace-nowrap">Selling Price</th>
                                 <th class="py-3 px-4 text-center text-sm font-semibold text-gray-700 w-[120px]">Actions</th>
                             </tr>
                         </thead>
@@ -480,62 +518,34 @@
             products.forEach((product, index) => {
                 const quantityClass = product.quantity <= product.reorder_level ? 'text-red-600 font-semibold' : 'text-gray-800';
                 const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30';
-                const sellingPrice = product.selling_price !== null ? `Ugx ${parseFloat(product.selling_price).toLocaleString('en-US', {maximumFractionDigits: 0})}` : '—';
-
                 tableHTML += `
                     <tr class="border-b border-gray-100 hover:bg-gray-50 transition-colors ${rowBg}">
                         <td class="py-3 px-4 text-sm text-gray-600">${product.id}</td>
                         <td class="py-3 px-4">
                             <div class="flex items-center">
-                                <div class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center mr-3 border border-primary-100">
+                                <div class="w-8 h-8 rounded-full bg-primary-50 flex items-center justify-center mr-3 border border-primary-100 flex-shrink-0">
                                     <i data-lucide="package" class="w-4 h-4 text-primary-500"></i>
                                 </div>
-                                <div>
-                                    <div class="font-medium text-sm text-gray-800">${product.name}</div>
-                                </div>
+                                <div class="font-medium text-sm text-gray-800 min-w-0 truncate max-w-[180px]">${product.name}</div>
                             </div>
                         </td>
-                        <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">
-                                ${product.category}
-                            </span>
+                        <td class="py-3 px-4 text-sm text-gray-600">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 border border-blue-200">${product.category}</span>
                         </td>
-                        <td class="py-3 px-4 text-sm text-gray-600 hidden md:table-cell">
-                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700 border border-primary-200">
-                                ${product.brand}
-                            </span>
+                        <td class="py-3 px-4 text-sm text-gray-600">
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-primary-100 text-primary-700 border border-primary-200">${product.brand}</span>
                         </td>
-                        <td class="py-3 px-4 text-sm text-right hidden lg:table-cell">
-                            <span class="${quantityClass}">
-                                ${product.quantity}
-                            </span>
+                        <td class="py-3 px-4 text-sm text-right">
+                            <span class="${quantityClass}">${product.quantity}</span>
                         </td>
-                        <td class="py-3 px-4 text-sm text-right text-gray-800 hidden lg:table-cell">
-                            Ugx ${parseFloat(product.cost_price).toLocaleString('en-US', {maximumFractionDigits: 0})}
-                        </td>
-                        <td class="py-3 px-4 text-sm text-right text-gray-800">
-                            ${sellingPrice}
-                        </td>
+                        <td class="py-3 px-4 text-sm text-right text-gray-800 whitespace-nowrap">${costFmt(product.cost_price)}</td>
+                        <td class="py-3 px-4 text-sm text-right text-gray-800 whitespace-nowrap">${sellFmt(product.selling_price)}</td>
                         <td class="py-3 px-4 text-center">
                             <div class="flex items-center justify-center space-x-2">
-                                <a href="${product.edit_url}" class="text-primary-500 hover:text-primary-600 transition-colors" title="Edit">
-                                    <i data-lucide="edit" class="w-4 h-4"></i>
-                                </a>
-                                <a href="${product.show_url}" class="text-primary-500 hover:text-primary-600 transition-colors" title="View">
-                                    <i data-lucide="eye" class="w-4 h-4"></i>
-                                </a>
-                                <button
-                                    type="button"
-                                    class="delete-button text-red-500 hover:text-red-600 transition-colors"
-                                    title="Delete"
-                                    data-product-id="${product.id}"
-                                    data-product-name="${product.name}">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                                <form id="delete-form-${product.id}" action="${product.delete_url}" method="POST" class="hidden">
-                                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                </form>
+                                <a href="${product.edit_url}" class="text-primary-500 hover:text-primary-600 transition-colors" title="Edit"><i data-lucide="edit" class="w-4 h-4"></i></a>
+                                <a href="${product.show_url}" class="text-primary-500 hover:text-primary-600 transition-colors" title="View"><i data-lucide="eye" class="w-4 h-4"></i></a>
+                                <button type="button" class="delete-button text-red-500 hover:text-red-600 transition-colors" title="Delete" data-product-id="${product.id}" data-product-name="${product.name}"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                                <form id="delete-form-${product.id}" action="${product.delete_url}" method="POST" class="hidden"><input type="hidden" name="_token" value="{{ csrf_token() }}"><input type="hidden" name="_method" value="DELETE"></form>
                             </div>
                         </td>
                     </tr>
@@ -549,7 +559,7 @@
                 ${total > 0 ? `<div class="mt-4 px-4 py-3 border-t border-gray-200 text-sm text-gray-600 text-center">Showing ${total} product${total !== 1 ? 's' : ''}</div>` : ''}
             `;
 
-            productsContent.innerHTML = tableHTML;
+            productsContent.innerHTML = mobileHTML + tableHTML;
             lucide.createIcons();
         }
 
@@ -609,7 +619,8 @@
 
         confirmDeleteBtn.addEventListener('click', function() {
             if (deleteFormId) {
-                document.getElementById('delete-form-' + deleteFormId).submit();
+                const form = document.getElementById('delete-form-' + deleteFormId) || document.getElementById('delete-form-mobile-' + deleteFormId);
+                if (form) form.submit();
             }
         });
 

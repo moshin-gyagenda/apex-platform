@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -39,6 +41,7 @@ class CartController extends Controller
         $cartItems = [];
         $total = 0;
 
+        $cartProductIds = [];
         foreach ($cart as $productId => $quantity) {
             $product = Product::find($productId);
             if ($product) {
@@ -48,10 +51,75 @@ class CartController extends Controller
                     'subtotal' => $product->selling_price * $quantity,
                 ];
                 $total += $product->selling_price * $quantity;
+                $cartProductIds[] = $productId;
             }
         }
 
-        return view('frontend.cart.index', compact('cartItems', 'total'));
+        // Get recently viewed products from session
+        $recentlyViewedIds = $request->session()->get('recently_viewed', []);
+        $recentlyViewedProducts = Product::with(['category', 'brand'])
+            ->whereIn('id', $recentlyViewedIds)
+            ->where('status', 'active')
+            ->whereNotIn('id', $cartProductIds) // Exclude items already in cart
+            ->limit(8)
+            ->get();
+
+        // Get "Customers also bought" - products frequently bought together with cart items
+        $customersAlsoBought = collect();
+        if (!empty($cartProductIds)) {
+            // Find orders that contain any of the cart products
+            $orderIds = OrderItem::whereIn('product_id', $cartProductIds)
+                ->distinct()
+                ->pluck('order_id')
+                ->toArray();
+
+            if (!empty($orderIds)) {
+                // Get products from those orders that are NOT in the cart
+                $alsoBoughtProductIds = OrderItem::whereIn('order_id', $orderIds)
+                    ->whereNotIn('product_id', $cartProductIds)
+                    ->select('product_id', DB::raw('COUNT(*) as purchase_count'))
+                    ->groupBy('product_id')
+                    ->orderByDesc('purchase_count')
+                    ->limit(8)
+                    ->pluck('product_id')
+                    ->toArray();
+
+                if (!empty($alsoBoughtProductIds)) {
+                    $customersAlsoBought = Product::with(['category', 'brand'])
+                        ->whereIn('id', $alsoBoughtProductIds)
+                        ->where('status', 'active')
+                        ->limit(8)
+                        ->get();
+                }
+            }
+        }
+
+        // Get "Customers who viewed this also viewed" - products from same categories as cart items
+        $alsoViewedProducts = collect();
+        if (!empty($cartProductIds)) {
+            // Get categories of products in cart
+            $cartCategories = Product::whereIn('id', $cartProductIds)
+                ->distinct()
+                ->pluck('category_id')
+                ->toArray();
+
+            if (!empty($cartCategories)) {
+                $alsoViewedProducts = Product::with(['category', 'brand'])
+                    ->whereIn('category_id', $cartCategories)
+                    ->whereNotIn('id', $cartProductIds) // Exclude items already in cart
+                    ->where('status', 'active')
+                    ->limit(8)
+                    ->get();
+            }
+        }
+
+        return view('frontend.cart.index', compact(
+            'cartItems', 
+            'total', 
+            'recentlyViewedProducts', 
+            'customersAlsoBought', 
+            'alsoViewedProducts'
+        ));
     }
 
     /**

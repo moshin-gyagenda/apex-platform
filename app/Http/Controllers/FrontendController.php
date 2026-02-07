@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\ShippingInfo;
+use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -16,26 +17,60 @@ class FrontendController extends Controller
     /**
      * Display the landing page
      */
-    public function index()
+    public function index(Request $request)
     {
         // Fetch categories from database
         $categories = Category::orderBy('name', 'asc')->get();
         
-        // Fetch featured products (sorted by price - cheapest first)
-        $featuredProducts = Product::with(['category', 'brand'])
-            ->where('status', 'active')
-            ->where('quantity', '>', 0)
-            ->orderBy('selling_price', 'asc')
-            ->limit(10)
-            ->get();
+        $searchTerm = $request->filled('search') ? $request->search : null;
+        $categoryId = $request->filled('category') ? $request->category : null;
+        $hasFilter = $searchTerm || $categoryId;
+
+        $featuredQuery = Product::with(['category', 'brand'])
+            ->where('status', 'active');
+
+        if ($searchTerm) {
+            $search = strtolower($searchTerm);
+            $featuredQuery->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereRaw('LOWER(sku) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereRaw('LOWER(barcode) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                    })
+                    ->orWhereHas('brand', function ($q) use ($search) {
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                    });
+            });
+        }
+
+        if ($categoryId) {
+            $featuredQuery->where('category_id', $categoryId);
+        }
+
+        $featuredProducts = $featuredQuery->limit($hasFilter ? 24 : 10)->get();
         
-        // Fetch flash sale products (sorted by price - cheapest first)
-        $flashProducts = Product::with(['category', 'brand'])
-            ->where('status', 'active')
-            ->where('quantity', '>', 0)
-            ->orderBy('selling_price', 'asc')
-            ->limit(6)
-            ->get();
+        // Flash products: when filtering, show same filter; otherwise default set
+        $flashQuery = Product::with(['category', 'brand'])
+            ->where('status', 'active');
+        if ($searchTerm) {
+            $search = strtolower($searchTerm);
+            $flashQuery->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereRaw('LOWER(sku) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereRaw('LOWER(barcode) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                    })
+                    ->orWhereHas('brand', function ($q) use ($search) {
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                    });
+            });
+        }
+        if ($categoryId) {
+            $flashQuery->where('category_id', $categoryId);
+        }
+        $flashProducts = $flashQuery->limit(6)->get();
         
         // Get recently viewed products from session
         $recentlyViewedIds = session()->get('recently_viewed', []);
@@ -45,7 +80,56 @@ class FrontendController extends Controller
             ->limit(6)
             ->get();
         
-        return view('frontend.index', compact('categories', 'featuredProducts', 'flashProducts', 'recentlyViewedProducts'));
+        return view('frontend.index', compact('categories', 'featuredProducts', 'flashProducts', 'recentlyViewedProducts', 'searchTerm', 'hasFilter'));
+    }
+
+    /**
+     * Search products via AJAX for frontend autocomplete (public).
+     * Same search logic as backend: name, sku, barcode, category name, brand name.
+     */
+    public function searchProducts(Request $request)
+    {
+        $query = Product::with(['category', 'brand'])
+            ->where('status', 'active');
+
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereRaw('LOWER(sku) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereRaw('LOWER(barcode) LIKE ?', ['%' . $search . '%'])
+                    ->orWhereHas('category', function ($q) use ($search) {
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                    })
+                    ->orWhereHas('brand', function ($q) use ($search) {
+                        $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                    });
+            });
+        }
+
+        if ($request->filled('category_id')) {
+            $query->where('category_id', $request->category_id);
+        }
+
+        $products = $query->limit(10)->get();
+
+        return response()->json([
+            'products' => $products->map(function ($product) {
+                $imageUrl = $product->image
+                    ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                    : asset('assets/images/logo.png');
+                return [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'url' => route('frontend.products.show', $product->id),
+                    'selling_price' => $product->selling_price,
+                    'image' => $imageUrl,
+                    'category' => $product->category?->name ?? '—',
+                    'brand' => $product->brand?->name ?? '—',
+                ];
+            }),
+        ]);
     }
     
     /**
@@ -53,7 +137,7 @@ class FrontendController extends Controller
      */
     public function showProduct($id)
     {
-        $product = Product::with(['category', 'brand', 'productModel'])
+        $product = Product::with(['category', 'brand', 'productModel', 'reviews.user'])
             ->findOrFail($id);
         
         // Store recently viewed product
@@ -64,16 +148,65 @@ class FrontendController extends Controller
             session()->put('recently_viewed', $recentlyViewed);
         }
         
-        // Get related products from same category (sorted by price - cheapest first)
+        // Get related products from same category
         $relatedProducts = Product::with(['category', 'brand'])
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->where('status', 'active')
-            ->orderBy('selling_price', 'asc')
             ->limit(5)
             ->get();
         
-        return view('frontend.products.show', compact('product', 'relatedProducts'));
+        // Check if user has already reviewed this product
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = Review::where('product_id', $product->id)
+                ->where('user_id', auth()->id())
+                ->first();
+        }
+        
+        // Calculate average rating
+        $averageRating = $product->reviews->avg('rating') ?? 0;
+        $totalReviews = $product->reviews->count();
+        
+        return view('frontend.products.show', compact('product', 'relatedProducts', 'userReview', 'averageRating', 'totalReviews'));
+    }
+
+    /**
+     * Store a new review for a product
+     */
+    public function storeReview(Request $request, $productId)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:1000',
+        ]);
+
+        $product = Product::findOrFail($productId);
+
+        // Check if user is authenticated
+        if (!auth()->check()) {
+            return redirect()->route('login')->with('error', 'Please login to submit a review.');
+        }
+
+        // Check if user has already reviewed this product
+        $existingReview = Review::where('product_id', $product->id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if ($existingReview) {
+            return back()->with('error', 'You have already reviewed this product.');
+        }
+
+        // Create the review
+        Review::create([
+            'product_id' => $product->id,
+            'user_id' => auth()->id(),
+            'rating' => $request->rating,
+            'comment' => $request->comment,
+            'status' => 'approved', // Auto-approve reviews, or set to 'pending' for moderation
+        ]);
+
+        return back()->with('success', 'Thank you for your review!');
     }
 
     /**
@@ -104,6 +237,28 @@ class FrontendController extends Controller
         $subcategory = Category::with('products')->findOrFail($id);
         
         return view('frontend.sub-categories.index', compact('subcategory'));
+    }
+
+    /**
+     * Display a help/support page (help center, place order, payments, delivery, returns, warranty).
+     */
+    public function showHelpPage(string $page)
+    {
+        $views = [
+            'help-center' => ['title' => 'Help Center', 'view' => 'frontend.help.help-center'],
+            'place-order' => ['title' => 'Place an Order', 'view' => 'frontend.help.place-order'],
+            'payment-options' => ['title' => 'Payment Options', 'view' => 'frontend.help.payment-options'],
+            'delivery-tracking' => ['title' => 'Delivery & Track Your Order', 'view' => 'frontend.help.delivery-tracking'],
+            'returns-refunds' => ['title' => 'Returns and Refunds', 'view' => 'frontend.help.returns-refunds'],
+            'warranty' => ['title' => 'Warranty', 'view' => 'frontend.help.warranty'],
+        ];
+
+        if (!isset($views[$page])) {
+            abort(404);
+        }
+
+        $title = $views[$page]['title'];
+        return view($views[$page]['view'], compact('page', 'title'));
     }
 
     /**

@@ -22,11 +22,16 @@ use App\Http\Controllers\ShippingInfoController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
+Route::get('/search/products', [FrontendController::class, 'searchProducts'])->name('frontend.search.products');
 Route::get('/products/{id}', [FrontendController::class, 'showProduct'])->name('frontend.products.show');
+Route::post('/products/{id}/reviews', [FrontendController::class, 'storeReview'])->name('frontend.products.reviews.store')->middleware('auth');
 
 // Frontend category routes
 Route::get('/category/{id}', [FrontendController::class, 'category'])->name('frontend.category');
 Route::get('/sub-category/{id}', [FrontendController::class, 'subCategory'])->name('frontend.sub-category');
+
+// Help / support pages (public)
+Route::get('/help/{page}', [FrontendController::class, 'showHelpPage'])->name('frontend.help.show')->where('page', 'help-center|place-order|payment-options|delivery-tracking|returns-refunds|warranty');
 
 // Cart routes (public - anyone can add to cart)
 Route::prefix('cart')->name('cart.')->group(function () {
@@ -101,9 +106,15 @@ Route::middleware([
     
     // Admin routes
     Route::prefix('admin')->name('admin.')->group(function () {
+        Route::get('users/export/excel', [UserController::class, 'exportExcel'])->name('users.export.excel');
+        Route::get('users/export/pdf', [UserController::class, 'exportPdf'])->name('users.export.pdf');
         Route::resource('users', UserController::class);
+        Route::get('categories/export/excel', [CategoryController::class, 'exportExcel'])->name('categories.export.excel');
+        Route::get('categories/export/pdf', [CategoryController::class, 'exportPdf'])->name('categories.export.pdf');
         Route::resource('categories', CategoryController::class);
         Route::post('categories/quick-store', [CategoryController::class, 'quickStore'])->name('categories.quick-store');
+        Route::get('brands/export/excel', [BrandController::class, 'exportExcel'])->name('brands.export.excel');
+        Route::get('brands/export/pdf', [BrandController::class, 'exportPdf'])->name('brands.export.pdf');
         Route::resource('brands', BrandController::class);
         Route::post('brands/quick-store', [BrandController::class, 'quickStore'])->name('brands.quick-store');
         Route::resource('product-models', ProductModelController::class);
@@ -111,10 +122,16 @@ Route::middleware([
         Route::get('products/export/excel', [ProductController::class, 'exportExcel'])->name('products.export.excel');
         Route::get('products/export/pdf', [ProductController::class, 'exportPdf'])->name('products.export.pdf');
         Route::resource('products', ProductController::class);
+        Route::get('suppliers/export/excel', [SupplierController::class, 'exportExcel'])->name('suppliers.export.excel');
+        Route::get('suppliers/export/pdf', [SupplierController::class, 'exportPdf'])->name('suppliers.export.pdf');
         Route::resource('suppliers', SupplierController::class);
+        Route::get('purchases/export/excel', [PurchaseController::class, 'exportExcel'])->name('purchases.export.excel');
+        Route::get('purchases/export/pdf', [PurchaseController::class, 'exportPdf'])->name('purchases.export.pdf');
         Route::resource('purchases', PurchaseController::class);
         Route::resource('customers', CustomerController::class);
         Route::get('sales', [SaleController::class, 'index'])->name('sales.index');
+        Route::get('sales/export/excel', [SaleController::class, 'exportExcel'])->name('sales.export.excel');
+        Route::get('sales/export/pdf', [SaleController::class, 'exportPdf'])->name('sales.export.pdf');
         Route::get('sales/{sale}', [SaleController::class, 'show'])->name('sales.show');
         Route::get('sales/{sale}/receipt', [SaleController::class, 'receipt'])->name('sales.receipt');
         Route::get('sales/{sale}/receipt/download', [SaleController::class, 'downloadReceipt'])->name('sales.receipt.download');

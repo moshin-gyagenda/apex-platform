@@ -14,26 +14,28 @@
                 
                 <a href="{{ route('frontend.index') }}" class="flex items-center space-x-2 group">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Electronics Logo" class="h-10 w-auto">
-                    <span class="text-xl font-bold text-gray-900">Apex</span>
-                    <span class="text-primary-500 text-xl">★</span>
+                    <span class="font-bold text-gray-900 -m -fs20 -elli">Apex Electronics</span>
+                    
                 </a>
             </div>
             
             <!-- Search Bar - Desktop (Center) -->
             <div class="hidden lg:flex flex-1 max-w-2xl mx-8">
-                <div class="relative w-full flex items-center">
+                <div class="relative w-full flex items-center" id="search-wrapper">
                     <div class="relative flex-1">
                         <input 
                             type="text" 
                             id="search-input"
                             placeholder="Search products, brands and categories" 
-                            onkeypress="handleSearch(event)"
+                            autocomplete="off"
                             class="w-full pl-12 pr-4 py-2.5 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
                         >
                         <i data-lucide="search" class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <div id="search-autocomplete" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"></div>
                     </div>
                     <button 
-                        onclick="handleSearchClick()"
+                        type="button"
+                        id="search-btn"
                         class="bg-primary-500 hover:bg-primary-600 text-white px-6 py-2.5 rounded-r-lg font-medium transition-colors shadow-sm"
                     >
                         Search
@@ -102,22 +104,22 @@
                     </button>
                     <div class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
                         <div class="py-2">
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.help.show', 'help-center') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 Help Center
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.help.show', 'place-order') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 Place an Order
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.help.show', 'payment-options') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 Payments Options
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.help.show', 'delivery-tracking') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 Delivery Timelines & Track your order
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.help.show', 'returns-refunds') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 Returns and Refunds
                             </a>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.help.show', 'warranty') }}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 Warranty
                             </a>
                             
@@ -160,16 +162,21 @@
             
             <!-- Mobile Search -->
             <div class="mt-4 px-4">
-                <div class="relative flex items-center">
-                    <input 
-                        type="text" 
-                        placeholder="Search products, brands and categories" 
-                        onkeypress="handleSearch(event)"
-                        class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                    >
-                    <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <div class="relative flex items-center" id="mobile-search-wrapper">
+                    <div class="relative flex-1">
+                        <input 
+                            type="text" 
+                            id="mobile-search-input"
+                            placeholder="Search products, brands and categories" 
+                            autocomplete="off"
+                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
+                        >
+                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                        <div id="mobile-search-autocomplete" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"></div>
+                    </div>
                     <button 
-                        onclick="handleSearchClick()"
+                        type="button"
+                        id="mobile-search-btn"
                         class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2.5 rounded-r-lg font-medium transition-colors"
                     >
                         Search
@@ -186,21 +193,119 @@
         menu.classList.toggle('hidden');
     }
 
-    function handleSearch(event) {
-        if (event.key === 'Enter') {
-            handleSearchClick();
-        }
-    }
+    (function() {
+        const searchInput = document.getElementById('search-input');
+        const mobileSearchInput = document.getElementById('mobile-search-input');
+        const searchAutocomplete = document.getElementById('search-autocomplete');
+        const mobileSearchAutocomplete = document.getElementById('mobile-search-autocomplete');
+        const searchBtn = document.getElementById('search-btn');
+        const mobileSearchBtn = document.getElementById('mobile-search-btn');
+        let searchTimeout = null;
+        const debounceMs = 300;
 
-    function handleSearchClick() {
-        const searchInput = document.getElementById('search-input') || document.querySelector('#mobile-menu input[type="text"]');
-        const query = searchInput.value.trim();
-        
-        if (query) {
-            // Redirect to search results page or filter products
-            window.location.href = '{{ route("frontend.index") }}?search=' + encodeURIComponent(query);
+        function getActiveInput() {
+            if (document.getElementById('mobile-menu') && !document.getElementById('mobile-menu').classList.contains('hidden')) {
+                return mobileSearchInput;
+            }
+            return searchInput;
         }
-    }
+
+        function getActiveDropdown() {
+            return document.getElementById('mobile-menu').classList.contains('hidden') ? searchAutocomplete : mobileSearchAutocomplete;
+        }
+
+        function getQuery(inputEl) {
+            return (inputEl || getActiveInput()).value.trim();
+        }
+
+        function goToSearchResults(query) {
+            if (query) {
+                window.location.href = '{{ route("frontend.index") }}?search=' + encodeURIComponent(query) + '#products';
+            }
+        }
+
+        function performLiveSearch(query, dropdownEl, inputEl) {
+            if (!query || query.length < 2) {
+                dropdownEl.classList.add('hidden');
+                dropdownEl.innerHTML = '';
+                return;
+            }
+            fetch('{{ route("frontend.search.products") }}?search=' + encodeURIComponent(query), {
+                method: 'GET',
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(data) {
+                if (!data.products || data.products.length === 0) {
+                    dropdownEl.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500">No products found. Try different keywords.</div>';
+                } else {
+                    dropdownEl.innerHTML = data.products.map(function(p) {
+                        return '<a href="' + p.url + '" class="flex items-center gap-3 px-4 py-3 hover:bg-primary-50 border-b border-gray-100 last:border-0 text-left">' +
+                            '<img src="' + p.image + '" alt="" class="w-10 h-10 object-cover rounded flex-shrink-0">' +
+                            '<div class="flex-1 min-w-0">' +
+                            '<div class="font-medium text-gray-900 truncate">' + (p.name || '') + '</div>' +
+                            '<div class="text-xs text-gray-500">' + (p.category || '') + (p.brand && p.brand !== '—' ? ' · ' + p.brand : '') + '</div>' +
+                            '</div>' +
+                            '<div class="text-sm font-semibold text-primary-600">UGX ' + (typeof p.selling_price === 'number' ? p.selling_price.toLocaleString() : (p.selling_price || '')) + '</div>' +
+                            '</a>';
+                    }).join('');
+                }
+                dropdownEl.classList.remove('hidden');
+            })
+            .catch(function() {
+                dropdownEl.innerHTML = '<div class="px-4 py-3 text-sm text-gray-500">Search unavailable. Try again.</div>';
+                dropdownEl.classList.remove('hidden');
+            });
+        }
+
+        function onInput(inputEl, dropdownEl) {
+            var q = inputEl.value.trim();
+            clearTimeout(searchTimeout);
+            if (q.length < 2) {
+                dropdownEl.classList.add('hidden');
+                dropdownEl.innerHTML = '';
+                return;
+            }
+            searchTimeout = setTimeout(function() {
+                performLiveSearch(q, dropdownEl, inputEl);
+            }, debounceMs);
+        }
+
+        function onEnter(inputEl, dropdownEl) {
+            var q = inputEl.value.trim();
+            if (q) {
+                dropdownEl.classList.add('hidden');
+                dropdownEl.innerHTML = '';
+                goToSearchResults(q);
+            }
+        }
+
+        function closeDropdowns() {
+            if (searchAutocomplete) searchAutocomplete.classList.add('hidden');
+            if (mobileSearchAutocomplete) mobileSearchAutocomplete.classList.add('hidden');
+        }
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() { onInput(searchInput, searchAutocomplete); });
+            searchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); onEnter(searchInput, searchAutocomplete); }
+            });
+        }
+        if (mobileSearchInput) {
+            mobileSearchInput.addEventListener('input', function() { onInput(mobileSearchInput, mobileSearchAutocomplete); });
+            mobileSearchInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') { e.preventDefault(); onEnter(mobileSearchInput, mobileSearchAutocomplete); }
+            });
+        }
+        if (searchBtn) searchBtn.addEventListener('click', function() { onEnter(searchInput, searchAutocomplete); });
+        if (mobileSearchBtn) mobileSearchBtn.addEventListener('click', function() { onEnter(mobileSearchInput, mobileSearchAutocomplete); });
+
+        document.addEventListener('click', function(e) {
+            var w = document.getElementById('search-wrapper');
+            var m = document.getElementById('mobile-search-wrapper');
+            if (w && !w.contains(e.target) && m && !m.contains(e.target)) closeDropdowns();
+        });
+    })();
 
     // Update cart count dynamically
     function updateCartCount() {

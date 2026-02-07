@@ -1,0 +1,267 @@
+-- phpMyAdmin SQL Dump
+-- version 5.2.0
+-- https://www.phpmyadmin.net/
+--
+-- Host: 127.0.0.1
+-- Generation Time: Feb 05, 2026 at 08:34 AM
+-- Server version: 10.4.27-MariaDB
+-- PHP Version: 8.2.0
+
+SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+START TRANSACTION;
+SET time_zone = "+00:00";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8mb4 */;
+
+--
+-- Database: `apex_db`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `products`
+--
+
+CREATE TABLE `products` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `category_id` bigint(20) UNSIGNED NOT NULL,
+  `brand_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `model_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `name` varchar(255) NOT NULL,
+  `sku` varchar(255) NOT NULL,
+  `barcode` varchar(255) DEFAULT NULL,
+  `description` text DEFAULT NULL,
+  `image` varchar(255) DEFAULT NULL,
+  `cost_price` decimal(10,2) NOT NULL,
+  `selling_price` decimal(10,2) DEFAULT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 0,
+  `reorder_level` int(11) NOT NULL DEFAULT 0,
+  `serial_number` varchar(255) DEFAULT NULL,
+  `warranty_months` int(11) DEFAULT NULL,
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `products`
+--
+
+INSERT INTO `products` (`id`, `category_id`, `brand_id`, `model_id`, `name`, `sku`, `barcode`, `description`, `image`, `cost_price`, `selling_price`, `quantity`, `reorder_level`, `serial_number`, `warranty_months`, `status`, `created_at`, `updated_at`) VALUES
+(1, 11, 16, NULL, 'Universal', 'APEX-000001', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 02:48:17', '2026-02-02 02:48:17'),
+(2, 13, 3, NULL, 'Wireless Mouse', 'APEX-000002', NULL, NULL, NULL, '5000.00', NULL, 5, 1, NULL, NULL, 'active', '2026-02-02 02:50:23', '2026-02-05 04:31:41'),
+(3, 13, 4, NULL, 'Wired Mouse', 'APEX-000003', NULL, NULL, NULL, '8000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 02:51:19', '2026-02-02 02:51:19'),
+(4, 6, 17, NULL, 'Dr Lee', 'APEX-000004', NULL, NULL, NULL, '1500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 02:54:55', '2026-02-02 02:54:55'),
+(5, 6, 18, NULL, 'Oraimo Headset Ora', 'APEX-000005', NULL, NULL, NULL, '5500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 02:56:33', '2026-02-02 02:56:33'),
+(6, 6, 2, NULL, 'AKG Short', 'APEX-000006', NULL, NULL, NULL, '2000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 02:57:34', '2026-02-02 02:57:34'),
+(7, 6, 2, NULL, 'AKG Long', 'APEX-000007', NULL, NULL, NULL, '3000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 02:58:17', '2026-02-02 02:58:17'),
+(8, 6, 19, NULL, 'EU 02 Headsets', 'APEX-000008', NULL, NULL, NULL, '2000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:00:11', '2026-02-02 03:00:11'),
+(9, 6, 2, NULL, 'BT 6899 Neaked', 'APEX-000009', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:02:35', '2026-02-02 03:02:35'),
+(10, 14, 20, NULL, '9A Adapter', 'APEX-000010', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:04:53', '2026-02-02 03:04:53'),
+(11, 14, 2, NULL, '45W Adapter', 'APEX-000011', NULL, NULL, NULL, '7000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:06:12', '2026-02-02 03:06:12'),
+(12, 14, 21, NULL, '15W Adapter', 'APEX-000012', NULL, NULL, NULL, '7000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:08:34', '2026-02-02 03:08:34'),
+(13, 15, 22, NULL, '45W Msk Bulb', 'APEX-000013', NULL, NULL, NULL, '15000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:09:43', '2026-02-02 03:09:43'),
+(14, 15, 23, NULL, '25W Dp Rechargable Bulb', 'APEX-000014', NULL, NULL, NULL, '9000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:11:00', '2026-02-02 03:11:00'),
+(15, 15, 23, NULL, '40W Dp Rechargable', 'APEX-000015', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:12:02', '2026-02-02 03:12:02'),
+(16, 16, 24, NULL, 'Padlock', 'APEX-000016', NULL, NULL, NULL, '23000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:14:09', '2026-02-02 03:14:09'),
+(17, 16, 25, NULL, 'Baglock', 'APEX-000017', NULL, NULL, NULL, '30000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:15:00', '2026-02-02 03:15:00'),
+(18, 16, 26, NULL, 'Ara Circle', 'APEX-000018', NULL, NULL, NULL, '20000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:16:06', '2026-02-02 03:16:06'),
+(19, 16, 27, NULL, '70 Casa Guard', 'APEX-000019', NULL, NULL, NULL, '20000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:19:13', '2026-02-02 03:19:13'),
+(20, 16, 27, NULL, '60 Casa Guard', 'APEX-000020', NULL, NULL, NULL, '16000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:20:02', '2026-02-02 03:20:02'),
+(21, 16, 27, NULL, '70 Casa Non-Guard', 'APEX-000021', NULL, NULL, NULL, '18000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:21:57', '2026-02-02 03:34:07'),
+(22, 16, 27, NULL, '60 Casa Non-Guard', 'APEX-000022', NULL, NULL, NULL, '15000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:22:38', '2026-02-02 03:22:38'),
+(23, 16, 28, NULL, 'Fai Huan', 'APEX-000023', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:23:49', '2026-02-02 03:23:49'),
+(24, 16, 29, NULL, 'Viro Padlock', 'APEX-000024', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:26:22', '2026-02-02 03:26:22'),
+(25, 17, 30, NULL, 'Hot Plate Coil (S)', 'APEX-000025', NULL, NULL, NULL, '18000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:28:07', '2026-02-02 03:29:19'),
+(26, 17, 31, NULL, 'Hot Plate Solid (S)', 'APEX-000026', NULL, NULL, NULL, '20000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:31:09', '2026-02-02 03:31:09'),
+(27, 17, 30, NULL, 'Hot Plate Coil (D)', 'APEX-000027', NULL, NULL, NULL, '40000.00', '60000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 03:32:29', '2026-02-04 17:47:17'),
+(28, 17, 31, NULL, 'Hot Plate Solid (D)', 'APEX-000028', NULL, NULL, NULL, '45000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:33:16', '2026-02-02 03:33:16'),
+(29, 18, 32, NULL, '1.5 Clips', 'APEX-000029', NULL, NULL, NULL, '1900.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:35:32', '2026-02-02 03:35:32'),
+(30, 18, 32, NULL, '2.5 Clips', 'APEX-000030', NULL, NULL, NULL, '2000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:36:28', '2026-02-02 03:36:28'),
+(31, 19, 33, NULL, 'Tronic Tape', 'APEX-000031', NULL, NULL, NULL, '1300.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:38:14', '2026-02-02 03:41:57'),
+(32, 19, 34, NULL, 'Van Tape', 'APEX-000032', NULL, NULL, NULL, '3200.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:41:21', '2026-02-02 03:41:21'),
+(33, 20, 35, NULL, 'Get Top Dry Cells', 'APEX-000033', NULL, NULL, NULL, '1800.00', '2500.00', 0, 1, NULL, NULL, 'active', '2026-02-02 03:43:50', '2026-02-05 11:22:55'),
+(34, 20, 36, NULL, 'Duracel', 'APEX-000034', NULL, NULL, NULL, '1700.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:51:00', '2026-02-02 03:51:00'),
+(35, 20, 36, NULL, 'Duracel Small', 'APEX-000035', NULL, NULL, NULL, '1700.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:52:11', '2026-02-02 03:52:11'),
+(36, 21, NULL, NULL, 'Wire Connectors', 'APEX-000036', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:52:48', '2026-02-02 03:52:48'),
+(37, 22, NULL, NULL, 'Wall Mount Small', 'APEX-000037', NULL, NULL, NULL, '6000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 03:53:29', '2026-02-02 03:53:29'),
+(38, 23, 37, NULL, 'Led on Extension A04', 'APEX-000038', NULL, NULL, NULL, '15000.00', '25000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 03:56:39', '2026-02-04 17:35:17'),
+(39, 23, 37, NULL, 'Led on Extension A06', 'APEX-000039', NULL, NULL, NULL, '17000.00', '30000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 04:02:40', '2026-02-04 17:39:36'),
+(40, 23, 30, NULL, 'Logan Blue Extension', 'APEX-000040', NULL, NULL, NULL, '15000.00', '25000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 04:03:52', '2026-02-04 17:30:06'),
+(41, 23, 38, NULL, 'Power Circuit Extension', 'APEX-000041', NULL, NULL, NULL, '15000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:06:17', '2026-02-02 04:06:17'),
+(42, 23, 30, NULL, 'Logan B05', 'APEX-000042', NULL, NULL, NULL, '18000.00', '25000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 04:07:09', '2026-02-04 17:46:03'),
+(43, 15, 23, NULL, '901 Bulb', 'APEX-000043', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:08:50', '2026-02-02 04:08:50'),
+(44, 15, 23, NULL, '909 Bulb', 'APEX-000044', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:09:13', '2026-02-02 04:09:13'),
+(45, 15, 39, NULL, 'SA 6727 Bulb', 'APEX-000045', NULL, NULL, NULL, '11000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:11:55', '2026-02-02 04:11:55'),
+(46, 15, 39, NULL, 'SA 6728 Bulb', 'APEX-000046', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:12:47', '2026-02-02 04:12:47'),
+(47, 24, 2, NULL, 'S20 Samsung Pods', 'APEX-000047', NULL, NULL, NULL, '22000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:13:41', '2026-02-02 04:13:41'),
+(48, 25, 40, NULL, 'Itel 5C Horror Battery (Original)', 'APEX-000048', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:15:07', '2026-02-02 04:15:07'),
+(49, 25, 40, NULL, 'Itel 5C Horror Battery (Copy)', 'APEX-000049', NULL, NULL, NULL, '2500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:15:53', '2026-02-02 04:15:53'),
+(50, 26, NULL, NULL, 'Banana Pins', 'APEX-000050', NULL, NULL, NULL, '1500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:16:41', '2026-02-02 04:16:41'),
+(51, 27, NULL, NULL, 'HDMI', 'APEX-000051', NULL, NULL, NULL, '4000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:17:09', '2026-02-02 04:17:09'),
+(52, 28, NULL, NULL, 'Pod Cases (Small)', 'APEX-000052', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:17:54', '2026-02-02 04:17:54'),
+(53, 28, NULL, NULL, 'Pod Cases (Big)', 'APEX-000053', NULL, NULL, NULL, '7000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:18:41', '2026-02-02 04:18:41'),
+(54, 29, NULL, NULL, 'Amps 14000 MLE Power Bank', 'APEX-000054', NULL, NULL, NULL, '20000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:19:45', '2026-02-02 04:21:16'),
+(55, 29, 18, NULL, 'Oraimo 20000 Power Bank', 'APEX-000055', NULL, NULL, NULL, '28000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:21:05', '2026-02-02 04:21:05'),
+(56, 29, NULL, NULL, '1000 Amps OXM Power Bank', 'APEX-000056', NULL, NULL, NULL, '22000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:21:54', '2026-02-02 04:21:54'),
+(57, 30, NULL, NULL, 'Hot 8 Screen Guards', 'APEX-000057', NULL, NULL, NULL, '1000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:22:48', '2026-02-02 04:22:48'),
+(58, 30, NULL, NULL, 'Iphone 12 Screen Guards', 'APEX-000058', NULL, NULL, NULL, '1000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:23:13', '2026-02-02 04:23:13'),
+(59, 31, 41, NULL, 'Black Ark Tv (24 Small)', 'APEX-000059', NULL, NULL, NULL, '220000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:24:36', '2026-02-02 04:24:36'),
+(60, 31, 41, NULL, 'Black Ark Tv (32 Big)', 'APEX-000060', NULL, NULL, NULL, '265000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:25:17', '2026-02-02 04:25:17'),
+(61, 32, NULL, NULL, 'Molded Single (MK Plastics)', 'APEX-000061', NULL, NULL, NULL, '1000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:28:36', '2026-02-02 04:29:00'),
+(62, 32, NULL, NULL, 'MK Single (Metal)', 'APEX-000062', NULL, NULL, NULL, '1500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:30:04', '2026-02-02 04:31:11'),
+(63, 32, NULL, NULL, 'MK Double (Metal)', 'APEX-000063', NULL, NULL, NULL, '7500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:30:59', '2026-02-02 04:30:59'),
+(64, 33, NULL, NULL, '1 Gang Switch (Single)', 'APEX-000064', NULL, NULL, NULL, '2500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:32:08', '2026-02-02 04:32:08'),
+(65, 33, NULL, NULL, '1 Gang Switch (Double)', 'APEX-000065', NULL, NULL, NULL, '3500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:32:36', '2026-02-02 04:32:36'),
+(66, 34, NULL, NULL, 'Sockets (Single)', 'APEX-000066', NULL, NULL, NULL, '3500.00', '6000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 04:33:29', '2026-02-04 17:28:34'),
+(67, 34, NULL, NULL, 'Sockets (Double)', 'APEX-000067', NULL, NULL, NULL, '9000.00', '12000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 04:33:57', '2026-02-04 17:27:54'),
+(68, 34, NULL, NULL, 'VGT Sockets (Single)', 'APEX-000068', NULL, NULL, NULL, '3000.00', '5000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 04:34:31', '2026-02-04 17:27:07'),
+(69, 33, NULL, NULL, 'VGT Sockets (Double)', 'APEX-000069', NULL, NULL, NULL, '6000.00', '10000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 04:35:06', '2026-02-04 17:26:12'),
+(70, 33, NULL, NULL, '1 Gang VGT Switch', 'APEX-000070', NULL, NULL, NULL, '2000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:36:01', '2026-02-02 04:36:01'),
+(71, 33, NULL, NULL, '2 Gang VGT Switch', 'APEX-000071', NULL, NULL, NULL, '2300.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:36:24', '2026-02-02 04:36:24'),
+(72, 30, NULL, NULL, 'Iphone 13 Screen Guards', 'APEX-000072', NULL, NULL, NULL, '1000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:37:04', '2026-02-02 04:37:04'),
+(73, 30, NULL, NULL, 'A05 1 Gang VGT Switch', 'APEX-000073', NULL, NULL, NULL, '1000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:37:30', '2026-02-02 04:37:30'),
+(74, 30, NULL, NULL, 'Spark 5 1 Screen Guards', 'APEX-000074', NULL, NULL, NULL, '1000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:38:08', '2026-02-02 04:38:08'),
+(75, 35, 42, NULL, 'CTC Woofa', 'APEX-000075', NULL, NULL, NULL, '95000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:38:56', '2026-02-02 04:38:56'),
+(76, 35, 43, NULL, 'FNL Woofa', 'APEX-000076', NULL, NULL, NULL, '9000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:39:32', '2026-02-02 04:39:32'),
+(77, 35, 45, NULL, 'SP-2392', 'APEX-000077', NULL, NULL, NULL, '110000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:41:06', '2026-02-02 04:41:06'),
+(78, 31, 46, NULL, 'Mitech (24 Small)', 'APEX-000078', NULL, NULL, NULL, '200000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:41:55', '2026-02-02 04:41:55'),
+(79, 31, 46, NULL, 'Mitech (32 Big)', 'APEX-000079', NULL, NULL, NULL, '250000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:42:36', '2026-02-02 04:42:36'),
+(80, 36, NULL, NULL, 'Standard Fans', 'APEX-000080', NULL, NULL, NULL, '65000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:43:25', '2026-02-02 04:43:25'),
+(81, 37, NULL, NULL, '8GB Flash', 'APEX-000081', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:44:20', '2026-02-02 04:44:20'),
+(82, 37, NULL, NULL, '16GB Flash', 'APEX-000082', NULL, NULL, NULL, '11000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:44:55', '2026-02-02 04:44:55'),
+(83, 37, NULL, NULL, '32GB Flash', 'APEX-000083', NULL, NULL, NULL, '13000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:45:44', '2026-02-02 04:45:44'),
+(84, 37, NULL, NULL, '64GB Flash', 'APEX-000084', NULL, NULL, NULL, '15000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:46:12', '2026-02-02 04:46:12'),
+(85, 38, NULL, NULL, '2GB Memory Cards', 'APEX-000085', NULL, NULL, NULL, '5500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:47:13', '2026-02-02 04:47:13'),
+(86, 38, NULL, NULL, '4GB Memory Cards', 'APEX-000086', NULL, NULL, NULL, '6000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:47:41', '2026-02-02 04:47:41'),
+(87, 24, 18, NULL, 'Oraimo Pods', 'APEX-000087', NULL, NULL, NULL, '9000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:48:24', '2026-02-02 04:48:24'),
+(88, 24, 47, NULL, 'JBL Pods', 'APEX-000088', NULL, NULL, NULL, '9000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:48:54', '2026-02-02 04:48:54'),
+(89, 24, 48, NULL, 'PVO 5S Pods', 'APEX-000089', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:49:34', '2026-02-02 04:49:34'),
+(90, 24, 49, NULL, 'Avanti Pods', 'APEX-000090', NULL, NULL, NULL, '16000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:50:16', '2026-02-02 04:50:16'),
+(91, 24, 50, NULL, '14A Pods', 'APEX-000091', NULL, NULL, NULL, '8000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:50:54', '2026-02-02 04:50:54'),
+(92, 24, 51, NULL, 'Air Pods', 'APEX-000092', NULL, NULL, NULL, '2000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:51:44', '2026-02-02 04:51:44'),
+(93, 39, 52, NULL, '2.5 AEI', 'APEX-000093', NULL, NULL, NULL, '80000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 04:53:42', '2026-02-02 04:53:42'),
+(94, 40, NULL, NULL, 'Antena Wires (Single)', 'APEX-000094', NULL, NULL, NULL, '7000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:00:47', '2026-02-02 05:01:41'),
+(95, 40, NULL, NULL, 'Antena Wires (Double)', 'APEX-000095', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:01:26', '2026-02-02 05:01:26'),
+(96, 10, NULL, NULL, 'Junction Box Cables', 'APEX-000096', NULL, NULL, NULL, '23000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:03:40', '2026-02-02 05:03:40'),
+(97, 15, NULL, NULL, 'Colored Bulbs', 'APEX-000097', NULL, NULL, NULL, '2500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:04:55', '2026-02-02 05:16:44'),
+(98, 15, NULL, NULL, '7W Bulbs', 'APEX-000098', NULL, NULL, NULL, '1400.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:05:30', '2026-02-02 05:05:30'),
+(99, 15, 53, NULL, '28W Bulbs', 'APEX-000099', NULL, NULL, NULL, '6000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:06:13', '2026-02-02 05:06:13'),
+(100, 15, 53, NULL, '15W Bulbs', 'APEX-000100', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:06:52', '2026-02-02 05:06:52'),
+(101, 15, 22, NULL, '28 MSK Bulbs', 'APEX-000101', NULL, NULL, NULL, '7000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:07:33', '2026-02-02 05:07:33'),
+(102, 15, NULL, NULL, '40W Bulb (Duplicate)', 'APEX-000102', NULL, NULL, NULL, '8000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:10:28', '2026-02-02 05:10:28'),
+(103, 15, 53, NULL, '45 Highlight', 'APEX-000103', NULL, NULL, NULL, '11000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:11:20', '2026-02-02 05:11:20'),
+(104, 22, NULL, NULL, 'Rotating Mounts', 'APEX-000104', NULL, NULL, NULL, '22000.00', '40000.00', 2, 1, NULL, NULL, 'active', '2026-02-02 05:11:57', '2026-02-02 15:00:29'),
+(105, 41, NULL, NULL, 'All Star Iron Box', 'APEX-000105', NULL, NULL, NULL, '25000.00', '38000.00', 2, 1, NULL, NULL, 'active', '2026-02-02 05:13:15', '2026-02-02 15:05:17'),
+(106, 41, 54, NULL, 'Philips Iron Boxes', 'APEX-000106', NULL, NULL, NULL, '50000.00', '70000.00', 2, 1, NULL, NULL, 'active', '2026-02-02 05:14:25', '2026-02-02 15:08:16'),
+(107, 41, 22, NULL, 'MSK Iron Boxes', 'APEX-000107', NULL, NULL, NULL, '30000.00', '50000.00', 2, 1, NULL, NULL, 'active', '2026-02-02 05:15:00', '2026-02-02 15:07:14'),
+(108, 23, 55, NULL, 'GT Extensions', 'APEX-000108', NULL, NULL, NULL, '4000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:15:35', '2026-02-02 05:15:35'),
+(109, 23, NULL, NULL, '4 Way (Duplicate)', 'APEX-000109', NULL, NULL, NULL, '6000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:16:27', '2026-02-02 05:16:27'),
+(110, 23, NULL, NULL, '6 Way (Duplicate)', 'APEX-000110', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:17:12', '2026-02-02 05:17:12'),
+(111, 23, NULL, NULL, '4 Way Seal (Original)', 'APEX-000111', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:18:07', '2026-02-02 05:18:07'),
+(112, 23, NULL, NULL, '6 Way Seal (Original)', 'APEX-000112', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:18:35', '2026-02-02 05:18:35'),
+(113, 23, 55, NULL, '4 Way G&T Extensions', 'APEX-000113', NULL, NULL, NULL, '20000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:20:14', '2026-02-02 05:20:14'),
+(114, 23, NULL, NULL, '6 Way G&T Extensions', 'APEX-000114', NULL, NULL, NULL, '25000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:21:00', '2026-02-02 05:21:00'),
+(115, 23, 30, NULL, 'Logan S409', 'APEX-000115', NULL, NULL, NULL, '13000.00', '20000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:21:44', '2026-02-04 17:40:47'),
+(116, 42, 56, NULL, 'Amaya Charger Type C', 'APEX-000116', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:22:47', '2026-02-02 05:25:06'),
+(117, 42, 56, NULL, 'Amaya Charger Single (Smart)', 'APEX-000117', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:23:42', '2026-02-02 05:25:21'),
+(118, 42, 18, NULL, 'Oraimo Charger Type C', 'APEX-000118', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:24:52', '2026-02-02 05:24:52'),
+(119, 42, 57, NULL, 'Super Energy Chargers', 'APEX-000119', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:26:10', '2026-02-02 05:26:10'),
+(120, 42, 58, NULL, 'Adison Smart', 'APEX-000120', NULL, NULL, NULL, '1500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:27:00', '2026-02-02 05:27:00'),
+(121, 42, 58, NULL, 'Adison Type C', 'APEX-000121', NULL, NULL, NULL, '2000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:27:32', '2026-02-02 05:27:32'),
+(122, 42, 56, NULL, 'Amaya Smart', 'APEX-000122', NULL, NULL, NULL, '1500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:28:19', '2026-02-02 05:28:19'),
+(123, 42, 56, NULL, 'Amaya  Type C', 'APEX-000123', NULL, NULL, NULL, '2000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:29:48', '2026-02-02 05:29:48'),
+(124, 42, NULL, NULL, 'Iphone USB Gold', 'APEX-000124', NULL, NULL, NULL, '3000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:30:49', '2026-02-02 05:30:49'),
+(125, 42, 59, NULL, 'Excellent USB Iphone', 'APEX-000125', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:31:30', '2026-02-02 05:31:30'),
+(126, 42, 21, NULL, 'Gold Plus USB Iphone', 'APEX-000126', NULL, NULL, NULL, '3000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:32:07', '2026-02-02 05:32:07'),
+(127, 42, NULL, NULL, '4 in One USB Iphone', 'APEX-000127', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:32:52', '2026-02-02 05:32:52'),
+(128, 42, NULL, NULL, '4 in One USB Smart', 'APEX-000128', NULL, NULL, NULL, '5000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:33:26', '2026-02-02 05:33:26'),
+(129, 43, NULL, NULL, 'Top Plug G&T', 'APEX-000129', NULL, NULL, NULL, '2500.00', '5000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:34:08', '2026-02-04 16:31:37'),
+(130, 43, NULL, NULL, 'Top Plug UK', 'APEX-000130', NULL, NULL, NULL, '1250.00', '2500.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:34:33', '2026-02-04 16:30:53'),
+(131, 44, 37, NULL, 'Pendant Led on Straight', 'APEX-000131', NULL, NULL, NULL, '750.00', '2000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:35:42', '2026-02-04 16:41:18'),
+(132, 44, NULL, NULL, 'Pendant UK', 'APEX-000132', NULL, NULL, NULL, '750.00', '2000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:36:16', '2026-02-04 16:39:49'),
+(133, 44, 37, NULL, 'Pendant Led on', 'APEX-000133', NULL, NULL, NULL, '2500.00', '5000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:36:59', '2026-02-04 16:42:21'),
+(134, 44, NULL, NULL, 'Ceiling Rose', 'APEX-000134', NULL, NULL, NULL, '3000.00', '5000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:37:36', '2026-02-04 16:42:57'),
+(135, 45, NULL, NULL, 'Testas (Small)', 'APEX-000135', NULL, NULL, NULL, '1000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:38:15', '2026-02-02 05:38:15'),
+(136, 45, NULL, NULL, 'Testas (Big)', 'APEX-000136', NULL, NULL, NULL, '1250.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:38:48', '2026-02-02 05:38:48'),
+(137, 39, NULL, NULL, 'Jacobs Wires', 'APEX-000137', NULL, NULL, NULL, '12000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:39:21', '2026-02-02 05:39:21'),
+(138, 39, NULL, NULL, 'Twisted Wires (100) Bandle', 'APEX-000138', NULL, NULL, NULL, '23000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:40:17', '2026-02-02 05:40:17'),
+(139, 39, NULL, NULL, 'Twisted Wires (150) Bandle', 'APEX-000139', NULL, NULL, NULL, '30000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:40:42', '2026-02-02 05:40:42'),
+(140, 39, NULL, NULL, '1.5 AEI Wire Bandle', 'APEX-000140', NULL, NULL, NULL, '60000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:41:25', '2026-02-02 05:41:25'),
+(141, 46, NULL, NULL, '661 Beats', 'APEX-000141', NULL, NULL, NULL, '17000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:42:03', '2026-02-02 05:42:03'),
+(142, 46, NULL, NULL, 'P9 Beats', 'APEX-000142', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:42:32', '2026-02-02 05:42:32'),
+(143, 46, NULL, NULL, 'Blue Scenery', 'APEX-000143', NULL, NULL, NULL, '15000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:43:22', '2026-02-02 05:43:22'),
+(144, 46, NULL, NULL, 'Marshall Beats', 'APEX-000144', NULL, NULL, NULL, '20000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:43:58', '2026-02-02 05:43:58'),
+(145, 46, 60, NULL, 'GBL J30 Beats', 'APEX-000145', NULL, NULL, NULL, '0.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:44:54', '2026-02-02 05:44:54'),
+(146, 46, 2, NULL, 'Samsung Beats', 'APEX-000146', NULL, NULL, NULL, '25000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:47:36', '2026-02-02 05:47:36'),
+(147, 11, 61, NULL, 'Belief Chargers', 'APEX-000147', NULL, NULL, NULL, '5500.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:48:13', '2026-02-02 05:48:13'),
+(148, 11, 62, NULL, 'Golf Chargers', 'APEX-000148', NULL, NULL, NULL, '7000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:49:00', '2026-02-02 05:49:00'),
+(149, 11, 2, NULL, '45W Samsung Chargers', 'APEX-000149', NULL, NULL, NULL, '10000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:50:03', '2026-02-02 05:50:03'),
+(150, 47, NULL, NULL, 'Star Remotes', 'APEX-000150', NULL, NULL, NULL, '3000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:50:34', '2026-02-02 05:50:34'),
+(151, 47, NULL, NULL, 'Go Remotes', 'APEX-000151', NULL, NULL, NULL, '3000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:50:58', '2026-02-02 05:50:58'),
+(152, 47, 63, NULL, 'Led Remotes', 'APEX-000152', NULL, NULL, NULL, '3000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:51:50', '2026-02-02 05:51:50'),
+(153, 15, 22, NULL, '45W Msk Bulbs', 'APEX-000153', NULL, NULL, NULL, '15000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:52:40', '2026-02-02 05:52:40'),
+(154, 3, NULL, NULL, '2160 phones', 'APEX-000154', NULL, NULL, NULL, '30000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:53:27', '2026-02-02 05:53:27'),
+(155, 3, NULL, NULL, '2163 phones', 'APEX-000155', NULL, NULL, NULL, '25000.00', NULL, 0, 0, NULL, NULL, 'active', '2026-02-02 05:53:50', '2026-02-02 05:53:50'),
+(156, 3, NULL, NULL, 'Mi One Phone', 'APEX-000156', NULL, NULL, NULL, '25000.00', '35000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:54:22', '2026-02-04 18:02:20'),
+(157, 3, NULL, NULL, 'Vilaon Phones', 'APEX-000157', NULL, NULL, NULL, '25000.00', '35000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:54:57', '2026-02-04 18:01:37'),
+(158, 3, NULL, NULL, 'Simi', 'APEX-000158', NULL, NULL, NULL, '25000.00', '35000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:55:27', '2026-02-04 18:01:07'),
+(159, 48, NULL, NULL, 'Phone Stands', 'APEX-000159', NULL, NULL, NULL, '5000.00', '10000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:56:07', '2026-02-04 18:00:20'),
+(160, 49, NULL, NULL, 'Ring Lights', 'APEX-000160', NULL, NULL, NULL, '35000.00', '50000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:57:08', '2026-02-04 17:59:28'),
+(161, 17, NULL, NULL, 'Hot Plate Doubles', 'APEX-000161', NULL, NULL, NULL, '35000.00', '50000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:57:44', '2026-02-04 17:58:36'),
+(162, 50, NULL, NULL, 'Fan Bulbs', 'APEX-000162', NULL, NULL, NULL, '20000.00', '35000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:58:22', '2026-02-04 17:56:01'),
+(163, 40, NULL, NULL, 'Star Antena', 'APEX-000163', NULL, NULL, NULL, '17000.00', '25000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:59:02', '2026-02-04 17:55:08'),
+(164, 40, 64, NULL, 'Go Antena', 'APEX-000164', NULL, NULL, NULL, '6000.00', '10000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 05:59:32', '2026-02-04 17:54:06'),
+(165, 51, 65, NULL, 'Easy Power Paco', 'APEX-000165', NULL, NULL, NULL, '18000.00', '30000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 06:01:17', '2026-02-04 17:53:32'),
+(166, 51, 66, NULL, 'Electric Kettle', 'APEX-000166', NULL, NULL, NULL, '18000.00', '30000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 06:02:01', '2026-02-04 17:52:43'),
+(167, 51, 67, NULL, 'Marado Paco', 'APEX-000167', NULL, NULL, NULL, '22000.00', '35000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 06:02:36', '2026-02-04 17:51:51'),
+(168, 51, 68, NULL, 'Panda Paco', 'APEX-000168', NULL, NULL, NULL, '18000.00', '30000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 06:03:09', '2026-02-04 17:50:47'),
+(169, 51, 69, NULL, 'Sachi Paco', 'APEX-000169', NULL, NULL, NULL, '25000.00', '40000.00', 0, 0, NULL, NULL, 'active', '2026-02-02 06:03:51', '2026-02-04 17:49:41'),
+(170, 51, 70, NULL, 'HoffMans Paco', 'APEX-000170', NULL, NULL, NULL, '30000.00', '50000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 06:05:10', '2026-02-04 17:48:57'),
+(171, 52, NULL, NULL, 'Card Readers', 'APEX-000171', NULL, NULL, NULL, '500.00', '2000.00', 0, 1, NULL, NULL, 'active', '2026-02-02 06:05:36', '2026-02-04 17:48:18');
+
+--
+-- Indexes for dumped tables
+--
+
+--
+-- Indexes for table `products`
+--
+ALTER TABLE `products`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `products_sku_unique` (`sku`),
+  ADD UNIQUE KEY `products_barcode_unique` (`barcode`),
+  ADD KEY `products_category_id_foreign` (`category_id`),
+  ADD KEY `products_model_id_foreign` (`model_id`),
+  ADD KEY `products_brand_id_foreign` (`brand_id`);
+
+--
+-- AUTO_INCREMENT for dumped tables
+--
+
+--
+-- AUTO_INCREMENT for table `products`
+--
+ALTER TABLE `products`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=172;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `products`
+--
+ALTER TABLE `products`
+  ADD CONSTRAINT `products_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `products_model_id_foreign` FOREIGN KEY (`model_id`) REFERENCES `product_models` (`id`) ON DELETE SET NULL;
+COMMIT;
+
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

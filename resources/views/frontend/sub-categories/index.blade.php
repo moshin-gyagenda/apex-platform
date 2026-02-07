@@ -26,26 +26,28 @@
     @endif
 
     <!-- Breadcrumb -->
-    <nav class="bg-gray-100 py-4">
+    <nav class="bg-gradient-to-r from-gray-50 to-white py-4 border-b border-gray-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center space-x-2 text-sm">
-                <a href="{{ route('frontend.index') }}" class="text-gray-600 hover:text-primary-600">Home</a>
+                <a href="{{ route('frontend.index') }}" class="text-gray-600 hover:text-primary-600 transition-colors">Home</a>
                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                <a href="#" class="text-gray-600 hover:text-primary-600">Category</a>
+                <a href="#" class="text-gray-600 hover:text-primary-600 transition-colors">Category</a>
                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                <span class="text-gray-900">{{ $subcategory->name }}</span>
+                <span class="text-gray-900 font-medium">{{ $subcategory->name }}</span>
             </div>
         </div>
     </nav>
 
     <!-- Main Section -->
-    <section class="py-12 bg-gray-50">
+    <section class="py-12 bg-gradient-to-b from-gray-50 to-white">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Title and Results Count -->
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-4 sm:mb-0">
-                    {{ $subcategory->name }}
-                </h2>
+            <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 mb-8 shadow-lg">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+                    <h2 class="font-bold text-white mb-4 sm:mb-0 -m -fs20 -elli flex items-center gap-3">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                        {{ $subcategory->name }}
+                    </h2>
 
                 <div class="flex items-center">
                     <label for="sortBy" class="text-gray-600 mr-2 text-sm">Sort By:</label>
@@ -72,7 +74,7 @@
                                     $discount = round((($product->regular_price - $product->price) / $product->regular_price) * 100);
                                 }
                             @endphp
-                            <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">
+                            <div class="product-card bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300">
                                 <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
                                     <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 object-cover">
                                     @if($discount > 0)
@@ -108,11 +110,13 @@
                         @endforeach
                     </div>
                 @else
-                    <div class="bg-white rounded-lg shadow-md p-12 text-center">
-                        <i data-lucide="package" class="w-24 h-24 mx-auto text-gray-300 mb-6"></i>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">No products found</h3>
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-200 p-12 text-center">
+                        <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center border-2 border-gray-200">
+                            <i data-lucide="package" class="w-12 h-12 text-gray-400"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-900 mb-2 -m -fs20 -elli">No products found</h3>
                         <p class="text-gray-600 mb-6">This sub-category doesn't have any products yet.</p>
-                        <a href="{{ route('frontend.index') }}" class="inline-flex items-center px-6 py-3 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors">
+                        <a href="{{ route('frontend.index') }}" class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-primary-500 to-primary-600 text-white rounded-xl font-semibold hover:from-primary-600 hover:to-primary-700 transition-all shadow-lg hover:shadow-xl">
                             <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
                             Continue Shopping
                         </a>

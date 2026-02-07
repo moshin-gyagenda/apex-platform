@@ -6,9 +6,49 @@
     <!-- Hero Section with Carousel -->
     <section class="relative bg-white overflow-hidden">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
-            <div class="grid md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                <!-- Categories Sidebar (Hero - Jumia style) -->
+                <div class="lg:col-span-3 order-first lg:order-1">
+                    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden h-64 lg:h-96 flex flex-col">
+                        <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+                            <h3 class="font-semibold text-gray-800 flex items-center gap-2 -m -fs20 -elli">
+                                <i data-lucide="layout-grid" class="w-4 h-4 text-primary-500"></i>
+                                Categories
+                            </h3>
+                        </div>
+                        <ul class="flex-1 overflow-y-auto divide-y divide-gray-100 py-1">
+                            @forelse($categories as $category)
+                                <li>
+                                    <a href="{{ route('frontend.index') }}?category={{ $category->id }}#products" 
+                                       class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors group">
+                                        <span class="w-8 h-8 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0 group-hover:bg-primary-100 transition-colors">
+                                            <i data-lucide="folder" class="w-4 h-4 text-primary-500"></i>
+                                        </span>
+                                        <span class="font-medium truncate text-primary-600">{{ $category->name }}</span>
+                                        <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 ml-auto flex-shrink-0 group-hover:text-primary-500"></i>
+                                    </a>
+                                </li>
+                            @empty
+                                <li class="px-4 py-6 text-center text-sm text-gray-500">No categories yet</li>
+                            @endforelse
+                        </ul>
+                    </div>
+                    <!-- Mobile: horizontal category pills (shown only on small screens) -->
+                    @if($categories->isNotEmpty())
+                        <div class="lg:hidden mt-3 overflow-x-auto scrollbar-hide flex gap-2 pb-1 -mx-4 px-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+                            @foreach($categories as $category)
+                                <a href="{{ route('frontend.index') }}?category={{ $category->id }}#products" 
+                                   class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-primary-200 rounded-full text-xs font-medium text-primary-600 hover:bg-primary-50 hover:text-primary-700 hover:border-primary-300 transition-colors whitespace-nowrap">
+                                    <i data-lucide="folder" class="w-3.5 h-3.5 text-primary-500"></i>
+                                    {{ $category->name }}
+                                </a>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+
                 <!-- Main Carousel Section -->
-                <div id="hero-carousel" class="relative w-full md:col-span-2" data-carousel="slide">
+                <div id="hero-carousel" class="relative w-full lg:col-span-6 order-2" data-carousel="slide">
                     <!-- Carousel wrapper -->
                     <div class="relative h-64 overflow-hidden rounded-lg md:h-96 shadow-lg">
                         @php
@@ -78,7 +118,7 @@
                 </div>
                 
                 <!-- Side Promo Cards -->
-                <div class="flex flex-col gap-2 hidden md:flex h-32 md:h-48">
+                <div class="flex flex-col gap-2 hidden lg:flex lg:col-span-3 h-64 lg:h-96 order-3">
                     <!-- Flash Sales Card -->
                     <div class="bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg p-3 text-white shadow-lg hover:shadow-xl transition-all duration-300 flex-[0.8] flex flex-col justify-between">
                         <div class="flex items-start justify-between">
@@ -91,8 +131,8 @@
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-sm font-bold mb-0.5">Flash Sales</h3>
-                            <p class="text-white/90 text-xs mb-1">Limited time offers!</p>
+                            <h3 class="font-bold mb-0.5 -m -fs20 -elli">Flash Sales</h3>
+                            <p class="text-sm text-white/90 mb-1">Limited time offers!</p>
                             <a href="#flash-sales" class="inline-flex items-center text-xs font-semibold hover:underline group">
                                 View All
                                 <i data-lucide="arrow-right" class="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"></i>
@@ -112,8 +152,8 @@
                             </div>
                         </div>
                         <div>
-                            <h3 class="text-sm font-bold mb-0.5">Free Delivery</h3>
-                            <p class="text-white/90 text-xs mb-1">Orders over UGX 500K</p>
+                            <h3 class="font-bold mb-0.5 -m -fs20 -elli">Free Delivery</h3>
+                            <p class="text-sm text-white/90 mb-1">Orders over UGX 500K</p>
                             <a href="#products" class="inline-flex items-center text-xs font-semibold hover:underline group">
                                 Shop Now
                                 <i data-lucide="arrow-right" class="w-3 h-3 ml-1 group-hover:translate-x-1 transition-transform"></i>
@@ -128,8 +168,8 @@
                                 <i data-lucide="headphones" class="w-4 h-4 text-white"></i>
                             </div>
                             <div class="flex-1">
-                                <h3 class="text-xs font-bold text-gray-900 mb-0.5">24/7 Support</h3>
-                                <p class="text-xs text-gray-600">We're here to help</p>
+                                <h3 class="font-bold text-gray-900 mb-0.5 -m -fs20 -elli">24/7 Support</h3>
+                                <p class="text-sm text-gray-600 mb-1">We're here to help</p>
                             </div>
                         </div>
                         <div class="flex items-center justify-between mt-1">
@@ -158,30 +198,77 @@
     <section id="categories" class="py-12 bg-gray-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-8">
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Top Categories</h2>
-                <p class="text-gray-600">Browse our wide range of electronics categories</p>
+                <h2 class="font-bold text-gray-900 mb-2 -m -fs20 -elli">Top Categories</h2>
+                <p class="text-base text-gray-600 mt-1">Browse our wide range of electronics categories</p>
             </div>
             
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 @php
-                    // Default category images mapping
+                    // Default category images: use public/assets/images for displayed categories, fallback for others
                     $categoryImages = [
-                        'Smartphones' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
-                        'Laptops' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
-                        'Audio' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
-                        'Cameras' => 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400',
+                        'Adapter' => asset('assets/images/adapter.jpg'),
+                        'Air Fans' => asset('assets/images/Air Fans.jpg'),
+                        'Antena' => asset('assets/images/Antena.jpg'),
+                        'Audio' => asset('assets/images/Beats.jpg'),
+                        'Banana Pins' => asset('assets/images/Banana Pins.jpg'),
+                        'Beats' => asset('assets/images/Beats.jpg'),
+                        'Bulb' => asset('assets/images/bulbs.jpg'),
+                        'Cables' => asset('assets/images/junction cables.webp'),
+                        'Chargers' => asset('assets/images/adapter.jpg'),
+                        'Clips' => asset('assets/images/wall clips.webp'),
+                        'Computers' => asset('assets/images/computers.webp'),
+                        'Consoles' => asset('assets/images/consol.png'),
+                        'Dry Cells' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Extensions' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Fan Bulbs' => 'https://images.unsplash.com/photo-1565814329452-e1efa11c5b89?w=400',
+                        'Flash' => 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400',
                         'Gaming' => 'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400',
-                        'Wearables' => 'https://images.unsplash.com/photo-1434493789847-2f02dc6ca35d?w=400',
+                        'HDMI' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Headphones' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+                        'Hot Plate' => 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400',
+                        'Iron Boxes' => 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400',
+                        'Laptops' => 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400',
+                        'Memory Cards' => 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
+                        'Mobile Phones' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
+                        'Molded' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Mouse' => 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400',
+                        'Networking' => 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400',
+                        'Paco (Electric Kettle)' => 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400',
+                        'Padlock' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Phone Accessories' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
+                        'Phone Battery' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Phone Stands' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
+                        'Plugs' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Pod Cases' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+                        'Pods' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
+                        'Power Banks' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Remotes' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Ring Lights' => 'https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=400',
+                        'Screen Guards' => 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400',
+                        'Sockets' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Storage' => 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=400',
+                        'Switch' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Tape' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Televisions' => 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400',
+                        'Testas' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'USB Chargers' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Wall Mount' => 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400',
+                        'Wire Connectors' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Wires' => 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400',
+                        'Woofa' => 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
                     ];
+                    $topCategories = $categories->reject(fn($c) => in_array($c->name, ['Bulb Holders', 'Card Readers']))->take(12);
                 @endphp
                 
-                @forelse($categories as $category)
+                @forelse($topCategories as $category)
                     @php
-                        // Use category image from database if available, otherwise use default mapping
-                        if ($category->image) {
+                        // Prefer local assets/images mapping so updated files in public/assets/images display; else DB image; else fallback
+                        if (isset($categoryImages[$category->name])) {
+                            $categoryImage = $categoryImages[$category->name];
+                        } elseif ($category->image) {
                             $categoryImage = str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image);
                         } else {
-                            $categoryImage = $categoryImages[$category->name] ?? 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                            $categoryImage = 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                         }
                     @endphp
                     <a href="{{ route('frontend.index') }}?category={{ $category->id }}" class="group relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden" style="border-radius: 10px;">
@@ -190,9 +277,9 @@
                                  alt="{{ $category->name }}" 
                                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                  style="border-radius: 10px 10px 0 0;">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent"></div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30"></div>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-white font-semibold text-sm md:text-base px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">{{ $category->name }}</span>
+                                <span class="text-white font-semibold text-sm md:text-base px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full shadow-lg">{{ $category->name }}</span>
                             </div>
                         </div>
                     </a>
@@ -214,8 +301,8 @@
                         <i data-lucide="zap" class="w-6 h-6 text-white"></i>
                     </div>
                     <div>
-                        <h2 class="text-2xl sm:text-3xl font-bold text-white">Flash Sales</h2>
-                        <p class="text-white/80 text-sm">Limited time offers - Don't miss out!</p>
+                        <h2 class="font-bold text-white -m -fs20 -elli">Flash Sales</h2>
+                        <p class="text-base text-white/80 mt-1">Limited time offers - Don't miss out!</p>
                     </div>
                 </div>
                 <div class="flex items-center space-x-4 bg-white/20 backdrop-blur-sm rounded-lg px-4 sm:px-6 py-3">
@@ -247,7 +334,7 @@
                             @forelse($flashProducts as $product)
                                 @php
                                     // Calculate discount based on margin (if cost_price is significantly lower than selling_price, show a "sale" badge)
-                                    $margin = $product->cost_price > 0 ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
+                                    $margin = ($product->cost_price > 0 && $product->selling_price > 0) ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
                                     $showDiscount = $margin > 20; // Show discount badge if margin is good
                                     $discount = $showDiscount ? round($margin * 0.3) : 0; // Show a percentage based on margin
                                     $imageUrl = $product->image 
@@ -272,7 +359,7 @@
                                         </a>
                                         <div class="flex items-center space-x-2 mb-2">
                                             <span class="text-sm font-bold text-primary-600">UGX {{ number_format($product->selling_price, 0) }}</span>
-                                            @if($showDiscount && $product->cost_price > 0)
+                                            @if($showDiscount && $product->cost_price > 0 && $discount < 100)
                                                 @php
                                                     $originalPrice = $product->selling_price / (1 - ($discount / 100));
                                                 @endphp
@@ -309,19 +396,26 @@
         </div>
     </section>
 
-    <!-- Featured Products Section -->
+    <!-- Featured Products / Search Results Section -->
     <section id="products" class="py-12 bg-white">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="mb-8">
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Featured Products</h2>
-                <p class="text-gray-600">Handpicked selection of our best products</p>
+                @if(isset($hasFilter) && $hasFilter)
+                    <h2 class="font-bold text-gray-900 mb-2 -m -fs20 -elli">Search Results</h2>
+                    <p class="text-base text-gray-600 mt-1">
+                        {{ (isset($searchTerm) && $searchTerm) ? 'Results for "' . e($searchTerm) . '"' : 'Filtered by category' }}
+                    </p>
+                @else
+                    <h2 class="font-bold text-gray-900 mb-2 -m -fs20 -elli">Featured Products</h2>
+                    <p class="text-base text-gray-600 mt-1">Handpicked selection of our best products</p>
+                @endif
             </div>
             
             <!-- Grid Container - 2 Rows -->
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
                 @forelse($featuredProducts as $product)
                     @php
-                        $margin = $product->cost_price > 0 ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
+                        $margin = ($product->cost_price > 0 && $product->selling_price > 0) ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
                         $showDiscount = $margin > 20;
                         $discount = $showDiscount ? round($margin * 0.3) : 0;
                         $imageUrl = $product->image 
@@ -346,7 +440,7 @@
                             </a>
                             <div class="flex items-center space-x-2 mb-2">
                                 <span class="text-sm sm:text-base font-bold text-primary-600">UGX {{ number_format($product->selling_price, 0) }}</span>
-                                @if($showDiscount && $product->cost_price > 0)
+                                @if($showDiscount && $product->cost_price > 0 && $discount < 100)
                                     @php
                                         $originalPrice = $product->selling_price / (1 - ($discount / 100));
                                     @endphp
@@ -384,8 +478,8 @@
     <section class="py-16 bg-white">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
-                <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">Why Choose Apex Electronics?</h2>
-                <p class="text-gray-600 text-lg">We're committed to providing the best shopping experience</p>
+                <h2 class="font-bold text-gray-900 mb-4 -m -fs20 -elli">Why Choose Apex Electronics?</h2>
+                <p class="text-base text-gray-600 mt-1">We're committed to providing the best shopping experience</p>
             </div>
             
             <div class="grid md:grid-cols-4 gap-8">
@@ -403,11 +497,73 @@
                         <div class="w-16 h-16 bg-primary-500 rounded-full flex items-center justify-center mx-auto mb-4">
                             <i data-lucide="{{ $feature['icon'] }}" class="w-8 h-8 text-white"></i>
                         </div>
-                        <h3 class="text-xl font-semibold text-gray-900 mb-2">{{ $feature['title'] }}</h3>
-                        <p class="text-gray-600">{{ $feature['description'] }}</p>
+                        <h3 class="font-semibold text-gray-900 mb-2 -m -fs20 -elli">{{ $feature['title'] }}</h3>
+                        <p class="text-base text-gray-600 mt-1">{{ $feature['description'] }}</p>
                     </div>
                 @endforeach
             </div>
+        </div>
+    </section>
+
+    <!-- FAQs Section (Shopping at Apex) -->
+    <section id="faqs" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="font-bold text-gray-900 mb-2 -m -fs20 -elli">Frequently Asked Questions</h2>
+                <p class="text-base text-gray-600 mt-1">Everything you need to know about ordering, payment & delivery</p>
+            </div>
+
+            <div class="max-w-3xl mx-auto space-y-3">
+                @php
+                    $faqs = [
+                        [
+                            'question' => 'How do I place an order?',
+                            'answer' => "It's easy! Browse our website, add items to your cart, and follow the steps at checkout. You can also call us on 0200804020 or WhatsApp 0200804010 for assistance.",
+                            'icon' => 'shopping-cart',
+                        ],
+                        [
+                            'question' => 'What are the payment options?',
+                            'answer' => 'We accept pay on delivery or pre-payment with MTN Mobile Money, Airtel Money, and debit/credit cards for your convenience.',
+                            'icon' => 'credit-card',
+                        ],
+                        [
+                            'question' => 'How long will delivery take?',
+                            'answer' => 'Delivery time varies by location. Most orders within Kampala are delivered within 1–3 business days.',
+                            'icon' => 'truck',
+                        ],
+                        [
+                            'question' => 'Can I return an item if I\'m not satisfied?',
+                            'answer' => 'Yes. We have a hassle-free return and refund policy. You can initiate a return within 7 days for eligible items if you receive a wrong, damaged, or defective product.',
+                            'icon' => 'rotate-ccw',
+                        ],
+                        [
+                            'question' => 'Is Apex Electronics safe to shop on?',
+                            'answer' => 'Absolutely. We use secure technology to protect your personal information and work with trusted suppliers to ensure product quality and authenticity.',
+                            'icon' => 'shield-check',
+                        ],
+                    ];
+                @endphp
+                @foreach($faqs as $index => $faq)
+                    <details class="faq-item group bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+                        <summary class="flex items-center gap-4 px-5 py-4 cursor-pointer list-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-inset">
+                            <span class="faq-icon-wrap flex-shrink-0 w-10 h-10 rounded-lg bg-primary-100 text-primary-600 flex items-center justify-center transition-colors">
+                                <i data-lucide="{{ $faq['icon'] }}" class="w-5 h-5"></i>
+                            </span>
+                            <span class="font-semibold text-gray-900 text-left flex-1 pr-2">{{ $faq['question'] }}</span>
+                            <span class="faq-chevron flex-shrink-0 w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center transition-colors">
+                                <i data-lucide="chevron-down" class="faq-chevron-icon w-5 h-5 text-gray-600 transition-transform"></i>
+                            </span>
+                        </summary>
+                        <div class="px-5 pb-5 pt-0 sm:pl-[4.5rem]">
+                            <p class="text-sm text-gray-600 leading-relaxed border-l-2 border-primary-200 pl-4">{{ $faq['answer'] }}</p>
+                        </div>
+                    </details>
+                @endforeach
+            </div>
+
+            <p class="text-center mt-8 text-sm text-gray-500">
+                Still have questions? <a href="#" class="text-primary-600 font-medium hover:underline">Contact us</a> and we’ll help you out.
+            </p>
         </div>
     </section>
 @endsection
@@ -421,6 +577,19 @@
     .scrollbar-hide {
         -ms-overflow-style: none;
         scrollbar-width: none;
+    }
+
+    /* FAQ accordion open state */
+    .faq-item[open] .faq-chevron {
+        transform: rotate(180deg);
+    }
+    .faq-item[open] .faq-chevron,
+    .faq-item[open] .faq-icon-wrap {
+        background: #FF7839;
+        color: white;
+    }
+    .faq-item[open] .faq-chevron-icon {
+        color: white;
     }
 </style>
 @endsection

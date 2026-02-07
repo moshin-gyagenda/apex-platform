@@ -143,4 +143,67 @@ class CategoryController extends Controller
         return redirect()->route('admin.categories.index')
             ->with('success', 'Category deleted successfully.');
     }
+
+    /**
+     * Export categories to Excel (CSV format).
+     */
+    public function exportExcel(Request $request)
+    {
+        $query = Category::query();
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+            });
+        }
+        $categories = $query->latest()->get();
+
+        $filename = 'categories_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($categories) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, ['Name', 'Created At']);
+            foreach ($categories as $cat) {
+                fputcsv($file, [$cat->name, $cat->created_at->format('Y-m-d H:i:s')]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export categories to PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Category::query();
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+            });
+        }
+        $categories = $query->latest()->get();
+        $data = [
+            'categories' => $categories,
+            'total' => $categories->count(),
+            'export_date' => now()->format('F d, Y H:i:s'),
+        ];
+        try {
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('backend.categories.export-pdf', $data);
+            $pdf->setPaper('a4', 'portrait');
+            return $pdf->download('categories_' . date('Y-m-d_His') . '.pdf');
+        } catch (\Exception $e) {
+            \Log::error('PDF Generation Error: ' . $e->getMessage());
+            return redirect()->route('admin.categories.index')
+                ->with('error', 'Failed to generate PDF. Please try again.');
+        }
+    }
 }

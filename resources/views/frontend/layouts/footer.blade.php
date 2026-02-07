@@ -5,7 +5,7 @@
             <div>
                 <div class="flex items-center space-x-3 mb-4">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Electronics Logo" class="h-10 w-auto">
-                    <span class="text-xl font-bold text-white">Apex Electronics</span>
+                    <span class="font-bold text-white -m -fs20 -elli">Apex Electronics</span>
                 </div>
                 <p class="text-sm text-gray-400 mb-4">
                     Your trusted source for quality electronics and accessories. We offer the latest products at competitive prices.
@@ -28,7 +28,7 @@
             
             <!-- Quick Links -->
             <div>
-                <h3 class="text-white font-semibold mb-4">Quick Links</h3>
+                <h3 class="text-white font-semibold mb-4 -m -fs20 -elli">Quick Links</h3>
                 <ul class="space-y-2">
                     <li><a href="{{ route('frontend.index') }}" class="text-sm hover:text-primary-400 transition-colors">Home</a></li>
                     <li><a href="#" class="text-sm hover:text-primary-400 transition-colors">Products</a></li>
@@ -40,7 +40,7 @@
             
             <!-- Customer Service -->
             <div>
-                <h3 class="text-white font-semibold mb-4">Customer Service</h3>
+                <h3 class="text-white font-semibold mb-4 -m -fs20 -elli">Customer Service</h3>
                 <ul class="space-y-2">
                     <li><a href="#" class="text-sm hover:text-primary-400 transition-colors">My Account</a></li>
                     <li><a href="#" class="text-sm hover:text-primary-400 transition-colors">Order Tracking</a></li>
@@ -52,7 +52,7 @@
             
             <!-- Contact Info -->
             <div>
-                <h3 class="text-white font-semibold mb-4">Contact Us</h3>
+                <h3 class="text-white font-semibold mb-4 -m -fs20 -elli">Contact Us</h3>
                 <ul class="space-y-3">
                     <li class="flex items-start space-x-3">
                         <i data-lucide="map-pin" class="w-5 h-5 text-primary-400 flex-shrink-0 mt-0.5"></i>

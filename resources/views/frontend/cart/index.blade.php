@@ -17,7 +17,7 @@
     <!-- Cart Section -->
     <section class="py-12 bg-gray-50">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-8">Shopping Cart</h1>
+            <h1 class="font-bold text-gray-900 mb-8 -m -fs20 -elli">Shopping Cart</h1>
             
             @if(count($cartItems) > 0)
                 <div class="grid lg:grid-cols-3 gap-8">
@@ -26,7 +26,7 @@
                         <div class="bg-white rounded-lg shadow-md overflow-hidden">
                             <div class="p-6 border-b border-gray-200">
                                 <div class="flex items-center justify-between">
-                                    <h2 class="text-xl font-semibold text-gray-900">Cart Items ({{ count($cartItems) }})</h2>
+                                    <h2 class="font-semibold text-gray-900 -m -fs20 -elli">Cart Items ({{ count($cartItems) }})</h2>
                                     <button onclick="showClearCartModal()" class="text-sm text-red-600 hover:text-red-700 font-medium">
                                         Clear Cart
                                     </button>
@@ -53,7 +53,7 @@
                                             <!-- Product Details -->
                                             <div class="flex-1 min-w-0">
                                                 <a href="{{ route('frontend.products.show', $product->id) }}" class="block">
-                                                    <h3 class="text-lg font-semibold text-gray-900 hover:text-primary-600 transition-colors mb-2">{{ $product->name }}</h3>
+                                                    <h3 class="font-semibold text-gray-900 hover:text-primary-600 transition-colors mb-2 -m -fs20 -elli">{{ $product->name }}</h3>
                                                 </a>
                                                 <p class="text-sm text-gray-600 mb-3 line-clamp-2">{{ $product->description }}</p>
                                                 
@@ -91,7 +91,7 @@
                     <!-- Order Summary -->
                     <div class="lg:col-span-1">
                         <div class="bg-white rounded-lg shadow-md p-6 sticky top-24">
-                            <h2 class="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
+                            <h2 class="font-semibold text-gray-900 mb-6 -m -fs20 -elli">Order Summary</h2>
                             
                             <div class="space-y-4 mb-6">
                                 <div class="flex justify-between text-gray-600">
@@ -130,7 +130,7 @@
                 <!-- Empty Cart -->
                 <div class="bg-white rounded-lg shadow-md p-12 text-center">
                     <i data-lucide="shopping-cart" class="w-24 h-24 mx-auto text-gray-300 mb-6"></i>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Your cart is empty</h2>
+                    <h2 class="font-bold text-gray-900 mb-4 -m -fs20 -elli">Your cart is empty</h2>
                     <p class="text-gray-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
                     <a href="{{ route('frontend.index') }}" class="inline-flex items-center px-8 py-3 bg-primary-500 text-white rounded-lg font-semibold hover:bg-primary-600 transition-colors">
                         <i data-lucide="arrow-left" class="w-5 h-5 mr-2"></i>
@@ -141,6 +141,117 @@
         </div>
     </section>
 
+    <!-- Recently Viewed Section -->
+    @if($recentlyViewedProducts->count() > 0)
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="font-bold text-gray-900 mb-8 -m -fs20 -elli">Recently Viewed</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                    @foreach($recentlyViewedProducts as $product)
+                        @php
+                            $imageUrl = $product->image 
+                                ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                                : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                        @endphp
+                        <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">
+                            <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 sm:h-48 object-cover">
+                                <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
+                                    <i data-lucide="heart" class="w-4 h-4"></i>
+                                </button>
+                            </a>
+                            <div class="p-3">
+                                <a href="{{ route('frontend.products.show', $product->id) }}">
+                                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs sm:text-sm hover:text-primary-600 transition-colors">{{ $product->name }}</h3>
+                                </a>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="text-sm sm:text-base font-bold text-primary-600">UGX {{ number_format($product->selling_price ?? 0, 0) }}</span>
+                                </div>
+                                <button onclick="addToCart({{ $product->id }}, this)" class="w-full bg-primary-500 text-white py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-600 transition-colors">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
+    <!-- Customers Also Bought Section -->
+    @if($customersAlsoBought->count() > 0)
+        <section class="py-12 bg-gray-50">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="font-bold text-gray-900 mb-8 -m -fs20 -elli">Customers Also Bought</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                    @foreach($customersAlsoBought as $product)
+                        @php
+                            $imageUrl = $product->image 
+                                ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                                : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                        @endphp
+                        <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">
+                            <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 sm:h-48 object-cover">
+                                <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
+                                    <i data-lucide="heart" class="w-4 h-4"></i>
+                                </button>
+                            </a>
+                            <div class="p-3">
+                                <a href="{{ route('frontend.products.show', $product->id) }}">
+                                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs sm:text-sm hover:text-primary-600 transition-colors">{{ $product->name }}</h3>
+                                </a>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="text-sm sm:text-base font-bold text-primary-600">UGX {{ number_format($product->selling_price ?? 0, 0) }}</span>
+                                </div>
+                                <button onclick="addToCart({{ $product->id }}, this)" class="w-full bg-primary-500 text-white py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-600 transition-colors">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
+    <!-- Customers Who Viewed This Also Viewed Section -->
+    @if($alsoViewedProducts->count() > 0)
+        <section class="py-12 bg-white">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="font-bold text-gray-900 mb-8 -m -fs20 -elli">Customers Who Viewed This Also Viewed</h2>
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                    @foreach($alsoViewedProducts as $product)
+                        @php
+                            $imageUrl = $product->image 
+                                ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                                : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                        @endphp
+                        <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">
+                            <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
+                                <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 sm:h-48 object-cover">
+                                <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
+                                    <i data-lucide="heart" class="w-4 h-4"></i>
+                                </button>
+                            </a>
+                            <div class="p-3">
+                                <a href="{{ route('frontend.products.show', $product->id) }}">
+                                    <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs sm:text-sm hover:text-primary-600 transition-colors">{{ $product->name }}</h3>
+                                </a>
+                                <div class="flex items-center space-x-2 mb-2">
+                                    <span class="text-sm sm:text-base font-bold text-primary-600">UGX {{ number_format($product->selling_price ?? 0, 0) }}</span>
+                                </div>
+                                <button onclick="addToCart({{ $product->id }}, this)" class="w-full bg-primary-500 text-white py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-600 transition-colors">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </section>
+    @endif
+
     <!-- Confirmation Modal for Remove Item -->
     <div id="remove-item-modal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg border border-gray-300 shadow-xl p-6 max-w-md w-full mx-4">
@@ -149,7 +260,7 @@
                     <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-800">Remove Item</h3>
+                    <h3 class="font-semibold text-gray-800 -m -fs20 -elli">Remove Item</h3>
                     <p class="mt-2 text-sm text-gray-600">
                         Are you sure you want to remove <span id="remove-product-name" class="font-medium text-gray-800"></span> from your cart?
                     </p>
@@ -174,7 +285,7 @@
                     <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-semibold text-gray-800">Clear Cart</h3>
+                    <h3 class="font-semibold text-gray-800 -m -fs20 -elli">Clear Cart</h3>
                     <p class="mt-2 text-sm text-gray-600">
                         Are you sure you want to clear your entire cart? This action cannot be undone and all items will be removed.
                     </p>
@@ -397,6 +508,63 @@
         @endauth
     }
     
+    // Add to Cart function (for product cards in sections)
+    function addToCart(productId, buttonElement) {
+        const btn = buttonElement || event?.target || document.querySelector(`button[onclick*="addToCart(${productId})"]`);
+        
+        // Store original button state
+        let originalText = 'Add to Cart';
+        let originalClasses = '';
+        if (btn) {
+            originalText = btn.textContent.trim();
+            originalClasses = btn.className;
+            btn.disabled = true;
+            btn.textContent = 'Adding...';
+        }
+        
+        fetch(`{{ url('/cart/add') }}/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showSuccessToast('Product added to cart successfully!');
+                
+                // Update cart count in header (if function exists)
+                if (typeof updateCartCount === 'function') {
+                    updateCartCount();
+                }
+                
+                // Reset button to original state
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.className = originalClasses;
+                    btn.disabled = false;
+                }
+            } else {
+                showErrorToast(data.message || 'Failed to add product to cart');
+                if (btn) {
+                    btn.textContent = originalText;
+                    btn.className = originalClasses;
+                    btn.disabled = false;
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showErrorToast('An error occurred. Please try again.');
+            if (btn) {
+                btn.textContent = originalText;
+                btn.className = originalClasses;
+                btn.disabled = false;
+            }
+        });
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize Lucide icons

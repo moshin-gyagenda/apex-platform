@@ -82,4 +82,20 @@ class Product extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
+    /**
+     * Get the reviews for the product.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class)->where('status', 'approved')->orderBy('created_at', 'desc');
+    }
+
+    /**
+     * Get all reviews for the product (including pending/rejected).
+     */
+    public function allReviews()
+    {
+        return $this->hasMany(Review::class)->orderBy('created_at', 'desc');
+    }
 }

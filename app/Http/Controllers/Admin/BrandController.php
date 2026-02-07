@@ -123,4 +123,67 @@ class BrandController extends Controller
         return redirect()->route('admin.brands.index')
             ->with('success', 'Brand deleted successfully.');
     }
+
+    /**
+     * Export brands to Excel (CSV format).
+     */
+    public function exportExcel(Request $request)
+    {
+        $query = Brand::query();
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+            });
+        }
+        $brands = $query->latest()->get();
+
+        $filename = 'brands_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($brands) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, ['Name', 'Created At']);
+            foreach ($brands as $brand) {
+                fputcsv($file, [$brand->name, $brand->created_at->format('Y-m-d H:i:s')]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export brands to PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Brand::query();
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+            });
+        }
+        $brands = $query->latest()->get();
+        $data = [
+            'brands' => $brands,
+            'total' => $brands->count(),
+            'export_date' => now()->format('F d, Y H:i:s'),
+        ];
+        try {
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('backend.brands.export-pdf', $data);
+            $pdf->setPaper('a4', 'portrait');
+            return $pdf->download('brands_' . date('Y-m-d_His') . '.pdf');
+        } catch (\Exception $e) {
+            \Log::error('PDF Generation Error: ' . $e->getMessage());
+            return redirect()->route('admin.brands.index')
+                ->with('error', 'Failed to generate PDF. Please try again.');
+        }
+    }
 }

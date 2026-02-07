@@ -205,4 +205,106 @@ class SaleController extends Controller
             return back()->withInput()->with('error', 'Failed to process return: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Export sales to Excel (CSV format).
+     */
+    public function exportExcel(Request $request)
+    {
+        $query = Sale::with(['customer', 'creator']);
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'LIKE', '%' . $search . '%')
+                  ->orWhereHas('customer', function($q) use ($search) {
+                      $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                  })
+                  ->orWhereHas('creator', function($q) use ($search) {
+                      $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                  });
+            });
+        }
+        if ($request->filled('payment_method') && $request->payment_method !== 'all') {
+            $query->where('payment_method', $request->payment_method);
+        }
+        if ($request->filled('payment_status') && $request->payment_status !== 'all') {
+            $query->where('payment_status', $request->payment_status);
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+        $sales = $query->latest()->get();
+
+        $filename = 'sales_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($sales) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, ['ID', 'Customer', 'Payment Method', 'Payment Status', 'Final Amount (UGX)', 'Created By', 'Date']);
+            foreach ($sales as $s) {
+                fputcsv($file, [
+                    $s->id,
+                    $s->customer?->name ?? '—',
+                    $s->payment_method ?? '—',
+                    $s->payment_status ?? '—',
+                    $s->final_amount ? number_format($s->final_amount, 2) : '—',
+                    $s->creator?->name ?? '—',
+                    $s->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export sales to PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Sale::with(['customer', 'creator']);
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->where('id', 'LIKE', '%' . $search . '%')
+                  ->orWhereHas('customer', function($q) use ($search) {
+                      $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                  })
+                  ->orWhereHas('creator', function($q) use ($search) {
+                      $q->whereRaw('LOWER(name) LIKE ?', ['%' . $search . '%']);
+                  });
+            });
+        }
+        if ($request->filled('payment_method') && $request->payment_method !== 'all') {
+            $query->where('payment_method', $request->payment_method);
+        }
+        if ($request->filled('payment_status') && $request->payment_status !== 'all') {
+            $query->where('payment_status', $request->payment_status);
+        }
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+        $sales = $query->latest()->get();
+        $data = [
+            'sales' => $sales,
+            'total' => $sales->count(),
+            'total_amount' => $sales->sum('final_amount'),
+            'export_date' => now()->format('F d, Y H:i:s'),
+        ];
+        try {
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('backend.sales.export-pdf', $data);
+            $pdf->setPaper('a4', 'landscape');
+            return $pdf->download('sales_' . date('Y-m-d_His') . '.pdf');
+        } catch (\Exception $e) {
+            \Log::error('PDF Generation Error: ' . $e->getMessage());
+            return redirect()->route('admin.sales.index')
+                ->with('error', 'Failed to generate PDF. Please try again.');
+        }
+    }
 }

@@ -99,4 +99,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(ShippingInfo::class);
     }
+
+    /**
+     * Get the reviews written by the user.
+     */
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

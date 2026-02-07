@@ -53,11 +53,19 @@
         <div class="container mx-auto py-6 px-4 sm:px-6">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h1 class="text-xl font-semibold text-gray-800">Brand Management</h1>
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap gap-2">
                     <button onclick="window.history.back(); return false;" class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
                         <i data-lucide="arrow-left" class="w-4 h-4 mr-2"></i>
                         Back
                     </button>
+                    <a href="{{ route('admin.brands.export.excel', request()->query()) }}" class="inline-flex items-center px-4 py-2 bg-green-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-green-600 transition-colors">
+                        <i data-lucide="file-spreadsheet" class="w-4 h-4 mr-2"></i>
+                        Export Excel
+                    </a>
+                    <a href="{{ route('admin.brands.export.pdf', request()->query()) }}" class="inline-flex items-center px-4 py-2 bg-red-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-red-600 transition-colors">
+                        <i data-lucide="file-text" class="w-4 h-4 mr-2"></i>
+                        Export PDF
+                    </a>
                     <a href="{{ route('admin.brands.create') }}" class="inline-flex items-center px-4 py-2 bg-primary-500 border border-transparent rounded-lg text-sm font-medium text-white hover:bg-primary-600 transition-colors">
                         <i data-lucide="plus" class="w-4 h-4 mr-2"></i>
                         Add New Brand

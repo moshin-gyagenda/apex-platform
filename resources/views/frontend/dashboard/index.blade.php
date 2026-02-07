@@ -26,39 +26,46 @@
     @endif
 
     <!-- Breadcrumb -->
-    <nav class="bg-gray-100 py-4">
+    <nav class="bg-gradient-to-r from-gray-50 to-white py-4 border-b border-gray-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center space-x-2 text-sm">
-                <a href="{{ route('frontend.index') }}" class="text-gray-600 hover:text-primary-600">Home</a>
+                <a href="{{ route('frontend.index') }}" class="text-gray-600 hover:text-primary-600 transition-colors">Home</a>
                 <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400"></i>
-                <span class="text-gray-900">Dashboard</span>
+                <span class="text-gray-900 font-medium">Dashboard</span>
             </div>
         </div>
     </nav>
 
     <!-- Dashboard Section -->
-    <section class="py-8 bg-gray-50 min-h-screen">
+    <section class="py-8 bg-gradient-to-b from-gray-50 to-white min-h-screen">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <!-- Header -->
-            <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
-                <h1 class="text-2xl font-semibold tracking-tight text-gray-900">My Dashboard</h1>
-                <div class="flex items-center gap-2">
-                    <a href="{{ route('frontend.index') }}" class="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors text-sm font-medium">
-                        <i data-lucide="shopping-bag" class="w-4 h-4 inline mr-2"></i>
-                        Continue Shopping
-                    </a>
+            <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-2xl p-6 mb-8 shadow-lg">
+                <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <h1 class="font-semibold tracking-tight text-white -m -fs20 -elli flex items-center gap-3">
+                        <i data-lucide="layout-dashboard" class="w-6 h-6"></i>
+                        My Dashboard
+                    </h1>
+                    <div class="flex items-center gap-2">
+                        <a href="{{ route('frontend.index') }}" class="px-4 py-2 bg-white text-primary-600 rounded-xl hover:bg-gray-50 transition-colors text-sm font-medium shadow-md">
+                            <i data-lucide="shopping-bag" class="w-4 h-4 inline mr-2"></i>
+                            Continue Shopping
+                        </a>
+                    </div>
                 </div>
             </div>
 
             <!-- Key Metrics Cards -->
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
                 <!-- Total Orders -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex flex-row items-center justify-between pb-2">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex flex-row items-center justify-between pb-3">
                         <h3 class="text-sm font-medium text-gray-500">Total Orders</h3>
-                        <i data-lucide="package" class="w-5 h-5 text-primary-500"></i>
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center">
+                            <i data-lucide="package" class="w-6 h-6 text-white"></i>
+                        </div>
                     </div>
-                    <div class="text-lg font-semibold text-gray-900">{{ $stats['total_orders'] ?? 0 }}</div>
+                    <div class="text-2xl font-bold text-gray-900 mb-2">{{ $stats['total_orders'] ?? 0 }}</div>
                     <div class="flex items-center pt-1 text-xs text-gray-500">
                         <i data-lucide="info" class="mr-1 w-4 h-4"></i>
                         <span>All your orders</span>
@@ -66,12 +73,14 @@
                 </div>
 
                 <!-- Total Amount -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex flex-row items-center justify-between pb-2">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex flex-row items-center justify-between pb-3">
                         <h3 class="text-sm font-medium text-gray-500">Total Spent</h3>
-                        <i data-lucide="dollar-sign" class="w-5 h-5 text-primary-500"></i>
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
+                            <i data-lucide="dollar-sign" class="w-6 h-6 text-white"></i>
+                        </div>
                     </div>
-                    <div class="text-lg font-semibold text-gray-900">{{ number_format($stats['total_amount'] ?? 0, 0) }} UGX</div>
+                    <div class="text-2xl font-bold text-gray-900 mb-2">{{ number_format($stats['total_amount'] ?? 0, 0) }} UGX</div>
                     <div class="flex items-center pt-1 text-xs {{ ($stats['amount_growth'] ?? 0) >= 0 ? 'text-green-500' : 'text-red-500' }}">
                         <i data-lucide="{{ ($stats['amount_growth'] ?? 0) >= 0 ? 'trending-up' : 'trending-down' }}" class="mr-1 w-4 h-4"></i>
                         <span>{{ number_format(abs($stats['amount_growth'] ?? 0), 1) }}% from last month</span>
@@ -79,12 +88,14 @@
                 </div>
 
                 <!-- Orders This Month -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex flex-row items-center justify-between pb-2">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex flex-row items-center justify-between pb-3">
                         <h3 class="text-sm font-medium text-gray-500">Orders This Month</h3>
-                        <i data-lucide="calendar" class="w-5 h-5 text-primary-500"></i>
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                            <i data-lucide="calendar" class="w-6 h-6 text-white"></i>
+                        </div>
                     </div>
-                    <div class="text-lg font-semibold text-gray-900">{{ $stats['orders_this_month'] ?? 0 }}</div>
+                    <div class="text-2xl font-bold text-gray-900 mb-2">{{ $stats['orders_this_month'] ?? 0 }}</div>
                     <div class="flex items-center pt-1 text-xs text-gray-500">
                         <i data-lucide="calendar" class="mr-1 w-4 h-4"></i>
                         <span>{{ number_format($stats['monthly_amount'] ?? 0, 0) }} UGX spent</span>
@@ -92,12 +103,14 @@
                 </div>
 
                 <!-- Pending Orders -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm hover:shadow-md transition-shadow">
-                    <div class="flex flex-row items-center justify-between pb-2">
+                <div class="bg-white rounded-xl border border-gray-200 p-6 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <div class="flex flex-row items-center justify-between pb-3">
                         <h3 class="text-sm font-medium text-gray-500">Pending Orders</h3>
-                        <i data-lucide="clock" class="w-5 h-5 text-primary-500"></i>
+                        <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-500 to-yellow-600 flex items-center justify-center">
+                            <i data-lucide="clock" class="w-6 h-6 text-white"></i>
+                        </div>
                     </div>
-                    <div class="text-lg font-semibold text-gray-900">{{ $stats['pending_orders'] ?? 0 }}</div>
+                    <div class="text-2xl font-bold text-gray-900 mb-2">{{ $stats['pending_orders'] ?? 0 }}</div>
                     <div class="flex items-center pt-1 text-xs {{ ($stats['pending_orders'] ?? 0) > 0 ? 'text-yellow-500' : 'text-green-500' }}">
                         <i data-lucide="{{ ($stats['pending_orders'] ?? 0) > 0 ? 'alert-triangle' : 'check-circle' }}" class="mr-1 w-4 h-4"></i>
                         <span>{{ ($stats['pending_orders'] ?? 0) > 0 ? 'Awaiting processing' : 'All processed' }}</span>
@@ -108,11 +121,16 @@
             <!-- Charts Section -->
             <div class="grid gap-6 md:grid-cols-2 mb-6">
                 <!-- Orders by Month Chart -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                    <div class="flex flex-row items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Orders This Year</h3>
-                            <p class="text-sm text-gray-500">Monthly order trend</p>
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4 mb-4">
+                        <div class="flex flex-row items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-white -m -fs20 -elli flex items-center gap-2">
+                                    <i data-lucide="trending-up" class="w-5 h-5"></i>
+                                    Orders This Year
+                                </h3>
+                                <p class="text-primary-100 text-sm mt-1">Monthly order trend</p>
+                            </div>
                         </div>
                     </div>
                     <div class="h-80">
@@ -121,11 +139,16 @@
                 </div>
 
                 <!-- Orders by Status Chart -->
-                <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                    <div class="flex flex-row items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Orders by Status</h3>
-                            <p class="text-sm text-gray-500">Status distribution</p>
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4 mb-4">
+                        <div class="flex flex-row items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-white -m -fs20 -elli flex items-center gap-2">
+                                    <i data-lucide="pie-chart" class="w-5 h-5"></i>
+                                    Orders by Status
+                                </h3>
+                                <p class="text-primary-100 text-sm mt-1">Status distribution</p>
+                            </div>
                         </div>
                     </div>
                     <div class="h-80">
@@ -140,8 +163,8 @@
                 <div class="md:col-span-4 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
                     <div class="flex flex-row items-center justify-between mb-4">
                         <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Recent Orders</h3>
-                            <p class="text-sm text-gray-500">Latest transactions</p>
+                            <h3 class="font-semibold text-gray-900 -m -fs20 -elli">Recent Orders</h3>
+                            <p class="text-base text-gray-500 mt-1">Latest transactions</p>
                         </div>
                         <a href="#order-history" onclick="showTab('order-history')" class="px-3 py-1.5 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-100 transition-colors">
                             View All
@@ -149,7 +172,7 @@
                     </div>
                     <div class="space-y-4">
                         @forelse($recentOrders as $order)
-                        <div class="flex items-center justify-between rounded-lg border border-gray-200 p-3 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between rounded-xl border border-gray-200 p-4 hover:bg-gradient-to-r hover:from-gray-50 hover:to-white transition-all shadow-sm hover:shadow-md">
                             <div class="space-y-1">
                                 <p class="font-medium text-gray-900">Order #{{ $order->order_number ?? $order->id }}</p>
                                 <p class="text-sm text-gray-500">
@@ -180,15 +203,20 @@
                 </div>
 
                 <!-- Profile & Address -->
-                <div class="md:col-span-3 bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                    <div class="flex flex-row items-center justify-between mb-4">
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-900">Profile</h3>
-                            <p class="text-sm text-gray-500">Your information</p>
+                <div class="md:col-span-3 bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4 mb-4">
+                        <div class="flex flex-row items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-white -m -fs20 -elli flex items-center gap-2">
+                                    <i data-lucide="user" class="w-5 h-5"></i>
+                                    Profile
+                                </h3>
+                                <p class="text-primary-100 text-sm mt-1">Your information</p>
+                            </div>
+                            <a href="{{ route('frontend.dashboard.account-settings') }}" class="px-3 py-1.5 bg-white text-primary-600 text-sm rounded-lg hover:bg-gray-50 transition-colors font-medium shadow-md">
+                                Edit
+                            </a>
                         </div>
-                        <a href="{{ route('frontend.dashboard.account-settings') }}" class="px-3 py-1.5 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-100 transition-colors">
-                            Edit
-                        </a>
                     </div>
                     <div class="space-y-4">
                         <div class="flex items-center gap-4">
@@ -224,7 +252,7 @@
                 <!-- Processing Orders -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
                     <div class="flex flex-row items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Processing</h3>
+                        <h3 class="font-semibold text-gray-900 -m -fs20 -elli">Processing</h3>
                         <i data-lucide="refresh-cw" class="w-5 h-5 text-yellow-500"></i>
                     </div>
                     <div class="space-y-2">
@@ -238,7 +266,7 @@
                 <!-- Delivered Orders -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
                     <div class="flex flex-row items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Delivered</h3>
+                        <h3 class="font-semibold text-gray-900 -m -fs20 -elli">Delivered</h3>
                         <i data-lucide="check-circle" class="w-5 h-5 text-green-500"></i>
                     </div>
                     <div class="space-y-2">
@@ -252,7 +280,7 @@
                 <!-- Quick Actions -->
                 <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
                     <div class="flex flex-row items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold text-gray-900">Quick Actions</h3>
+                        <h3 class="font-semibold text-gray-900 -m -fs20 -elli">Quick Actions</h3>
                         <i data-lucide="zap" class="w-5 h-5 text-primary-500"></i>
                     </div>
                     <div class="space-y-2">
@@ -270,8 +298,13 @@
 
             <!-- Order History Tab (Hidden by default, shown when tab is clicked) -->
             <div id="order-history-tab" class="hidden">
-                <div class="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
-                    <h2 class="text-2xl font-semibold text-gray-900 mb-6">Order History</h2>
+                <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-lg">
+                    <div class="bg-gradient-to-r from-primary-500 to-primary-600 rounded-xl p-4 mb-6">
+                        <h2 class="font-semibold text-white -m -fs20 -elli flex items-center gap-2">
+                            <i data-lucide="history" class="w-5 h-5"></i>
+                            Order History
+                        </h2>
+                    </div>
                     
                     @if(isset($orders) && $orders->count() > 0)
                         <div class="overflow-x-auto">

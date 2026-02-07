@@ -282,4 +282,93 @@ class PurchaseController extends Controller
             return back()->with('error', 'Failed to delete purchase: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Export purchases to Excel (CSV format).
+     */
+    public function exportExcel(Request $request)
+    {
+        $query = Purchase::with(['supplier', 'creator']);
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(invoice_number) LIKE ?', ['%' . $search . '%']);
+            });
+        }
+        if ($request->filled('supplier_id')) {
+            $query->where('supplier_id', $request->supplier_id);
+        }
+        if ($request->filled('date_from')) {
+            $query->where('purchase_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->where('purchase_date', '<=', $request->date_to);
+        }
+        $purchases = $query->latest('purchase_date')->get();
+
+        $filename = 'purchases_' . date('Y-m-d_His') . '.csv';
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($purchases) {
+            $file = fopen('php://output', 'w');
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+            fputcsv($file, ['Invoice #', 'Supplier', 'Date', 'Total Amount (UGX)', 'Created By', 'Created At']);
+            foreach ($purchases as $p) {
+                fputcsv($file, [
+                    $p->invoice_number,
+                    $p->supplier?->name ?? '—',
+                    $p->purchase_date->format('Y-m-d'),
+                    $p->total_amount ? number_format($p->total_amount, 2) : '—',
+                    $p->creator?->name ?? '—',
+                    $p->created_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Export purchases to PDF.
+     */
+    public function exportPdf(Request $request)
+    {
+        $query = Purchase::with(['supplier', 'creator']);
+        if ($request->filled('search')) {
+            $search = strtolower($request->search);
+            $query->where(function($q) use ($search) {
+                $q->whereRaw('LOWER(invoice_number) LIKE ?', ['%' . $search . '%']);
+            });
+        }
+        if ($request->filled('supplier_id')) {
+            $query->where('supplier_id', $request->supplier_id);
+        }
+        if ($request->filled('date_from')) {
+            $query->where('purchase_date', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->where('purchase_date', '<=', $request->date_to);
+        }
+        $purchases = $query->latest('purchase_date')->get();
+        $data = [
+            'purchases' => $purchases,
+            'total' => $purchases->count(),
+            'total_amount' => $purchases->sum('total_amount'),
+            'export_date' => now()->format('F d, Y H:i:s'),
+        ];
+        try {
+            $pdf = app('dompdf.wrapper');
+            $pdf->loadView('backend.purchases.export-pdf', $data);
+            $pdf->setPaper('a4', 'landscape');
+            return $pdf->download('purchases_' . date('Y-m-d_His') . '.pdf');
+        } catch (\Exception $e) {
+            \Log::error('PDF Generation Error: ' . $e->getMessage());
+            return redirect()->route('admin.purchases.index')
+                ->with('error', 'Failed to generate PDF. Please try again.');
+        }
+    }
 }

@@ -3,12 +3,13 @@
 @section('title', 'Apex Electronics & Accessories - Quality Electronics Store')
 
 @section('content')
+    @php $wishlistProductIds = $wishlistProductIds ?? []; @endphp
     <!-- Hero Section with Carousel -->
     <section class="relative bg-white overflow-hidden">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-4 lg:py-6">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-                <!-- Categories Sidebar (Hero - Jumia style) -->
-                <div class="lg:col-span-3 order-first lg:order-1">
+                <!-- Categories Sidebar - Desktop only (on mobile, categories are in hamburger sidebar) -->
+                <div class="hidden lg:block lg:col-span-3 order-first lg:order-1">
                     <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden h-64 lg:h-96 flex flex-col">
                         <div class="px-4 py-3 border-b border-gray-200 bg-gray-50 flex-shrink-0">
                             <h3 class="font-semibold text-gray-800 flex items-center gap-2 -m -fs20 -elli">
@@ -33,22 +34,10 @@
                             @endforelse
                         </ul>
                     </div>
-                    <!-- Mobile: horizontal category pills (shown only on small screens) -->
-                    @if($categories->isNotEmpty())
-                        <div class="lg:hidden mt-3 overflow-x-auto scrollbar-hide flex gap-2 pb-1 -mx-4 px-4" style="scrollbar-width: none; -ms-overflow-style: none;">
-                            @foreach($categories as $category)
-                                <a href="{{ route('frontend.index') }}?category={{ $category->id }}#products" 
-                                   class="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-primary-200 rounded-full text-xs font-medium text-primary-600 hover:bg-primary-50 hover:text-primary-700 hover:border-primary-300 transition-colors whitespace-nowrap">
-                                    <i data-lucide="folder" class="w-3.5 h-3.5 text-primary-500"></i>
-                                    {{ $category->name }}
-                                </a>
-                            @endforeach
-                        </div>
-                    @endif
                 </div>
 
-                <!-- Main Carousel Section -->
-                <div id="hero-carousel" class="relative w-full lg:col-span-6 order-2" data-carousel="slide">
+                <!-- Main Carousel Section - Full width on mobile, first; 6 cols on desktop -->
+                <div id="hero-carousel" class="relative w-full lg:col-span-6 order-1 lg:order-2" data-carousel="slide">
                     <!-- Carousel wrapper -->
                     <div class="relative h-64 overflow-hidden rounded-lg md:h-96 shadow-lg">
                         @php
@@ -202,7 +191,7 @@
                 <p class="text-base text-gray-600 mt-1">Browse our wide range of electronics categories</p>
             </div>
             
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
                 @php
                     // Default category images: use public/assets/images for displayed categories, fallback for others
                     $categoryImages = [
@@ -271,15 +260,15 @@
                             $categoryImage = 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                         }
                     @endphp
-                    <a href="{{ route('frontend.index') }}?category={{ $category->id }}" class="group relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden" style="border-radius: 10px;">
-                        <div class="relative h-40 overflow-hidden">
+                    <a href="{{ route('frontend.index') }}?category={{ $category->id }}" class="group relative bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden {{ $loop->iteration > 6 ? 'hidden sm:block' : '' }}" style="border-radius: 10px;">
+                        <div class="relative h-24 sm:h-28 md:h-32 overflow-hidden">
                             <img src="{{ $categoryImage }}" 
                                  alt="{{ $category->name }}" 
                                  class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
                                  style="border-radius: 10px 10px 0 0;">
                             <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/30"></div>
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <span class="text-white font-semibold text-sm md:text-base px-4 py-2 bg-black/50 backdrop-blur-sm rounded-full shadow-lg">{{ $category->name }}</span>
+                            <div class="absolute inset-0 flex items-center justify-center p-1">
+                                <span class="text-white font-semibold text-xs sm:text-sm md:text-base px-2 sm:px-3 py-1.5 sm:py-2 bg-black/50 backdrop-blur-sm rounded-full shadow-lg line-clamp-2 text-center">{{ $category->name }}</span>
                             </div>
                         </div>
                     </a>
@@ -326,72 +315,64 @@
                 </div>
             </div>
             
-            <!-- Carousel Container -->
-            <div class="relative">
-                <div class="overflow-hidden">
-                    <div id="flash-sales-carousel" class="flex space-x-4 overflow-x-auto scrollbar-hide scroll-smooth pb-4" style="scrollbar-width: none; -ms-overflow-style: none;">
-                        <div class="flex space-x-4 min-w-max">
-                            @forelse($flashProducts as $product)
-                                @php
-                                    // Calculate discount based on margin (if cost_price is significantly lower than selling_price, show a "sale" badge)
-                                    $margin = ($product->cost_price > 0 && $product->selling_price > 0) ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
-                                    $showDiscount = $margin > 20; // Show discount badge if margin is good
-                                    $discount = $showDiscount ? round($margin * 0.3) : 0; // Show a percentage based on margin
-                                    $imageUrl = $product->image 
-                                        ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
-                                        : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
-                                @endphp
-                                <div class="product-card bg-white rounded-xl overflow-hidden shadow-md flex-shrink-0" style="width: 200px;">
-                                    <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
-                                        <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 object-cover">
-                                        @if($discount > 0)
-                                            <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                                                -{{ $discount }}%
-                                            </span>
-                                        @endif
-                                        <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
-                                            <i data-lucide="heart" class="w-4 h-4"></i>
-                                        </button>
-                                    </a>
-                                    <div class="p-3">
-                                        <a href="{{ route('frontend.products.show', $product->id) }}">
-                                            <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs hover:text-primary-600 transition-colors">{{ $product->name }}</h3>
-                                        </a>
-                                        <div class="flex items-center space-x-2 mb-2">
-                                            <span class="text-sm font-bold text-primary-600">UGX {{ number_format($product->selling_price, 0) }}</span>
-                                            @if($showDiscount && $product->cost_price > 0 && $discount < 100)
-                                                @php
-                                                    $originalPrice = $product->selling_price / (1 - ($discount / 100));
-                                                @endphp
-                                                <span class="text-xs text-gray-500 line-through">UGX {{ number_format($originalPrice, 0) }}</span>
-                                            @endif
-                                        </div>
-                                        <div class="flex items-center space-x-1 mb-2">
-                                            @for($i = 0; $i < 5; $i++)
-                                                <i data-lucide="star" class="w-3 h-3 fill-yellow-400 text-yellow-400"></i>
-                                            @endfor
-                                            <span class="text-xs text-gray-500 ml-1">(4.8)</span>
-                                        </div>
-                                        <button onclick="addToCart({{ $product->id }}, this)" class="w-full bg-primary-500 text-white py-1.5 rounded-lg text-xs font-medium hover:bg-primary-600 transition-colors">
-                                            Add to Cart
-                                        </button>
-                                    </div>
-                                </div>
-                            @empty
-                                <div class="col-span-6 text-center py-8 text-white">
-                                    <p>No flash sale products available</p>
-                                </div>
-                            @endforelse
+            <!-- Flash Sales Grid - 3 cols on small (6 products in 2 rows), 5 cols on large -->
+            <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+                @forelse($flashProducts as $product)
+                    @php
+                        $margin = ($product->cost_price > 0 && $product->selling_price > 0) ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
+                        $showDiscount = $margin > 20;
+                        $discount = $showDiscount ? round($margin * 0.3) : 0;
+                        $imageUrl = $product->image 
+                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                            : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
+                    @endphp
+                    <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-white/20 hover:shadow-lg transition-all duration-300">
+                        <a href="{{ route('frontend.products.show', $product->id) }}" class="block relative">
+                            <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-40 sm:h-48 object-cover">
+                            @if($discount > 0)
+                                <span class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                                    -{{ $discount }}%
+                                </span>
+                            @endif
+                            @auth
+                            <button type="button" class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md wishlist-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ $product->id }}, this)" data-in-wishlist="{{ in_array($product->id, $wishlistProductIds) ? '1' : '0' }}" title="{{ in_array($product->id, $wishlistProductIds) ? 'Remove from wishlist' : 'Add to wishlist' }}" aria-label="{{ in_array($product->id, $wishlistProductIds) ? 'Remove from wishlist' : 'Add to wishlist' }}">
+                                <i data-lucide="heart" class="w-4 h-4 {{ in_array($product->id, $wishlistProductIds) ? 'fill-red-500 text-red-500' : '' }}"></i>
+                            </button>
+                            @else
+                            <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md" onclick="event.stopPropagation()" title="Add to wishlist (sign in)">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                            </a>
+                            @endauth
+                        </a>
+                        <div class="p-3">
+                            <a href="{{ route('frontend.products.show', $product->id) }}">
+                                <h3 class="font-semibold text-gray-900 mb-2 line-clamp-2 text-xs sm:text-sm hover:text-primary-600 transition-colors">{{ $product->name }}</h3>
+                            </a>
+                            <div class="flex items-center space-x-2 mb-2">
+                                <span class="text-sm sm:text-base font-bold text-primary-600">UGX {{ number_format($product->selling_price, 0) }}</span>
+                                @if($showDiscount && $product->cost_price > 0 && $discount < 100)
+                                    @php
+                                        $originalPrice = $product->selling_price / (1 - ($discount / 100));
+                                    @endphp
+                                    <span class="text-xs text-gray-500 line-through">UGX {{ number_format($originalPrice, 0) }}</span>
+                                @endif
+                            </div>
+                            <div class="flex items-center space-x-1 mb-3">
+                                @for($i = 0; $i < 5; $i++)
+                                    <i data-lucide="star" class="w-3 h-3 fill-yellow-400 text-yellow-400"></i>
+                                @endfor
+                                <span class="text-xs text-gray-500 ml-1">(4.8)</span>
+                            </div>
+                            <button onclick="addToCart({{ $product->id }}, this)" class="w-full bg-primary-500 text-white py-2 rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-600 transition-colors">
+                                Add to Cart
+                            </button>
                         </div>
                     </div>
-                </div>
-                <!-- Navigation Buttons -->
-                <button onclick="scrollFlashSales('left')" class="absolute left-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg z-10 hidden md:block">
-                    <i data-lucide="chevron-left" class="w-5 h-5 text-gray-700"></i>
-                </button>
-                <button onclick="scrollFlashSales('right')" class="absolute right-0 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 shadow-lg z-10 hidden md:block">
-                    <i data-lucide="chevron-right" class="w-5 h-5 text-gray-700"></i>
-                </button>
+                @empty
+                    <div class="col-span-full text-center py-8 text-white">
+                        <p>No flash sale products available</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </section>
@@ -412,7 +393,7 @@
             </div>
             
             <!-- Grid Container - 2 Rows -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
                 @forelse($featuredProducts as $product)
                     @php
                         $margin = ($product->cost_price > 0 && $product->selling_price > 0) ? (($product->selling_price - $product->cost_price) / $product->selling_price) * 100 : 0;
@@ -430,9 +411,15 @@
                                     -{{ $discount }}%
                                 </span>
                             @endif
-                            <button class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md">
-                                <i data-lucide="heart" class="w-4 h-4"></i>
+                            @auth
+                            <button type="button" class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md wishlist-btn" onclick="event.preventDefault(); event.stopPropagation(); toggleWishlist({{ $product->id }}, this)" data-in-wishlist="{{ in_array($product->id, $wishlistProductIds) ? '1' : '0' }}" title="{{ in_array($product->id, $wishlistProductIds) ? 'Remove from wishlist' : 'Add to wishlist' }}" aria-label="{{ in_array($product->id, $wishlistProductIds) ? 'Remove from wishlist' : 'Add to wishlist' }}">
+                                <i data-lucide="heart" class="w-4 h-4 {{ in_array($product->id, $wishlistProductIds) ? 'fill-red-500 text-red-500' : '' }}"></i>
                             </button>
+                            @else
+                            <a href="{{ route('login') }}?redirect={{ urlencode(request()->fullUrl()) }}" class="absolute top-2 right-2 w-8 h-8 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-md" onclick="event.stopPropagation()" title="Add to wishlist (sign in)">
+                                <i data-lucide="heart" class="w-4 h-4"></i>
+                            </a>
+                            @endauth
                         </a>
                         <div class="p-3">
                             <a href="{{ route('frontend.products.show', $product->id) }}">
@@ -624,18 +611,42 @@
     const countdownInterval = setInterval(updateCountdown, 1000);
     updateCountdown();
     
-    // Carousel scroll functions
-    function scrollFlashSales(direction) {
-        const carousel = document.getElementById('flash-sales-carousel');
-        const scrollAmount = 220; // Width of card + gap
-        if (carousel) {
-            carousel.scrollBy({
-                left: direction === 'left' ? -scrollAmount : scrollAmount,
-                behavior: 'smooth'
-            });
-        }
+    function toggleWishlist(productId, buttonEl) {
+        const btn = buttonEl || document.querySelector(`.wishlist-btn[data-in-wishlist][onclick*="${productId}"]`);
+        if (!btn) return;
+        const icon = btn.querySelector('i[data-lucide="heart"]');
+        const inWishlist = btn.getAttribute('data-in-wishlist') === '1';
+        const url = inWishlist
+            ? '{{ url("/frontend/wishlist/remove") }}/' + productId
+            : '{{ url("/frontend/wishlist/add") }}/' + productId;
+        const method = inWishlist ? 'DELETE' : 'POST';
+        fetch(url, {
+            method: method,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(function(data) {
+            if (data.success) {
+                const nowInWishlist = !inWishlist;
+                btn.setAttribute('data-in-wishlist', nowInWishlist ? '1' : '0');
+                btn.setAttribute('title', nowInWishlist ? 'Remove from wishlist' : 'Add to wishlist');
+                btn.setAttribute('aria-label', nowInWishlist ? 'Remove from wishlist' : 'Add to wishlist');
+                if (icon) {
+                    if (nowInWishlist) {
+                        icon.classList.add('fill-red-500', 'text-red-500');
+                    } else {
+                        icon.classList.remove('fill-red-500', 'text-red-500');
+                    }
+                }
+            }
+        })
+        .catch(function() {});
     }
-    
+
     // Add to Cart function
     function addToCart(productId, buttonElement) {
         const btn = buttonElement || event?.target || document.querySelector(`button[onclick*="addToCart(${productId})"]`);

@@ -73,6 +73,13 @@
                 </div>
             </details>
 
+            <!-- Client Orders -->
+            <a href="{{ route('admin.orders.index') }}"
+                class="sidebar-item border-l-3 {{ request()->routeIs('admin.orders.*') ? 'border-primary-500 bg-primary-50' : 'border-transparent' }} flex items-center p-2 text-gray-600 rounded-lg hover:bg-primary-50 hover:text-primary-600 group text-sm transition-all duration-200 pl-3">
+                <i data-lucide="package" class="w-5 h-5 {{ request()->routeIs('admin.orders.*') ? 'text-primary-500' : 'text-gray-500' }} group-hover:text-primary-500 transition-colors"></i>
+                <span class="flex-1 ms-3 whitespace-nowrap text-sm font-medium">Client Orders</span>
+            </a>
+
             <!-- Suppliers -->
             <details class="group">
                 <summary

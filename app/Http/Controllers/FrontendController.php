@@ -70,7 +70,7 @@ class FrontendController extends Controller
         if ($categoryId) {
             $flashQuery->where('category_id', $categoryId);
         }
-        $flashProducts = $flashQuery->limit(6)->get();
+        $flashProducts = $flashQuery->limit(10)->get();
         
         // Get recently viewed products from session
         $recentlyViewedIds = session()->get('recently_viewed', []);
@@ -79,8 +79,12 @@ class FrontendController extends Controller
             ->where('status', 'active')
             ->limit(6)
             ->get();
-        
-        return view('frontend.index', compact('categories', 'featuredProducts', 'flashProducts', 'recentlyViewedProducts', 'searchTerm', 'hasFilter'));
+
+        $wishlistProductIds = auth()->check()
+            ? \App\Models\Wishlist::where('user_id', auth()->id())->pluck('product_id')->toArray()
+            : [];
+
+        return view('frontend.index', compact('categories', 'featuredProducts', 'flashProducts', 'recentlyViewedProducts', 'searchTerm', 'hasFilter', 'wishlistProductIds'));
     }
 
     /**
@@ -167,8 +171,10 @@ class FrontendController extends Controller
         // Calculate average rating
         $averageRating = $product->reviews->avg('rating') ?? 0;
         $totalReviews = $product->reviews->count();
+
+        $inWishlist = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('product_id', $product->id)->exists();
         
-        return view('frontend.products.show', compact('product', 'relatedProducts', 'userReview', 'averageRating', 'totalReviews'));
+        return view('frontend.products.show', compact('product', 'relatedProducts', 'userReview', 'averageRating', 'totalReviews', 'inWishlist'));
     }
 
     /**
@@ -366,9 +372,11 @@ class FrontendController extends Controller
      */
     public function wishlist()
     {
-        // Placeholder - implement wishlist if you have a wishlist table
-        $wishlistItems = collect([]);
-        
+        $wishlistItems = \App\Models\Wishlist::with('product')
+            ->where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('frontend.wishlists.index', compact('wishlistItems'));
     }
 

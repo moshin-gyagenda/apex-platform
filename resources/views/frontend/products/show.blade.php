@@ -3,26 +3,6 @@
 @section('title', 'Product Details - Apex Electronics & Accessories')
 
 @section('content')
-    @if (session('success'))
-        <div class="fixed top-20 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up" id="success-alert">
-            <i data-lucide="check-circle" class="w-6 h-6 flex-shrink-0"></i>
-            <span class="font-medium">{{ session('success') }}</span>
-            <button onclick="document.getElementById('success-alert').remove()" class="ml-4 text-white hover:text-gray-200">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @endif
-    
-    @if (session('error'))
-        <div class="fixed top-20 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up" id="error-alert">
-            <i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0"></i>
-            <span class="font-medium">{{ session('error') }}</span>
-            <button onclick="document.getElementById('error-alert').remove()" class="ml-4 text-white hover:text-gray-200">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @endif
-
     <!-- Breadcrumb -->
     <nav class="bg-gradient-to-r from-gray-50 to-white py-4 border-b border-gray-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -177,10 +157,17 @@
                                 <i data-lucide="shopping-cart" class="w-5 h-5 mr-2"></i>
                                 <span id="add-to-cart-text">Add to Cart</span>
                             </button>
-                            <button class="flex-1 bg-white border-2 border-primary-500 text-primary-600 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors flex items-center justify-center">
+                            @auth
+                            <button type="button" id="wishlist-btn" onclick="toggleWishlistProduct({{ $product->id }}, this)" class="flex-1 bg-white border-2 border-primary-500 text-primary-600 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors flex items-center justify-center" data-in-wishlist="{{ $inWishlist ? '1' : '0' }}">
+                                <i data-lucide="heart" class="w-5 h-5 mr-2 {{ $inWishlist ? 'fill-red-500 text-red-500' : '' }}"></i>
+                                <span id="wishlist-btn-text">{{ $inWishlist ? 'Remove from Wishlist' : 'Add to Wishlist' }}</span>
+                            </button>
+                            @else
+                            <a href="{{ route('login') }}?redirect={{ urlencode(request()->url()) }}" class="flex-1 bg-white border-2 border-primary-500 text-primary-600 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors flex items-center justify-center">
                                 <i data-lucide="heart" class="w-5 h-5 mr-2"></i>
                                 Add to Wishlist
-                            </button>
+                            </a>
+                            @endauth
                         </div>
                         
                         <!-- Features -->
@@ -539,6 +526,30 @@
         const activeTab = document.getElementById('tab-' + tabName);
         activeTab.classList.add('border-primary-500', 'text-primary-600');
         activeTab.classList.remove('border-transparent', 'text-gray-500');
+    }
+
+    function toggleWishlistProduct(productId, buttonEl) {
+        const btn = buttonEl || document.getElementById('wishlist-btn');
+        const textEl = document.getElementById('wishlist-btn-text');
+        const icon = btn ? btn.querySelector('i[data-lucide="heart"]') : null;
+        const inWishlist = btn && btn.getAttribute('data-in-wishlist') === '1';
+        const url = inWishlist ? '{{ url("/frontend/wishlist/remove") }}/' + productId : '{{ url("/frontend/wishlist/add") }}/' + productId;
+        const method = inWishlist ? 'DELETE' : 'POST';
+        fetch(url, {
+            method: method,
+            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(function(data) {
+            if (data.success && btn) {
+                btn.setAttribute('data-in-wishlist', inWishlist ? '0' : '1');
+                if (textEl) textEl.textContent = inWishlist ? 'Add to Wishlist' : 'Remove from Wishlist';
+                if (icon) {
+                    if (inWishlist) icon.classList.remove('fill-red-500', 'text-red-500');
+                    else icon.classList.add('fill-red-500', 'text-red-500');
+                }
+            }
+        });
     }
 
     function addToCart(productId) {

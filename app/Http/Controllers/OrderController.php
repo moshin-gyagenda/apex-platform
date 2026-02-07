@@ -19,7 +19,8 @@ class OrderController extends Controller
     {
         $orders = Order::with(['user', 'shippingInfo'])
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
 
         return view('backend.orders.index', compact('orders'));
     }
@@ -205,6 +206,31 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         //
+    }
+
+    /**
+     * List authenticated user's orders (frontend My Orders page).
+     */
+    public function myOrders()
+    {
+        $orders = Order::with(['orderItems.product', 'shippingInfo'])
+            ->where('user_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('frontend.orders.index', compact('orders'));
+    }
+
+    /**
+     * Show a single order for the authenticated user (frontend order detail + status).
+     */
+    public function myOrderShow($id)
+    {
+        $order = Order::with(['orderItems.product', 'shippingInfo'])
+            ->where('user_id', auth()->id())
+            ->findOrFail($id);
+
+        return view('frontend.orders.show', compact('order'));
     }
 
     /**

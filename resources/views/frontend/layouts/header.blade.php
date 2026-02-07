@@ -14,7 +14,7 @@
                 
                 <a href="{{ route('frontend.index') }}" class="flex items-center space-x-2 group">
                     <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Electronics Logo" class="h-10 w-auto">
-                    <span class="font-bold text-gray-900 -m -fs20 -elli">Apex Electronics</span>
+                    <!-- <span class="font-bold text-gray-900 -m -fs20 -elli">Apex Electronics</span> -->
                     
                 </a>
             </div>
@@ -67,15 +67,15 @@
                                 </div>
                             @endauth
                             
-                            <a href="{{ auth()->check() ? route('dashboard') : '#' }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ auth()->check() ? route('frontend.dashboard.account-settings') : '#' }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 <i data-lucide="user" class="w-4 h-4 mr-2"></i>
                                 My Account
                             </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.orders.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 <i data-lucide="package" class="w-4 h-4 mr-2"></i>
                                 Orders
                             </a>
-                            <a href="#" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
+                            <a href="{{ route('frontend.wishlists.index') }}" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors">
                                 <i data-lucide="heart" class="w-4 h-4 mr-2"></i>
                                 Wishlist
                             </a>
@@ -150,47 +150,102 @@
             </div>
         </div>
         
-        <!-- Mobile Menu -->
-        <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-200 py-4">
-            <div class="space-y-2">
-                <a href="{{ route('frontend.index') }}" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-md">Home</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-md">Categories</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-md">Products</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-md">About</a>
-                <a href="#" class="block px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 rounded-md">Contact</a>
-            </div>
-            
-            <!-- Mobile Search -->
-            <div class="mt-4 px-4">
-                <div class="relative flex items-center" id="mobile-search-wrapper">
-                    <div class="relative flex-1">
-                        <input 
-                            type="text" 
-                            id="mobile-search-input"
-                            placeholder="Search products, brands and categories" 
-                            autocomplete="off"
-                            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
-                        >
-                        <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
-                        <div id="mobile-search-autocomplete" class="hidden absolute left-0 right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-80 overflow-y-auto"></div>
-                    </div>
-                    <button 
-                        type="button"
-                        id="mobile-search-btn"
-                        class="bg-primary-500 hover:bg-primary-600 text-white px-4 py-2.5 rounded-r-lg font-medium transition-colors"
-                    >
-                        Search
-                    </button>
-                </div>
-            </div>
-        </div>
     </nav>
 </header>
 
+<!-- Mobile off-canvas sidebar (Jumia-style) -->
+<div id="mobile-sidebar-backdrop" class="fixed inset-0 bg-black/50 z-40 hidden lg:hidden transition-opacity" aria-hidden="true" onclick="closeMobileSidebar()"></div>
+<aside id="mobile-sidebar" class="fixed top-0 left-0 h-full w-[85%] max-w-[320px] bg-white shadow-xl z-50 transform -translate-x-full transition-transform duration-300 ease-out overflow-y-auto lg:hidden" aria-label="Mobile menu">
+    <div class="flex flex-col h-full">
+        <!-- Sidebar header -->
+        <div class="flex items-center justify-between px-4 py-4 border-b border-gray-200 flex-shrink-0">
+            <button type="button" onclick="closeMobileSidebar()" class="p-2 -ml-2 rounded-lg text-gray-600 hover:bg-gray-100 hover:text-gray-900" aria-label="Close menu">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+            <a href="{{ route('frontend.index') }}" onclick="closeMobileSidebar()" class="flex items-center">
+                <img src="{{ asset('assets/images/logo.png') }}" alt="Apex Electronics" class="h-8 w-auto">
+            </a>
+            <span class="w-10"></span>
+        </div>
+
+        <!-- Sidebar search -->
+        <div class="relative px-4 py-3 border-b border-gray-200">
+            <div class="relative flex items-center gap-2" id="sidebar-search-wrapper">
+                <input type="text" id="mobile-search-input" placeholder="Search products..." autocomplete="off"
+                       class="flex-1 w-0 pl-9 pr-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                <button type="button" id="mobile-search-btn" class="flex-shrink-0 bg-primary-500 hover:bg-primary-600 text-white px-3 py-2.5 rounded-lg text-sm font-medium">Search</button>
+            </div>
+            <div id="mobile-search-autocomplete" class="hidden absolute left-4 right-4 mt-1 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-60 overflow-y-auto"></div>
+        </div>
+
+        <!-- Need Help -->
+        <a href="{{ route('frontend.help.show', 'help-center') }}" onclick="closeMobileSidebar()" class="flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gray-50 border-b border-gray-100">
+            <span class="font-medium">NEED HELP?</span>
+            <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+        </a>
+
+        <!-- My Account -->
+        <div class="border-b border-gray-100">
+            <a href="{{ auth()->check() ? route('frontend.dashboard.account-settings') : route('login') }}" onclick="closeMobileSidebar()" class="flex items-center justify-between px-4 py-3 text-gray-700 hover:bg-gray-50">
+                <span class="font-medium">MY ACCOUNT</span>
+                <i data-lucide="chevron-right" class="w-5 h-5 text-gray-400"></i>
+            </a>
+            <div class="pl-4 pb-2 space-y-0">
+                <a href="{{ route('frontend.orders.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 py-2 text-sm text-gray-600 hover:text-primary-600">
+                    <i data-lucide="package" class="w-4 h-4 text-gray-500"></i> Orders
+                </a>
+                <a href="{{ route('frontend.wishlists.index') }}" onclick="closeMobileSidebar()" class="flex items-center gap-3 py-2 text-sm text-gray-600 hover:text-primary-600">
+                    <i data-lucide="heart" class="w-4 h-4 text-gray-500"></i> Wishlist
+                </a>
+            </div>
+        </div>
+
+        <!-- Our Categories -->
+        <div class="flex-1 py-3 overflow-y-auto">
+            <div class="flex items-center justify-between px-4 mb-2">
+                <h3 class="font-semibold text-gray-900">OUR CATEGORIES</h3>
+                <a href="{{ route('frontend.index') }}#categories" onclick="closeMobileSidebar()" class="text-sm font-medium text-primary-600 hover:text-primary-700">See All</a>
+            </div>
+            <ul class="px-2">
+                @php $sidebarCats = $sidebarCategories ?? []; @endphp
+                @forelse($sidebarCats as $category)
+                    <li>
+                        <a href="{{ route('frontend.index') }}?category={{ $category->id }}#products" onclick="closeMobileSidebar()"
+                           class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-700 hover:bg-primary-50 hover:text-primary-700 transition-colors">
+                            <span class="w-9 h-9 rounded-lg bg-primary-50 flex items-center justify-center flex-shrink-0">
+                                <i data-lucide="folder" class="w-4 h-4 text-primary-500"></i>
+                            </span>
+                            <span class="font-medium truncate">{{ $category->name }}</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-gray-400 ml-auto flex-shrink-0"></i>
+                        </a>
+                    </li>
+                @empty
+                    <li class="px-4 py-4 text-sm text-gray-500">No categories yet</li>
+                @endforelse
+            </ul>
+        </div>
+    </div>
+</aside>
+
 <script>
     function toggleMobileMenu() {
-        const menu = document.getElementById('mobile-menu');
-        menu.classList.toggle('hidden');
+        const sidebar = document.getElementById('mobile-sidebar');
+        const backdrop = document.getElementById('mobile-sidebar-backdrop');
+        if (sidebar && backdrop) {
+            sidebar.classList.remove('-translate-x-full');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    function closeMobileSidebar() {
+        const sidebar = document.getElementById('mobile-sidebar');
+        const backdrop = document.getElementById('mobile-sidebar-backdrop');
+        if (sidebar && backdrop) {
+            sidebar.classList.add('-translate-x-full');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
     }
 
     (function() {
@@ -204,14 +259,16 @@
         const debounceMs = 300;
 
         function getActiveInput() {
-            if (document.getElementById('mobile-menu') && !document.getElementById('mobile-menu').classList.contains('hidden')) {
+            var sidebar = document.getElementById('mobile-sidebar');
+            if (sidebar && !sidebar.classList.contains('-translate-x-full')) {
                 return mobileSearchInput;
             }
             return searchInput;
         }
 
         function getActiveDropdown() {
-            return document.getElementById('mobile-menu').classList.contains('hidden') ? searchAutocomplete : mobileSearchAutocomplete;
+            var sidebar = document.getElementById('mobile-sidebar');
+            return (sidebar && !sidebar.classList.contains('-translate-x-full')) ? mobileSearchAutocomplete : searchAutocomplete;
         }
 
         function getQuery(inputEl) {
@@ -302,7 +359,7 @@
 
         document.addEventListener('click', function(e) {
             var w = document.getElementById('search-wrapper');
-            var m = document.getElementById('mobile-search-wrapper');
+            var m = document.getElementById('sidebar-search-wrapper');
             if (w && !w.contains(e.target) && m && !m.contains(e.target)) closeDropdowns();
         });
     })();

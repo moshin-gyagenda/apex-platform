@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ShippingInfoController;
+use App\Http\Controllers\WishlistController;
 
 // Public routes
 Route::get('/', [FrontendController::class, 'index'])->name('frontend.index');
@@ -66,6 +67,9 @@ Route::middleware([
         
         // Wishlist
         Route::get('/wishlist', [FrontendController::class, 'wishlist'])->name('wishlists.index');
+        Route::post('/wishlist/add/{productId}', [WishlistController::class, 'add'])->name('wishlists.add')->whereNumber('productId');
+        Route::delete('/wishlist/remove/{productId}', [WishlistController::class, 'remove'])->name('wishlists.remove')->whereNumber('productId');
+        Route::delete('/wishlist/clear', [WishlistController::class, 'clear'])->name('wishlists.clear');
         
         // Checkout (requires authentication)
         Route::get('/checkout', [FrontendController::class, 'checkout'])->name('checkouts.index');
@@ -74,7 +78,9 @@ Route::middleware([
         Route::get('/payments', [FrontendController::class, 'payments'])->name('payments.index');
         
         // Orders
+        Route::get('/orders', [OrderController::class, 'myOrders'])->name('orders.index');
         Route::get('/orders/confirm', [OrderController::class, 'confirm'])->name('orders.confirm');
+        Route::get('/orders/{id}', [OrderController::class, 'myOrderShow'])->name('orders.show')->whereNumber('id');
     });
     
     // Shipping Info routes
@@ -136,6 +142,11 @@ Route::middleware([
         Route::get('sales/{sale}/receipt', [SaleController::class, 'receipt'])->name('sales.receipt');
         Route::get('sales/{sale}/receipt/download', [SaleController::class, 'downloadReceipt'])->name('sales.receipt.download');
         Route::post('sales/{sale}/return', [SaleController::class, 'processReturn'])->name('sales.return');
+        
+        // Client Orders (from frontend store)
+        Route::get('orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('orders/{id}', [OrderController::class, 'show'])->name('orders.show')->whereNumber('id');
+        Route::put('orders/{id}', [OrderController::class, 'update'])->name('orders.update')->whereNumber('id');
         
         // POS Routes
         Route::prefix('pos')->name('pos.')->group(function () {

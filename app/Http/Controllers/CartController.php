@@ -132,12 +132,14 @@ class CartController extends Controller
         // Get quantity from request, default to 1
         $quantityToAdd = $request->input('quantity', 1);
         
+        $wantsJson = $request->wantsJson() || $request->ajax();
+
         // Check if product is in stock
         if ($product->quantity <= 0) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Product is out of stock'
-            ], 400);
+            if ($wantsJson) {
+                return response()->json(['success' => false, 'message' => 'Product is out of stock'], 400);
+            }
+            return redirect()->back()->with('error', 'Product is out of stock');
         }
 
         $cart = $request->session()->get('cart', []);
@@ -151,10 +153,10 @@ class CartController extends Controller
         // Check if adding this quantity would exceed stock
         $currentQuantity = $cart[$productId] ?? 0;
         if ($currentQuantity + $quantityToAdd > $product->quantity) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Insufficient stock available'
-            ], 400);
+            if ($wantsJson) {
+                return response()->json(['success' => false, 'message' => 'Insufficient stock available'], 400);
+            }
+            return redirect()->back()->with('error', 'Insufficient stock available');
         }
         
         // Add or update quantity
@@ -170,11 +172,16 @@ class CartController extends Controller
 
         $cartCount = array_sum($cart);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Product added to cart',
-            'cart_count' => $cartCount
-        ]);
+        if ($wantsJson) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Product added to cart',
+                'cart_count' => $cartCount
+            ]);
+        }
+
+        $redirectTo = $request->input('redirect', route('cart.index'));
+        return redirect()->to($redirectTo)->with('success', 'Product added to cart.');
     }
 
     /**

@@ -164,22 +164,54 @@
     
     <!-- Footer -->
     @include('frontend.layouts.footer')
+
+    <!-- Confirmation / Alert modal (backend-style) -->
+    @include('frontend.layouts.partials.confirm-modal')
     
     @yield('scripts')
     
     <script>
-        // Initialize Lucide icons
-        document.addEventListener('DOMContentLoaded', function() {
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
-            }
-        });
-        
-        // Mobile menu toggle
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+        // Toast notifications (same style as index – fixed top-right, auto-dismiss)
+        function showSuccessToast(message) {
+            var toast = document.createElement('div');
+            toast.id = 'success-toast';
+            toast.className = 'fixed top-20 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+            toast.innerHTML = '<i data-lucide="check-circle" class="w-6 h-6 flex-shrink-0"></i><span class="font-medium">' + (message || '') + '</span><button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200"><i data-lucide="x" class="w-5 h-5"></i></button>';
+            document.body.appendChild(toast);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            setTimeout(function() {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s';
+                    setTimeout(function() { toast.remove(); }, 300);
+                }
+            }, 3000);
         }
+        function showErrorToast(message) {
+            var toast = document.createElement('div');
+            toast.id = 'error-toast';
+            toast.className = 'fixed top-20 right-4 z-50 bg-red-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-fade-in-up';
+            toast.innerHTML = '<i data-lucide="alert-circle" class="w-6 h-6 flex-shrink-0"></i><span class="font-medium">' + (message || '') + '</span><button onclick="this.parentElement.remove()" class="ml-4 text-white hover:text-gray-200"><i data-lucide="x" class="w-5 h-5"></i></button>';
+            document.body.appendChild(toast);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            setTimeout(function() {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transition = 'opacity 0.3s';
+                    setTimeout(function() { toast.remove(); }, 300);
+                }
+            }, 4000);
+        }
+        // Show session flash as toast on load
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            @if(session('success'))
+            showSuccessToast(@json(session('success')));
+            @endif
+            @if(session('error'))
+            showErrorToast(@json(session('error')));
+            @endif
+        });
         
         // Search functionality
         function handleSearch(event) {

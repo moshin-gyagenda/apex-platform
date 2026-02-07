@@ -3,28 +3,6 @@
 @section('title', 'Wishlist - Apex Electronics & Accessories')
 
 @section('content')
-    @if (session('success'))
-        <div class="alert bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center mx-auto max-w-7xl" role="alert" id="success-alert">
-            <div class="flex items-center">
-                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 mr-2"></i>
-                {{ session('success') }}
-            </div>
-            <button type="button" class="text-green-800 hover:text-green-600" aria-label="Close" onclick="document.getElementById('success-alert').remove()">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @elseif(session('error'))
-        <div class="alert bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center mx-auto max-w-7xl" role="alert" id="error-alert">
-            <div class="flex items-center">
-                <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 mr-2"></i>
-                {{ session('error') }}
-            </div>
-            <button type="button" class="text-red-800 hover:text-red-600" aria-label="Close" onclick="document.getElementById('error-alert').remove()">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @endif
-
     <!-- Breadcrumb -->
     <nav class="bg-gradient-to-r from-gray-50 to-white py-4 border-b border-gray-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -49,19 +27,20 @@
 
                 @if(isset($wishlistItems) && $wishlistItems->count() > 0)
                     <div class="p-6">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6" id="wishlist-grid">
                             @foreach ($wishlistItems as $wishlistItem)
                                 @php
-                                    $product = $wishlistItem->product ?? $wishlistItem;
-                                    $imageUrl = $product->image 
+                                    $product = $wishlistItem->product;
+                                    $imageUrl = $product && $product->image
                                         ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
                                         : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                                 @endphp
-                                <div class="bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden">
+                                @if($product)
+                                <div class="wishlist-card bg-gradient-to-br from-white to-gray-50 rounded-xl border border-gray-200 shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden" data-product-id="{{ $product->id }}">
                                     <a href="{{ route('frontend.products.show', $product->id) }}" class="block">
                                         <div class="relative">
                                             <img src="{{ $imageUrl }}" alt="{{ $product->name }}" class="w-full h-48 object-cover">
-                                            <button onclick="event.preventDefault(); removeFromWishlist({{ $product->id }})" class="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-lg">
+                                            <button type="button" onclick="event.preventDefault(); removeFromWishlist({{ $product->id }}, this)" class="absolute top-3 right-3 w-10 h-10 bg-white rounded-full flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-colors shadow-lg">
                                                 <i data-lucide="heart" class="w-5 h-5 fill-red-500 text-red-500"></i>
                                             </button>
                                         </div>
@@ -71,12 +50,13 @@
                                             <h5 class="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-primary-600 transition-colors">{{ $product->name }}</h5>
                                         </a>
                                         <div class="mb-4">
-                                            <span class="text-lg font-bold text-primary-600">UGX {{ number_format($product->selling_price ?? $product->price ?? 0, 0) }}</span>
+                                            <span class="text-lg font-bold text-primary-600">UGX {{ number_format($product->selling_price ?? 0, 0) }}</span>
                                         </div>
                                         <div class="flex flex-col sm:flex-row gap-2">
                                             <form action="{{ route('cart.add', $product->id) }}" method="POST" class="flex-1">
                                                 @csrf
                                                 <input type="hidden" name="quantity" value="1">
+                                                <input type="hidden" name="redirect" value="{{ route('frontend.wishlists.index') }}">
                                                 <button type="submit" class="w-full inline-flex items-center justify-center px-4 py-2 bg-gradient-to-r from-primary-500 to-primary-600 text-white text-sm font-medium rounded-lg hover:from-primary-600 hover:to-primary-700 transition-all shadow-md hover:shadow-lg">
                                                     <i data-lucide="shopping-cart" class="w-4 h-4 mr-2"></i>
                                                     Add to Cart
@@ -85,6 +65,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                             @endforeach
                         </div>
                     </div>
@@ -120,16 +101,58 @@
 
 @section('scripts')
 <script>
-    function removeFromWishlist(productId) {
-        // Placeholder - implement wishlist removal if you have a wishlist system
-        alert('Wishlist functionality will be implemented soon!');
+    function removeFromWishlist(productId, buttonEl) {
+        const card = buttonEl && buttonEl.closest('.wishlist-card');
+        fetch('{{ url('/frontend/wishlist/remove') }}/' + productId, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success && card) card.remove();
+            if (document.querySelectorAll('.wishlist-card').length === 0) location.reload();
+        })
+        .catch(function() {
+            if (typeof showAlertModal === 'function') {
+                showAlertModal({ title: 'Error', message: 'Could not remove item. Please try again.', type: 'error' });
+            } else {
+                alert('Could not remove item.');
+            }
+        });
     }
-    
+
     function clearWishlist() {
-        // Placeholder - implement wishlist clear if you have a wishlist system
-        if (confirm('Are you sure you want to clear your wishlist?')) {
-            alert('Wishlist functionality will be implemented soon!');
+        if (typeof showConfirmModal !== 'function') {
+            if (!confirm('Are you sure you want to clear your wishlist?')) return;
+            doClearWishlist();
+            return;
         }
+        showConfirmModal({
+            title: 'Clear wishlist',
+            message: 'Are you sure you want to clear your wishlist? This cannot be undone.',
+            confirmText: 'Yes, clear all',
+            cancelText: 'Cancel',
+            danger: true,
+            onConfirm: doClearWishlist
+        });
+    }
+
+    function doClearWishlist() {
+        fetch('{{ route('frontend.wishlists.clear') }}', {
+            method: 'DELETE',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(r => r.json())
+        .then(function(data) { if (data.success) location.reload(); })
+        .catch(function() { location.reload(); });
     }
 </script>
 @endsection

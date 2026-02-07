@@ -3,28 +3,6 @@
 @section('title', 'Payment - Apex Electronics & Accessories')
 
 @section('content')
-    @if (session('success'))
-        <div class="alert bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center mx-auto max-w-7xl" role="alert" id="success-alert">
-            <div class="flex items-center">
-                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 mr-2"></i>
-                {{ session('success') }}
-            </div>
-            <button type="button" class="text-green-800 hover:text-green-600" aria-label="Close" onclick="document.getElementById('success-alert').remove()">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @elseif(session('error'))
-        <div class="alert bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center mx-auto max-w-7xl" role="alert" id="error-alert">
-            <div class="flex items-center">
-                <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 mr-2"></i>
-                {{ session('error') }}
-            </div>
-            <button type="button" class="text-red-800 hover:text-red-600" aria-label="Close" onclick="document.getElementById('error-alert').remove()">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @endif
-
     <!-- Breadcrumb -->
     <nav class="bg-gray-100 py-4">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -52,7 +30,7 @@
                 <!-- Header -->
                 <div class="text-center mb-8">
                     <h1 class="font-bold text-gray-900 mb-2 text-3xl -m -fs20 -elli">Complete Your Payment</h1>
-                    <p class="text-base text-gray-600 mt-1">Choose your preferred payment method to proceed</p>
+                    <p class="text-base text-gray-600 mt-1">Pay with cash when your order is delivered</p>
                 </div>
 
                 <form action="{{ route('orders.store') }}" method="POST" enctype="multipart/form-data">
@@ -87,31 +65,33 @@
                                             </div>
                                         </label>
 
-                                        <!-- Airtel Money -->
-                                        <label class="payment-option group relative border-2 border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-red-500 hover:shadow-lg transition-all duration-300 bg-white" id="airtel-label">
-                                            <input type="radio" value="airtel money" name="payment_method" id="airtel_money" class="hidden">
+                                        <!-- Airtel Money (disabled for now - cash only) -->
+                                        <label class="payment-option group relative border-2 border-gray-200 rounded-xl p-6 text-center cursor-not-allowed opacity-60 bg-gray-50 pointer-events-none select-none" id="airtel-label" title="Coming soon">
+                                            <input type="radio" value="airtel money" name="payment_method" id="airtel_money" class="hidden" disabled>
                                             <div class="flex flex-col items-center">
                                                 <div class="w-20 h-20 bg-white rounded-xl mb-4 flex items-center justify-center p-2 group-hover:bg-red-50 transition-all duration-300 shadow-sm border border-gray-100">
                                                     <img src="{{ asset('assets/images/airtellogowide-new.png') }}" alt="Airtel Money" class="w-full h-full object-contain">
                                                 </div>
                                                 <h5 class="font-semibold text-gray-900 mb-1">Airtel Money</h5>
                                                 <p class="text-xs text-gray-500">Mobile payment</p>
+                                                <span class="inline-block mt-2 text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded">Unavailable</span>
                                                 <div class="absolute top-3 right-3 w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-red-500 transition-colors flex items-center justify-center">
                                                     <div class="w-3 h-3 rounded-full bg-red-500 hidden payment-check"></div>
                                                 </div>
                                             </div>
                                         </label>
 
-                                        <!-- MTN Mobile Money -->
-                                        <label class="payment-option group relative border-2 border-gray-200 rounded-xl p-6 text-center cursor-pointer hover:border-yellow-500 hover:shadow-lg transition-all duration-300 bg-white" id="mtn-label">
-                                            <input type="radio" value="mtn mobile money" name="payment_method" id="mtn_money" class="hidden">
+                                        <!-- MTN Mobile Money (disabled for now - cash only) -->
+                                        <label class="payment-option group relative border-2 border-gray-200 rounded-xl p-6 text-center cursor-not-allowed opacity-60 bg-gray-50 pointer-events-none select-none" id="mtn-label" title="Coming soon">
+                                            <input type="radio" value="mtn mobile money" name="payment_method" id="mtn_money" class="hidden" disabled>
                                             <div class="flex flex-col items-center">
                                                 <div class="w-20 h-20 bg-white rounded-xl mb-4 flex items-center justify-center p-2 group-hover:bg-yellow-50 transition-all duration-300 shadow-sm border border-gray-100">
                                                     <img src="{{ asset('assets/images/mtnlogo.png') }}" alt="MTN Mobile Money" class="w-full h-full object-contain">
                                                 </div>
                                                 <h5 class="font-semibold text-gray-900 mb-1">MTN Mobile Money</h5>
                                                 <p class="text-xs text-gray-500">Mobile payment</p>
-                                                <div class="absolute top-3 right-3 w-5 h-5 rounded-full border-2 border-gray-300 group-hover:border-yellow-500 transition-colors flex items-center justify-center">
+                                                <span class="inline-block mt-2 text-xs font-medium text-gray-500 bg-gray-200 px-2 py-0.5 rounded">Unavailable</span>
+                                                <div class="absolute top-3 right-3 w-5 h-5 rounded-full border-2 border-gray-300 flex items-center justify-center">
                                                     <div class="w-3 h-3 rounded-full bg-yellow-500 hidden payment-check"></div>
                                                 </div>
                                             </div>
@@ -412,7 +392,11 @@
             const agreeTerms = document.getElementById('agree_terms');
             if (!agreeTerms.checked) {
                 e.preventDefault();
-                alert('Please agree to the terms and conditions to proceed.');
+                if (typeof showAlertModal === 'function') {
+                    showAlertModal({ title: 'Terms required', message: 'Please agree to the terms and conditions to proceed.' });
+                } else {
+                    alert('Please agree to the terms and conditions to proceed.');
+                }
                 agreeTerms.focus();
                 return false;
             }
@@ -422,7 +406,11 @@
                 const transactionId = document.getElementById('transaction_id_airtel').value.trim();
                 if (!transactionId) {
                     e.preventDefault();
-                    alert('Please enter your Airtel transaction ID.');
+                    if (typeof showAlertModal === 'function') {
+                        showAlertModal({ title: 'Transaction ID required', message: 'Please enter your Airtel transaction ID.' });
+                    } else {
+                        alert('Please enter your Airtel transaction ID.');
+                    }
                     document.getElementById('transaction_id_airtel').focus();
                     return false;
                 }
@@ -430,7 +418,11 @@
                 const transactionId = document.getElementById('transaction_id_mtn').value.trim();
                 if (!transactionId) {
                     e.preventDefault();
-                    alert('Please enter your MTN transaction ID.');
+                    if (typeof showAlertModal === 'function') {
+                        showAlertModal({ title: 'Transaction ID required', message: 'Please enter your MTN transaction ID.' });
+                    } else {
+                        alert('Please enter your MTN transaction ID.');
+                    }
                     document.getElementById('transaction_id_mtn').focus();
                     return false;
                 }

@@ -3,28 +3,6 @@
 @section('title', 'Account Settings - Apex Electronics & Accessories')
 
 @section('content')
-    @if (session('success'))
-        <div class="alert bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center mx-auto max-w-7xl" role="alert" id="success-alert">
-            <div class="flex items-center">
-                <i data-lucide="check-circle" class="w-5 h-5 text-green-600 mr-2"></i>
-                {{ session('success') }}
-            </div>
-            <button type="button" class="text-green-800 hover:text-green-600" aria-label="Close" onclick="document.getElementById('success-alert').remove()">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @elseif(session('error'))
-        <div class="alert bg-red-100 border border-red-400 text-red-800 px-4 py-3 rounded relative mb-4 flex justify-between items-center mx-auto max-w-7xl" role="alert" id="error-alert">
-            <div class="flex items-center">
-                <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 mr-2"></i>
-                {{ session('error') }}
-            </div>
-            <button type="button" class="text-red-800 hover:text-red-600" aria-label="Close" onclick="document.getElementById('error-alert').remove()">
-                <i data-lucide="x" class="w-5 h-5"></i>
-            </button>
-        </div>
-    @endif
-
     <!-- Breadcrumb -->
     <nav class="bg-gradient-to-r from-gray-50 to-white py-4 border-b border-gray-200">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">

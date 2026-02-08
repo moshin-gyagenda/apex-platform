@@ -436,7 +436,7 @@
                                     @if($product->image)
                                     <div id="current-image-container" class="mb-4">
                                         <div class="relative inline-block">
-                                            <img src="{{ Storage::url($product->image) }}" alt="Current" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+                                            <img src="{{ asset('assets/images/' . $product->image) }}" alt="Current" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
                                             <span class="absolute bottom-2 left-2 text-xs bg-gray-800 text-white px-2 py-1 rounded">Current image</span>
                                         </div>
                                         <p class="mt-2 text-sm text-gray-600">Upload a new image below to replace</p>

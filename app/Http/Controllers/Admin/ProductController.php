@@ -9,7 +9,7 @@ use App\Models\Brand;
 use App\Models\ProductModel;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -213,10 +213,14 @@ class ProductController extends Controller
         $validated['quantity'] = $validated['quantity'] ?? 0;
         $validated['reorder_level'] = $validated['reorder_level'] ?? 0;
 
-        // Handle image upload
+        // Handle image upload (public/assets/images/products)
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $validated['image'] = $imagePath;
+            $dir = public_path('assets/images/products');
+            File::ensureDirectoryExists($dir);
+            $ext = $request->file('image')->getClientOriginalExtension();
+            $filename = Str::slug(pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME)) . '_' . time() . '.' . $ext;
+            $request->file('image')->move($dir, $filename);
+            $validated['image'] = 'products/' . $filename;
         }
 
         Product::create($validated);
@@ -274,14 +278,20 @@ class ProductController extends Controller
         $validated['quantity'] = $validated['quantity'] ?? $product->quantity;
         $validated['reorder_level'] = $validated['reorder_level'] ?? $product->reorder_level;
 
-        // Handle image upload
+        // Handle image upload (public/assets/images/products)
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($product->image && Storage::disk('public')->exists($product->image)) {
-                Storage::disk('public')->delete($product->image);
+            if ($product->image) {
+                $oldPath = public_path('assets/images/' . $product->image);
+                if (File::exists($oldPath)) {
+                    File::delete($oldPath);
+                }
             }
-            $imagePath = $request->file('image')->store('products', 'public');
-            $validated['image'] = $imagePath;
+            $dir = public_path('assets/images/products');
+            File::ensureDirectoryExists($dir);
+            $ext = $request->file('image')->getClientOriginalExtension();
+            $filename = Str::slug(pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME)) . '_' . time() . '.' . $ext;
+            $request->file('image')->move($dir, $filename);
+            $validated['image'] = 'products/' . $filename;
         }
 
         $product->update($validated);
@@ -298,6 +308,12 @@ class ProductController extends Controller
      */
     public function destroy(Product $product)
     {
+        if ($product->image) {
+            $path = public_path('assets/images/' . $product->image);
+            if (File::exists($path)) {
+                File::delete($path);
+            }
+        }
         $product->delete();
 
         return redirect()->route('admin.products.index')

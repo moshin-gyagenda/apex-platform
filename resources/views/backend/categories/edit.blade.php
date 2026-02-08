@@ -120,7 +120,7 @@
                                         <div id="current-image-container" class="mb-4">
                                             <p class="text-sm text-gray-600 mb-2">Current Image:</p>
                                             <div class="relative inline-block">
-                                                <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image) }}" alt="Current Image" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+                                                <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('assets/images/' . $category->image) }}" alt="Current Image" class="w-48 h-48 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
                                             </div>
                                         </div>
                                     @endif

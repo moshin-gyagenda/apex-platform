@@ -198,7 +198,7 @@
                     </div>
                     <div class="space-y-4">
                         <div class="flex items-center gap-4">
-                            <img src="{{ auth()->user()->profile_photo ? asset('storage/' . auth()->user()->profile_photo) : asset('assets/images/default-avatar.png') }}" 
+                            <img src="{{ auth()->user()->profile_photo ? asset('assets/images/' . auth()->user()->profile_photo) : asset('assets/images/default-avatar.png') }}" 
                                  alt="Profile" class="w-16 h-16 rounded-full object-cover border-2 border-gray-200">
                             <div>
                                 <p class="font-medium text-gray-900">{{ auth()->user()->first_name ?? '' }} {{ auth()->user()->last_name ?? '' }}</p>

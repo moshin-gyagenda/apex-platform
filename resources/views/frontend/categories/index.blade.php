@@ -71,7 +71,7 @@
                             @foreach ($category->products as $product)
                                 @php
                                     $imageUrl = $product->image 
-                                        ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                                        ? (str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image))
                                         : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                                     $discount = 0;
                                     if (isset($product->regular_price) && isset($product->price) && $product->regular_price > $product->price) {
@@ -145,7 +145,7 @@
                 @foreach ($recentlyViewedProducts as $product)
                     @php
                         $imageUrl = $product->image 
-                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image))
                             : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                         $discount = 0;
                         if (isset($product->regular_price) && isset($product->price) && $product->regular_price > $product->price) {

@@ -239,7 +239,7 @@
                                                 <div class="flex items-center gap-3 pb-3 border-b border-gray-100 last:border-0">
                                                     @php
                                                         $imageUrl = $item['image'] 
-                                                            ? (str_starts_with($item['image'], 'http') ? $item['image'] : asset('storage/' . $item['image']))
+                                                            ? (str_starts_with($item['image'], 'http') ? $item['image'] : asset('assets/images/' . $item['image']))
                                                             : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                                                     @endphp
                                                     <img src="{{ $imageUrl }}" alt="{{ $item['name'] }}" class="w-16 h-16 object-cover rounded-lg border border-gray-200 flex-shrink-0">

@@ -32,7 +32,7 @@
                 <div class="px-4 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div class="flex items-center gap-4">
                         @if($category->image)
-                            <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="w-16 h-16 rounded-lg object-cover border-2 border-gray-200 shadow-sm">
+                            <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('assets/images/' . $category->image) }}" alt="{{ $category->name }}" class="w-16 h-16 rounded-lg object-cover border-2 border-gray-200 shadow-sm">
                         @else
                             <div class="w-16 h-16 rounded-lg bg-primary-50 flex items-center justify-center border border-primary-200">
                                 <i data-lucide="folder" class="w-8 h-8 text-primary-500"></i>
@@ -85,7 +85,7 @@
                                         <div>
                                             <label class="text-xs font-medium text-gray-500 uppercase">Category Image</label>
                                             <div class="mt-2">
-                                                <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image) }}" alt="{{ $category->name }}" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
+                                                <img src="{{ str_starts_with($category->image, 'http') ? $category->image : asset('assets/images/' . $category->image) }}" alt="{{ $category->name }}" class="w-32 h-32 object-cover rounded-lg border-2 border-gray-200 shadow-sm">
                                             </div>
                                         </div>
                                     @endif

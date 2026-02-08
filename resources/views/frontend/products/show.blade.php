@@ -24,7 +24,7 @@
                 <div>
                     @php
                         $mainImage = $product->image 
-                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image))
                             : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=800';
                         $productImages = [$mainImage]; // You can add more images later if you have a gallery
                     @endphp
@@ -455,7 +455,7 @@
                                 $showDiscount = $margin > 20;
                                 $discount = $showDiscount ? round($margin * 0.3) : 0;
                                 $imageUrl = $related->image 
-                                    ? (str_starts_with($related->image, 'http') ? $related->image : asset('storage/' . $related->image))
+                                    ? (str_starts_with($related->image, 'http') ? $related->image : asset('assets/images/' . $related->image))
                                     : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                             @endphp
                             <a href="{{ route('frontend.products.show', $related->id) }}" class="product-card bg-white rounded-xl overflow-hidden shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 block">

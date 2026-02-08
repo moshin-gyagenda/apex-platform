@@ -55,7 +55,7 @@
                                 <form action="{{ route('update-profile-picture.update') }}" method="POST" enctype="multipart/form-data" id="imageUploadForm">
                                     @csrf
                                     <div class="mb-4">
-                                        <div id="imagePreview" class="w-32 h-32 mx-auto rounded-full bg-cover bg-center border-4 border-gray-200 shadow-sm" style="background-image: url('{{ auth()->user()->profile_photo ? asset('storage/' . auth()->user()->profile_photo) : asset('assets/images/default-avatar.png') }}');"></div>
+                                        <div id="imagePreview" class="w-32 h-32 mx-auto rounded-full bg-cover bg-center border-4 border-gray-200 shadow-sm" style="background-image: url('{{ auth()->user()->profile_photo ? asset('assets/images/' . auth()->user()->profile_photo) : asset('assets/images/default-avatar.png') }}');"></div>
                                     </div>
                                     <div class="mb-4">
                                         <input type="file" id="imageUpload" name="profile_photo" accept=".png, .jpg, .jpeg" class="hidden">

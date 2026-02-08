@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -61,10 +62,14 @@ class CategoryController extends Controller
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ]);
 
-        // Handle image upload
+        // Handle image upload (public/assets/images/categories)
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('categories', 'public');
-            $validated['image'] = $imagePath;
+            $dir = public_path('assets/images/categories');
+            File::ensureDirectoryExists($dir);
+            $ext = $request->file('image')->getClientOriginalExtension();
+            $filename = Str::slug(pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME)) . '_' . time() . '.' . $ext;
+            $request->file('image')->move($dir, $filename);
+            $validated['image'] = 'categories/' . $filename;
         }
 
         Category::create($validated);
@@ -112,14 +117,20 @@ class CategoryController extends Controller
             'image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,webp', 'max:2048'],
         ]);
 
-        // Handle image upload
+        // Handle image upload (public/assets/images/categories)
         if ($request->hasFile('image')) {
-            // Delete old image if exists
-            if ($category->image && Storage::disk('public')->exists($category->image)) {
-                Storage::disk('public')->delete($category->image);
+            if ($category->image) {
+                $oldPath = public_path('assets/images/' . $category->image);
+                if (File::exists($oldPath)) {
+                    File::delete($oldPath);
+                }
             }
-            $imagePath = $request->file('image')->store('categories', 'public');
-            $validated['image'] = $imagePath;
+            $dir = public_path('assets/images/categories');
+            File::ensureDirectoryExists($dir);
+            $ext = $request->file('image')->getClientOriginalExtension();
+            $filename = Str::slug(pathinfo($request->file('image')->getClientOriginalName(), PATHINFO_FILENAME)) . '_' . time() . '.' . $ext;
+            $request->file('image')->move($dir, $filename);
+            $validated['image'] = 'categories/' . $filename;
         }
 
         $category->update($validated);
@@ -133,9 +144,11 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        // Delete image if exists
-        if ($category->image && Storage::disk('public')->exists($category->image)) {
-            Storage::disk('public')->delete($category->image);
+        if ($category->image) {
+            $path = public_path('assets/images/' . $category->image);
+            if (File::exists($path)) {
+                File::delete($path);
+            }
         }
 
         $category->delete();

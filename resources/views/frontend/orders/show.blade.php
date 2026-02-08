@@ -100,7 +100,7 @@
                                     @php
                                         $product = $item->product;
                                         $imageUrl = $product && $product->image
-                                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image))
                                             : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=200';
                                     @endphp
                                     <li class="flex gap-4 p-4 hover:bg-gray-50/50">

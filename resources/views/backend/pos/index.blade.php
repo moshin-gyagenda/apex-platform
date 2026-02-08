@@ -144,7 +144,7 @@
                                 'serial_number' => $product->serial_number,
                                 'warranty_months' => $product->warranty_months,
                                 'status' => $product->status,
-                                'image' => $product->image ? asset('storage/' . $product->image) : null,
+                                'image' => $product->image ? asset('assets/images/' . $product->image) : null,
                                 'category' => $product->category->name ?? null,
                                 'brand' => $product->brand->name ?? null,
                                 'model' => $product->productModel->name ?? null,
@@ -164,7 +164,7 @@
                             <!-- Product Image -->
                             <div class="relative">
                                 @if($product->image)
-                                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-40 object-cover">
+                                    <img src="{{ asset('assets/images/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-40 object-cover">
                                 @else
                                     <div class="w-full h-40 bg-gray-100 flex items-center justify-center">
                                         <i data-lucide="package" class="w-12 h-12 text-gray-300"></i>

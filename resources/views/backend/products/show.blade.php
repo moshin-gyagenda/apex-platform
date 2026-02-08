@@ -32,7 +32,7 @@
                 <div class="px-4 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div class="flex items-center gap-4">
                         @if($product->image)
-                            <img src="{{ str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-16 h-16 rounded-lg object-cover border-2 border-gray-200">
+                            <img src="{{ str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image) }}" alt="{{ $product->name }}" class="w-16 h-16 rounded-lg object-cover border-2 border-gray-200">
                         @else
                             <div class="w-16 h-16 rounded-lg bg-primary-50 flex items-center justify-center border border-primary-200">
                                 <i data-lucide="package" class="w-8 h-8 text-primary-500"></i>

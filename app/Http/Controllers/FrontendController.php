@@ -10,7 +10,8 @@ use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class FrontendController extends Controller
 {
@@ -120,7 +121,7 @@ class FrontendController extends Controller
         return response()->json([
             'products' => $products->map(function ($product) {
                 $imageUrl = $product->image
-                    ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                    ? (str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image))
                     : asset('assets/images/logo.png');
                 return [
                     'id' => $product->id,
@@ -484,14 +485,20 @@ class FrontendController extends Controller
 
         $user = auth()->user();
 
-        // Delete old profile photo if exists
-        if ($user->profile_photo && Storage::disk('public')->exists($user->profile_photo)) {
-            Storage::disk('public')->delete($user->profile_photo);
+        if ($user->profile_photo) {
+            $oldPath = public_path('assets/images/' . $user->profile_photo);
+            if (File::exists($oldPath)) {
+                File::delete($oldPath);
+            }
         }
 
-        // Store new profile photo
-        $path = $request->file('profile_photo')->store('profiles', 'public');
-        
+        $dir = public_path('assets/images/profiles');
+        File::ensureDirectoryExists($dir);
+        $ext = $request->file('profile_photo')->getClientOriginalExtension();
+        $filename = 'profile_' . $user->id . '_' . time() . '.' . $ext;
+        $request->file('profile_photo')->move($dir, $filename);
+        $path = 'profiles/' . $filename;
+
         $user->update([
             'profile_photo' => $path,
         ]);

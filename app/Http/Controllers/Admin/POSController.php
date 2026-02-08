@@ -52,7 +52,7 @@ class POSController extends Controller
                     'barcode' => $p->barcode,
                     'selling_price' => (float) $p->selling_price,
                     'quantity' => $p->quantity,
-                    'image' => $p->image ? asset('storage/' . $p->image) : null,
+                    'image' => $p->image ? asset('assets/images/' . $p->image) : null,
                     'category_id' => $p->category_id,
                     'category_name' => $p->category->name ?? null,
                     'brand_id' => $p->brand_id,
@@ -219,7 +219,7 @@ class POSController extends Controller
                     'barcode' => $p->barcode,
                     'selling_price' => $p->selling_price,
                     'quantity' => $p->quantity,
-                    'image' => $p->image ? asset('storage/' . $p->image) : null,
+                    'image' => $p->image ? asset('assets/images/' . $p->image) : null,
                 ];
             });
 
@@ -286,7 +286,7 @@ class POSController extends Controller
                     'serial_number' => $product->serial_number,
                     'warranty_months' => $product->warranty_months,
                     'status' => $product->status,
-                    'image' => $product->image ? asset('storage/' . $product->image) : null,
+                    'image' => $product->image ? asset('assets/images/' . $product->image) : null,
                     'category_id' => $product->category_id,
                     'category_name' => $product->category ? $product->category->name : null,
                     'brand_id' => $product->brand_id,

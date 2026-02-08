@@ -255,9 +255,13 @@ class OrderController extends Controller
      */
     private function storeImage($file, $folder)
     {
+        $dir = public_path('assets/images/transaction_photos');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
         $extension = $file->getClientOriginalExtension();
         $filename = time() . '_' . Str::random(10) . '.' . $extension;
-        $file->move(public_path('storage/transaction_photos'), $filename);
+        $file->move($dir, $filename);
         return 'transaction_photos/' . $filename;
     }
 }

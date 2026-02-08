@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Product;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Storage;
 
 class ProductImageSeeder extends Seeder
 {
@@ -58,10 +57,10 @@ class ProductImageSeeder extends Seeder
             ['keywords' => ['cable', 'wire', 'junction'], 'image' => 'junction cables.webp'],
         ];
 
-        // Ensure storage/products directory exists
-        $storagePath = storage_path('app/public/products');
-        if (!File::exists($storagePath)) {
-            File::makeDirectory($storagePath, 0755, true);
+        // Use public/assets/images/products
+        $productsPath = public_path('assets/images/products');
+        if (!File::exists($productsPath)) {
+            File::makeDirectory($productsPath, 0755, true);
         }
 
         $sourcePath = public_path('assets/images');
@@ -92,16 +91,12 @@ class ProductImageSeeder extends Seeder
 
             if ($imageFilename) {
                 $sourceFile = $sourcePath . '/' . $imageFilename;
-                $destinationFile = $storagePath . '/' . $imageFilename;
+                $destinationFile = $productsPath . '/' . $imageFilename;
 
-                // Check if source file exists
                 if (File::exists($sourceFile)) {
-                    // Copy file to storage if it doesn't exist
                     if (!File::exists($destinationFile)) {
                         File::copy($sourceFile, $destinationFile);
                     }
-
-                    // Update product image path (relative to storage/public)
                     $product->image = 'products/' . $imageFilename;
                     $product->save();
                     $updated++;

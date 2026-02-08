@@ -255,7 +255,7 @@
                         if (isset($categoryImages[$category->name])) {
                             $categoryImage = $categoryImages[$category->name];
                         } elseif ($category->image) {
-                            $categoryImage = str_starts_with($category->image, 'http') ? $category->image : asset('storage/' . $category->image);
+                            $categoryImage = str_starts_with($category->image, 'http') ? $category->image : asset('assets/images/' . $category->image);
                         } else {
                             $categoryImage = 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                         }
@@ -323,7 +323,7 @@
                         $showDiscount = $margin > 20;
                         $discount = $showDiscount ? round($margin * 0.3) : 0;
                         $imageUrl = $product->image 
-                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image))
                             : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                     @endphp
                     <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-white/20 hover:shadow-lg transition-all duration-300">
@@ -400,7 +400,7 @@
                         $showDiscount = $margin > 20;
                         $discount = $showDiscount ? round($margin * 0.3) : 0;
                         $imageUrl = $product->image 
-                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('storage/' . $product->image))
+                            ? (str_starts_with($product->image, 'http') ? $product->image : asset('assets/images/' . $product->image))
                             : 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400';
                     @endphp
                     <div class="product-card bg-white rounded-xl overflow-hidden shadow-md border border-gray-200 hover:shadow-lg transition-all duration-300">

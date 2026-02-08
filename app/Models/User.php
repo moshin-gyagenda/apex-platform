@@ -77,6 +77,32 @@ class User extends Authenticatable
     }
 
     /**
+     * Profile photo URL (from public/assets/images).
+     */
+    public function getProfilePhotoUrlAttribute(): ?string
+    {
+        return $this->profile_photo
+            ? asset('assets/images/' . $this->profile_photo)
+            : null;
+    }
+
+    /**
+     * Alias for profile_photo (backend views use ->image).
+     */
+    public function getImageAttribute(): ?string
+    {
+        return $this->profile_photo;
+    }
+
+    /**
+     * Alias for profile_photo_url (backend views use ->image_url).
+     */
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->getProfilePhotoUrlAttribute();
+    }
+
+    /**
      * Get the orders for the user.
      */
     public function orders()
